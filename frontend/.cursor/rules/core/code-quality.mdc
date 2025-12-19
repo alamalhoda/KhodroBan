@@ -1,0 +1,66 @@
+---
+description: Code quality standards, naming conventions, and documentation requirements for frontend development
+globs:
+  - "frontend/src/**/*.svelte"
+  - "frontend/src/**/*.ts"
+  - "frontend/src/**/*.js"
+  - "frontend/src/**/*.css"
+alwaysApply: true
+---
+
+# Code Quality Standards
+
+## اصول کلی
+
+- کد باید خوانا و قابل درک باشد
+- از نام‌های توصیفی استفاده کن
+- از کامنت‌های غیرضروری پرهیز کن - کد باید خود-توضیح‌دهنده باشد
+- از magic numbers و magic strings پرهیز کن
+
+## Component Quality Checklist
+
+- [ ] **Reusable:** کامپوننت قابل استفاده مجدد است؟
+- [ ] **Props Typed:** props با JSDoc/TypeScript type-safe؟
+- [ ] **Events:** custom events مستند شده؟
+- [ ] **Scoped Styles:** styles scoped هستند یا global conflicts ندارند؟
+- [ ] **No Side Effects:** کامپوننت isolated و بدون side effects ناخواسته؟
+- [ ] **Size:** کامپوننت کمتر از 200 خط؟
+
+## قراردادهای نام‌گذاری
+
+### فایل‌ها
+- ✅ Components: **PascalCase** (`Button.svelte`, `UserCard.svelte`)
+- ✅ Utilities: **camelCase** (`formatDate.js`, `validators.js`)
+- ✅ Stores: **camelCase** (`user.js`, `cart.js`)
+- ✅ Styles: **kebab-case** (`global.css`, `reset.css`)
+- ✅ Constants: **UPPER_SNAKE_CASE** (`API_BASE_URL.js`, `COLORS.js`)
+
+### متغیرها و توابع
+- از camelCase برای متغیرها و توابع استفاده کن: `userName`, `getUserData()`
+- از نام‌های توصیفی استفاده کن: `isLoading` به جای `loading`, `handleSubmit` به جای `submit`
+- برای متغیرهای بولین، از پیشوندهای is/has/can استفاده کن: `isVisible`, `hasError`, `canEdit`
+
+### CSS
+- از BEM (Block Element Modifier) استفاده کن: `.card__title--highlighted`
+- از kebab-case برای نام کلاس‌ها استفاده کن: `.user-profile`, `.search-box`
+- از پیشوندهای خاص برای جلوگیری از تداخل: `.c-button` (c برای component), `.u-hidden` (u برای utility)
+
+### کامپوننت‌ها
+- از نام‌های توصیفی استفاده کن: `UserProfile` به جای `User`, `SearchBox` به جای `Search`
+- برای کامپوننت‌های خاص، پسوند مناسب استفاده کن: `Button.svelte`, `Input.svelte`, `Modal.svelte`
+- برای کامپوننت‌های زمینه، پیشوند مناسب استفاده کن: `UserCard.svelte`, `ProductList.svelte`
+
+## Code Smells
+
+**کامپوننت‌های مشکوک:**
+- کامپوننت‌های بیش از 200 خط
+- کامپوننت‌هایی که هم state management و هم UI rendering دارند
+- نام‌های ترکیبی: `UserProfileFormWithValidation`
+
+## Documentation Requirements
+
+هر کامپوننت باید شامل:
+- File header (توضیح فارسی)
+- Props مستند شده
+- Events مستند شده
+- نحوه استفاده

@@ -1,0 +1,47 @@
+---
+description: Separation of concerns principles for separating UI logic, business logic, and data access
+globs:
+  - "frontend/src/**/*.svelte"
+  - "frontend/src/**/*.ts"
+  - "frontend/src/**/*.js"
+alwaysApply: true
+---
+
+# Separation of Concerns
+
+جداسازی منطق UI، منطق تجاری (business logic)، و دسترسی به داده.
+
+## Layer Separation
+
+### Presentational Components
+- فقط UI rendering
+- بدون business logic
+- بدون direct API calls
+- فقط props می‌گیرد و events dispatch می‌کند
+
+### Container Components
+- مدیریت state و logic
+- Data fetching coordination
+- Event handling
+
+### Services
+- API calls
+- Data transformation
+- Business logic (pure functions)
+
+### Stores
+- Global state management
+- Reactive state updates
+- State persistence
+
+## Anti-Pattern
+
+❌ **Bad:** همه چیز در یک کامپوننت
+- API calls در component
+- Business logic در component
+- UI rendering در همان component
+
+✅ **Good:** جداسازی کامل
+- Service برای API
+- Store برای state
+- Component فقط UI

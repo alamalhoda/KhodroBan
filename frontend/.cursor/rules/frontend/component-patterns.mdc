@@ -1,0 +1,37 @@
+---
+description: Standard component structure, props patterns, events patterns, and slots patterns
+globs:
+  - "frontend/src/**/*.svelte"
+alwaysApply: false
+---
+
+# Component Patterns
+
+## Component Structure
+
+**ترتیب استاندارد در component:**
+1. Imports
+2. Props (export let)
+3. Component state
+4. Reactive declarations ($:)
+5. Lifecycle hooks
+6. Event handlers
+7. Helper functions
+
+## Props Pattern
+
+- همه props باید type-safe باشند (JSDoc یا TypeScript)
+- Default values برای optional props
+- Props مستند شده
+
+## Events Pattern
+
+- از `createEventDispatcher` برای custom events
+- Event names واضح و descriptive
+- Event data type-safe
+
+## Slots Pattern
+
+- Default slot برای محتوای اصلی
+- Named slots برای بخش‌های خاص
+- Slot fallback content

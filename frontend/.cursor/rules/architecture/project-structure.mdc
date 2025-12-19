@@ -1,0 +1,88 @@
+---
+description: Project structure, file organization, naming conventions, and asset management guidelines
+globs:
+  - "frontend/**/*"
+alwaysApply: false
+---
+
+# Project Structure
+
+## ساختار پیشنهادی
+
+```
+frontend/
+├── public/                    # Static assets (بدون processing)
+│   ├── favicon.ico
+│   ├── robots.txt
+│   └── images/
+│       └── logo.svg
+│
+├── src/
+│   ├── lib/                   # کتابخانه قابل استفاده مجدد
+│   │   ├── components/
+│   │   │   ├── atoms/         # کوچک‌ترین واحدها
+│   │   │   ├── molecules/     # ترکیب اتم‌ها
+│   │   │   ├── organisms/     # بخش‌های پیچیده‌تر
+│   │   │   ├── templates/     # Layout templates
+│   │   │   └── pages/         # صفحات کامل
+│   │   │
+│   │   ├── layouts/           # لایه‌های برنامه
+│   │   ├── stores/            # Global state management
+│   │   ├── services/          # API calls و business logic
+│   │   ├── utils/             # Helper functions
+│   │   ├── actions/           # Svelte actions
+│   │   └── styles/            # Global styles
+│   │       ├── global.css
+│   │       ├── variables.css
+│   │       └── themes/
+│   │
+│   ├── assets/                # منابع استاتیک
+│   │   ├── images/
+│   │   ├── icons/
+│   │   └── fonts/
+│   │
+│   ├── routes/                # Routes (SvelteKit)
+│   ├── app.html               # HTML template
+│   └── main.js                # Entry point
+│
+├── tests/                     # Test files
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+│
+├── .env.example
+├── package.json
+├── vite.config.js
+└── README.md
+```
+
+## قوانین سازماندهی
+
+- هر کامپوننت در فایل خودش
+- از index.js برای export استفاده کن
+- از grouping منطقی استفاده کن
+- از naming conventions ثابت استفاده کن
+
+## نامگذاری فایل‌ها
+
+- ✅ Components: **PascalCase** (`Button.svelte`, `UserCard.svelte`)
+- ✅ Utilities: **camelCase** (`formatDate.js`, `validators.js`)
+- ✅ Stores: **camelCase** (`user.js`, `cart.js`)
+- ✅ Styles: **kebab-case** (`global.css`, `reset.css`)
+
+## مدیریت Assets
+
+### تصاویر
+- در `src/assets/images` قرار بده
+- از فرمت‌های مناسب استفاده کن (JPG, PNG, SVG, WebP)
+- از responsive images با `srcset` استفاده کن
+
+### فونت‌ها
+- در `src/assets/fonts` قرار بده
+- از فرمت‌های WOFF2 و WOFF استفاده کن
+- با `@font-face` تعریف کن
+
+### آیکون‌ها
+- از SVG استفاده کن
+- در `src/assets/icons` قرار بده
+- از SVG sprite یا icon font برای آیکون‌های متعدد استفاده کن

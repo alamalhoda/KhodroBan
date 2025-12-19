@@ -1,0 +1,48 @@
+---
+description: Unit testing guidelines for components, stores, and utilities using Testing Library
+globs:
+  - "frontend/src/**/*.test.ts"
+  - "frontend/src/**/*.test.js"
+  - "frontend/src/**/*.spec.ts"
+  - "frontend/tests/unit/**/*"
+alwaysApply: false
+---
+
+# Unit Testing
+
+## Component Testing
+
+**با Testing Library:**
+- Test user interactions
+- Test props
+- Test events
+- Test accessibility
+
+**الگو:**
+- Render component
+- Query elements (by role, label, text)
+- Fire events
+- Assert expectations
+
+## Store Testing
+
+**الگو:**
+- Test initial state
+- Test mutations
+- Test derived stores
+- Test error handling
+
+## Utility Testing
+
+- Pure functions
+- Edge cases (null, empty, invalid)
+- Type validation
+- Error handling
+
+## Best Practices
+
+- Test behavior, not implementation
+- Test user interactions
+- Isolate tests (no shared state)
+- Clear test names
+- AAA pattern

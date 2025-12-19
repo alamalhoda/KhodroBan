@@ -1,0 +1,99 @@
+---
+description: Testing strategy including testing pyramid, coverage targets, testing tools, AAA pattern, and test organization
+globs:
+  - "frontend/src/**/*.test.ts"
+  - "frontend/src/**/*.test.js"
+  - "frontend/src/**/*.spec.ts"
+  - "frontend/src/**/*.spec.js"
+  - "frontend/tests/**/*"
+alwaysApply: false
+---
+
+# Testing Strategy
+
+## Testing Pyramid
+
+```
+     /\
+    /E2E\         ← 10% (کند، گران)
+   /------\
+  /  Int.  \      ← 20% (متوسط)
+ /----------\
+/   Unit     \    ← 70% (سریع، ارزان)
+/--------------\
+```
+
+## Test Coverage Targets
+
+- ✅ **70%+ overall**
+- ✅ **90%+ for utilities/services**
+- ✅ **50%+ for components** (focus on logic, not styling)
+
+## Testing Tools
+
+- **Unit:** Vitest + Testing Library
+- **E2E:** Playwright
+- **Visual Regression:** Playwright screenshots
+
+## AAA Pattern
+
+**Arrange** (آماده‌سازی):
+- Setup test data
+- Mock dependencies
+
+**Act** (عمل):
+- Execute function/action
+
+**Assert** (اثبات):
+- Verify results
+
+## انواع تست
+
+### Unit Tests
+- برای testing کامپوننت‌های منفرد
+- برای testing functions و utilities
+- از fast execution استفاده کن
+
+### Integration Tests
+- برای testing interaction بین کامپوننت‌ها
+- برای testing workflows
+- از realistic scenarios استفاده کن
+
+### E2E Tests
+- برای testing user flows
+- برای testing critical paths
+- از real browser استفاده کن
+
+## استراتژی تست
+
+### Test Coverage
+- از coverage thresholds استفاده کن
+- از critical paths focus کن
+- از edge cases test کن
+
+### Test Organization
+- از test structure منطقی استفاده کن
+- از test naming واضح استفاده کن
+- از test isolation استفاده کن
+
+### Test Data
+- از test fixtures استفاده کن
+- از factories برای test data استفاده کن
+- از mocks برای external dependencies استفاده کن
+
+## قوانین
+
+### Testability
+- از testable code structure استفاده کن
+- از dependency injection استفاده کن
+- از pure functions استفاده کن
+
+### Maintainability
+- از test code maintainable استفاده کن
+- از test helpers استفاده کن
+- از test utilities استفاده کن
+
+### Performance
+- از fast tests استفاده کن
+- از parallel execution استفاده کن
+- از test optimization استفاده کن

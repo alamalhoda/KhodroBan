@@ -1,0 +1,53 @@
+---
+description: Guidelines for managing props and events in Svelte components
+globs:
+  - "frontend/src/**/*.svelte"
+  - "frontend/src/**/*.ts"
+alwaysApply: false
+---
+
+# Props and Events Management
+
+## قوانین مدیریت Props
+
+### Naming
+- از camelCase استفاده کن
+- از نام‌های توصیفی استفاده کن
+- از boolean props با is/has/can شروع کن
+
+### Types
+- از prop types استفاده کن
+- از default values استفاده کن
+- از required props به درستی استفاده کن
+
+### Organization
+- props را به گروه‌های منطقی تقسیم کن
+- props مرتبط را با destructuring گروه‌بندی کن
+- از props object برای props زیاد استفاده کن
+
+### Validation
+- از prop validation استفاده کن
+- از runtime checks استفاده کن
+- از clear error messages استفاده کن
+
+## قوانین مدیریت Events
+
+### Naming
+- از kebab-case برای event names استفاده کن
+- از action-oriented names استفاده کن
+- از consistency در naming استفاده کن
+
+### Data
+- از event data structure ثابت استفاده کن
+- از event detail object استفاده کن
+- از minimal data استفاده کن
+
+### Communication
+- از events برای parent-child communication استفاده کن
+- از stores برای sibling communication استفاده کن
+- از services برای global communication استفاده کن
+
+### Documentation
+- از JSDoc برای events استفاده کن
+- از examples برای event usage استفاده کن
+- از event payload structure را مستند کن

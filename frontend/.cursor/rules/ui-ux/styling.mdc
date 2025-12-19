@@ -1,0 +1,61 @@
+---
+description: Styling strategy, CSS modules, scoped CSS, theme management, design tokens, and BEM naming conventions
+globs:
+  - "frontend/src/**/*.svelte"
+  - "frontend/src/**/*.css"
+alwaysApply: false
+---
+
+# Styling Strategy
+
+## رویکرد پیشنهادی
+
+### CSS Modules
+- برای کامپوننت‌های اتمی و مولکولی
+- تداخل استایل‌ها را به حداقل می‌رساند
+
+### Scoped CSS
+- برای کامپوننت‌های بزرگ و ارگانیسم‌ها
+- توسعه را ساده‌تر می‌کند
+
+### Global CSS
+- برای متغیرهای CSS
+- برای reset styles
+- برای استایل‌های پایه
+
+## مدیریت تم‌ها
+
+### CSS Variables
+- از CSS variables برای تم‌ها استفاده کن
+- از `:root` برای variables سراسری استفاده کن
+- از `[data-theme]` برای تم‌های مختلف استفاده کن
+
+### Light/Dark Mode
+- از `prefers-color-scheme` استفاده کن
+- از toggle برای تغییر تم استفاده کن
+- از CSS variables برای رنگ‌ها استفاده کن
+
+## Design Tokens
+
+### Colors
+- از semantic color names استفاده کن
+- از color palette ثابت استفاده کن
+
+### Spacing
+- از spacing scale استفاده کن
+- از consistent spacing استفاده کن
+
+### Typography
+- از typography scale استفاده کن
+- از font weights مناسب استفاده کن
+
+### Shadows
+- از shadow scale استفاده کن
+- از elevation system استفاده کن
+
+## قوانین
+
+- از BEM naming استفاده کن
+- از utility classes محدود استفاده کن
+- از CSS variables برای مقادیر استفاده کن
+- از responsive units استفاده کن

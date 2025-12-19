@@ -1,0 +1,98 @@
+---
+description: State management principles, store types, patterns, and strategies for local, global, and persistent state
+globs:
+  - "frontend/src/**/*.svelte"
+  - "frontend/src/**/*.ts"
+alwaysApply: false
+---
+
+# State Management
+
+## Single Source of Truth
+
+هر piece از application state باید دقیقاً **یک** مالک و منبع معتبر داشته باشد.
+
+**قانون:**
+- برای shared state از store استفاده کن
+- از prop drilling عمیق پرهیز کن (>3 سطح)
+- State را در نزدیک‌ترین common ancestor نگه دار
+
+## انواع State
+
+### Local State
+- برای state محدود به یک کامپوننت
+- از component state استفاده کن
+- از reactive variables استفاده کن
+
+### Global State
+- برای state مشترک بین کامپوننت‌ها
+- از stores استفاده کن
+- از state management library استفاده کن
+
+### Persistent State
+- برای state که باید persist شود
+- از localStorage استفاده کن
+- از sessionStorage استفاده کن
+- از IndexedDB برای data زیاد استفاده کن
+
+## Store Types
+
+### Writable Store
+برای state که قابل تغییر است
+
+### Derived Store
+برای computed values از store های دیگر
+
+### Custom Store
+برای stores با methods و logic اضافی
+
+## Store Patterns
+
+**Custom Store با Async:**
+- Loading state
+- Error handling
+- Data caching
+
+**Derived Store:**
+- Computed values
+- Filtered data
+- Aggregations
+
+## استراتژی State Management
+
+### When to Use Local State
+- state محدود به یک کامپوننت
+- state موقت و غیرمهم
+- state ساده و بدون side effects
+
+### When to Use Global State
+- state مشترک بین کامپوننت‌ها
+- state مهم و حیاتی
+- state با side effects
+
+### When to Use Persistent State
+- state که باید بعد از refresh حفظ شود
+- user preferences
+- cache data
+
+## قوانین
+
+### Single Source of Truth
+- از single source of truth استفاده کن
+- از derived state استفاده کن
+- از computed values استفاده کن
+
+### Immutability
+- از immutable updates استفاده کن
+- از spread operator استفاده کن
+- از immutable libraries استفاده کن (در صورت نیاز)
+
+### Normalization
+- از normalized state structure استفاده کن
+- از denormalization برای display استفاده کن
+- از selectors برای data access استفاده کن
+
+### Synchronization
+- از proper sync با backend استفاده کن
+- از optimistic updates استفاده کن
+- از conflict resolution استفاده کن

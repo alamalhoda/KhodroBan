@@ -1,0 +1,124 @@
+---
+description: Vite configuration and optimization guidelines for build, code splitting, asset optimization, and bundle analysis
+globs:
+  - "frontend/vite.config.*"
+  - "frontend/package.json"
+alwaysApply: false
+---
+
+# Vite Configuration & Optimization
+
+## Base Configuration
+
+```javascript
+import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+
+export default defineConfig({
+  plugins: [svelte()],
+  
+  build: {
+    target: 'es2015',
+    minify: 'terser',
+    cssMinify: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['svelte'],
+        },
+      },
+    },
+  },
+  
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+    },
+  },
+  
+  envPrefix: 'VITE_',
+});
+```
+
+## Code Splitting
+
+**Dynamic import برای lazy loading:**
+```svelte
+let HeavyComponent;
+
+async function loadComponent() {
+  const module = await import('./HeavyComponent.svelte');
+  HeavyComponent = module.default;
+}
+```
+
+**قوانین:**
+- از code splitting استفاده کن
+- از tree shaking استفاده کن
+- از minification استفاده کن
+
+## Asset Optimization
+
+```javascript
+build: {
+  assetsInlineLimit: 4096, // <4KB inline
+  rollupOptions: {
+    output: {
+      assetFileNames: 'assets/[name]-[hash][extname]',
+      chunkFileNames: 'chunks/[name]-[hash].js',
+      entryFileNames: '[name]-[hash].js',
+    },
+  },
+}
+```
+
+**قوانین:**
+- از proper asset imports استفاده کن
+- از asset optimization استفاده کن
+- از asset inlining استفاده کن
+
+## Bundle Analysis
+
+```javascript
+import { visualizer } from 'rollup-plugin-visualizer';
+
+plugins: [
+  svelte(),
+  visualizer({
+    filename: './dist/stats.html',
+    open: true,
+    gzipSize: true,
+  }),
+]
+```
+
+## بهینه‌سازی ساختار با Vite
+
+### Configuration
+- از proper Vite configuration استفاده کن
+- از path aliases استفاده کن
+- از environment variables استفاده کن
+
+### Development
+- از HMR استفاده کن
+- از fast refresh استفاده کن
+- از dev server optimization استفاده کن
+
+### Production
+- از build optimization استفاده کن
+- از chunk splitting استفاده کن
+- از asset optimization استفاده کن
+
+### Environment
+- از environment-specific configs استفاده کن
+- از .env files استفاده کن
+- از mode-based configs استفاده کن
+
+### Dependencies
+- از proper dependency management استفاده کن
+- از peer dependencies استفاده کن
+- از optional dependencies استفاده کن

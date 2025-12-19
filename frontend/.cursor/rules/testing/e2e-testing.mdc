@@ -1,0 +1,39 @@
+---
+description: End-to-end testing guidelines using Playwright for critical user flows and visual regression testing
+globs:
+  - "frontend/tests/e2e/**/*"
+  - "frontend/**/*.e2e.ts"
+alwaysApply: false
+---
+
+# E2E Testing
+
+## Test Coverage
+
+**Test critical user flows:**
+- Authentication
+- Checkout flow
+- Form submissions
+- Navigation
+
+## Test Structure
+
+**با Playwright:**
+- Navigate to page
+- Interact with elements
+- Assert expectations
+- Verify URLs
+
+## Best Practices
+
+- Test real user scenarios
+- Use data-testid برای stable selectors
+- Wait for network idle
+- Cleanup بعد از tests
+- Screenshots برای debugging
+
+## Visual Regression
+
+- Baseline screenshots
+- Compare on CI/CD
+- Update baselines هنگام intentional changes

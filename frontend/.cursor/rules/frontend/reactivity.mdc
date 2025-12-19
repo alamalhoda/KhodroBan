@@ -1,0 +1,37 @@
+---
+description: Svelte reactivity principles, reactive declarations, and store subscriptions
+globs:
+  - "frontend/src/**/*.svelte"
+  - "frontend/src/**/*.ts"
+alwaysApply: false
+---
+
+# Reactivity Principles
+
+## Reactive Declarations
+
+استفاده صحیح از `$:` (reactive declarations):
+
+✅ **Good:**
+- Simple reactive declaration: `$: doubled = count * 2`
+- Reactive statement با dependencies
+- Reactive with multiple dependencies
+
+❌ **Bad:**
+- Side effect بدون dependency
+- Circular dependencies
+
+## Store Subscriptions
+
+✅ **Good:** Auto-subscription با `$`
+```svelte
+<p>{$user.name}</p>
+```
+
+❌ **Avoid:** Manual subscription (فقط در موارد خاص)
+
+## Reactive Rules
+
+- Reactive statements فقط زمانی اجرا می‌شوند که dependencies تغییر کنند
+- Dependencies به صورت خودکار detect می‌شوند
+- از circular dependencies پرهیز کن

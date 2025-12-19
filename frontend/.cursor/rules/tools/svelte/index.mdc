@@ -1,0 +1,184 @@
+---
+description: Svelte best practices and coding guidelines
+globs:
+  - "frontend/src/**/*.svelte"
+alwaysApply: false
+---
+
+# Svelte Best Practices
+
+## Reactivity System
+
+### Reactive Declarations (`$:`)
+
+✅ **Good:**
+```svelte
+$: doubled = count * 2;
+$: {
+  console.log(`Count is ${count}`);
+}
+$: fullName = `${firstName} ${lastName}`;
+```
+
+❌ **Bad:**
+```svelte
+$: console.log('This runs on every update!'); // بدون dependency
+```
+
+**قوانین:**
+- از `$:` برای derived state استفاده کن
+- از reactive statements به صورت بهینه استفاده کن
+- از reactive blocks برای complex logic استفاده کن
+
+### Store Subscriptions
+
+✅ **Good:** Auto-subscription با `$`
+```svelte
+<p>{$user.name}</p>
+```
+
+❌ **Avoid:** Manual subscription (فقط در موارد خاص)
+
+## Component Structure
+
+**ترتیب استاندارد:**
+1. Imports
+2. Props (export let)
+3. Component state
+4. Reactive declarations ($:)
+5. Lifecycle hooks
+6. Event handlers
+7. Helper functions
+
+**ساختار:**
+- از `<script>`, `<template>`, `<style>` sections استفاده کن
+- از scoped styles استفاده کن
+- از CSS modules در صورت نیاز استفاده کن
+
+## Component Features
+
+- از `{#key}` برای preserve state در lists استفاده کن
+- از `svelte:component` برای dynamic components استفاده کن
+- از `svelte:self` برای recursive components استفاده کن
+
+## Props & Type Safety
+
+**با JSDoc:**
+```svelte
+/**
+ * @typedef {'primary' | 'secondary' | 'danger'} Variant
+ */
+/** @type {Variant} */
+export let variant = 'primary';
+```
+
+## Custom Events
+
+```svelte
+import { createEventDispatcher } from 'svelte';
+
+const dispatch = createEventDispatcher();
+
+function handleSubmit() {
+  dispatch('submit', { data: formData });
+}
+```
+
+**قوانین:**
+- از `createEventDispatcher` برای events استفاده کن
+- از event forwarding استفاده کن
+- از event modifiers استفاده کن
+
+## Stores
+
+### Writable Store
+```javascript
+import { writable } from 'svelte/store';
+export const count = writable(0);
+```
+
+### Custom Store با Methods
+```javascript
+function createCounter() {
+  const { subscribe, set, update } = writable(0);
+  
+  return {
+    subscribe,
+    increment: () => update(n => n + 1),
+    decrement: () => update(n => n - 1),
+    reset: () => set(0),
+  };
+}
+```
+
+### Derived Store
+```javascript
+import { derived } from 'svelte/store';
+
+export const total = derived(
+  items,
+  $items => $items.reduce((sum, item) => sum + item.price, 0)
+);
+```
+
+**قوانین:**
+- از Svelte stores برای global state استفاده کن
+- از derived stores برای computed values استفاده کن
+- از custom stores برای complex logic استفاده کن
+
+## Actions & Transitions
+
+### Custom Action
+```svelte
+export function clickOutside(node, callback) {
+  function handleClick(event) {
+    if (!node.contains(event.target)) {
+      callback();
+    }
+  }
+  
+  document.addEventListener('click', handleClick, true);
+  
+  return {
+    destroy() {
+      document.removeEventListener('click', handleClick, true);
+    }
+  };
+}
+```
+
+### Built-in Transitions
+```svelte
+import { fade, fly, slide } from 'svelte/transition';
+
+{#if visible}
+  <div transition:fade>Fades in and out</div>
+  <div transition:fly={{ y: 200 }}>Flies in</div>
+  <div transition:slide>Slides down</div>
+{/if}
+```
+
+## Lifecycle Hooks
+
+- `onMount`: بعد از mount شدن component
+- `onDestroy`: قبل از unmount شدن component
+- `beforeUpdate`: قبل از update
+- `afterUpdate`: بعد از update
+- `tick`: wait for next update cycle
+
+**قوانین:**
+- از `onMount` برای initialization استفاده کن
+- از `onDestroy` برای cleanup استفاده کن
+- از `beforeUpdate` و `afterUpdate` برای side effects استفاده کن
+
+## Performance
+
+- از reactive statements بهینه استفاده کن
+- از `{#key}` برای list optimization استفاده کن
+- از component lazy loading استفاده کن
+
+## State Management
+
+- از local state برای component-specific state استفاده کن
+- از stores برای global state استفاده کن
+- از props برای parent-child communication استفاده کن

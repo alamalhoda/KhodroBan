@@ -1,0 +1,104 @@
+---
+description: Component design principles, props, events, slots patterns, and composition guidelines
+globs:
+  - "frontend/src/**/*.svelte"
+  - "frontend/src/**/*.ts"
+alwaysApply: true
+---
+
+# Component Design Principles
+
+## اصول طراحی کامپوننت
+
+### Single Responsibility Principle (SRP)
+
+هر کامپوننت فقط یک کار انجام دهد.
+
+**Code Smell:**
+- کامپوننت‌های بیش از 200 خط
+- کامپوننت‌هایی که هم state management و هم UI rendering دارند
+- نام‌های ترکیبی: `UserProfileFormWithValidation`
+
+**اصل:** تقسیم به کامپوننت‌های کوچک‌تر با مسئولیت واحد
+
+### Composition over Configuration
+
+- از composition برای ترکیب قابلیت‌ها استفاده کن
+- از slots برای محتوای پویا استفاده کن
+- از props برای configuration استفاده کن
+
+### Props Design
+
+- از props واضح و توصیفی استفاده کن
+- از default values مناسب استفاده کن
+- از prop types استفاده کن (در صورت امکان)
+- همه props باید type-safe باشند (JSDoc یا TypeScript)
+- Props مستند شده
+
+### Events Design
+
+- از events برای communication استفاده کن
+- از event names واضح استفاده کن
+- از event data structure ثابت استفاده کن
+- از `createEventDispatcher` برای custom events
+- Event data type-safe
+
+### Slots Pattern
+
+- Default slot برای محتوای اصلی
+- Named slots برای بخش‌های خاص
+- Slot fallback content
+
+## Props Down, Events Up Pattern
+
+داده از parent به child با props، communication از child به parent با events.
+
+**قانون:**
+- State در parent نگه دار
+- Child فقط props می‌گیرد و events dispatch می‌کند
+- از direct state mutation در child پرهیز کن
+
+## Reusability
+
+- کامپوننت‌ها باید قابل استفاده مجدد باشند
+- از props برای customization استفاده کن
+- از slots برای flexibility استفاده کن
+- هر کامپوننت باید بدون وابستگی به parent/context خاص کار کند
+
+## Independence
+
+- کامپوننت‌ها باید مستقل باشند
+- از dependencies کم استفاده کن
+- از dependency injection استفاده کن
+
+## Documentation
+
+- از JSDoc برای props استفاده کن
+- از examples برای usage استفاده کن
+- از comments برای منطق پیچیده استفاده کن
+- File header (توضیح فارسی)
+- Events مستند شده
+- نحوه استفاده
+
+## Atomic Design Methodology
+
+**ساختار:**
+```
+components/
+├── atoms/          # کوچک‌ترین واحدها
+│   ├── Button.svelte
+│   ├── Input.svelte
+│   └── Icon.svelte
+├── molecules/      # ترکیب اتم‌ها
+│   ├── SearchBox.svelte (Input + Button)
+│   └── FormField.svelte (Label + Input + Error)
+├── organisms/      # بخش‌های پیچیده‌تر
+│   ├── Header.svelte
+│   ├── UserCard.svelte
+│   └── ProductGrid.svelte
+└── templates/      # صفحات کامل
+    ├── DashboardLayout.svelte
+    └── ProductPageLayout.svelte
+```
+
+**قانون:** کامپوننت‌های کوچک را بساز و آنها را ترکیب کن

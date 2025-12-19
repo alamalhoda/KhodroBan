@@ -1,0 +1,33 @@
+---
+description: Decision rules for choosing between local state and global state (store) in components
+globs:
+  - "frontend/src/**/*.svelte"
+  - "frontend/src/**/*.ts"
+alwaysApply: false
+---
+
+# Local vs Global State
+
+## Decision Rule
+
+State را در نزدیک‌ترین common ancestor نگه دار.
+
+## Local State
+
+**استفاده کن برای:**
+- UI state که فقط یک component نیاز دارد (isOpen, isExpanded)
+- Form inputs (local state تا submit)
+- Temporary UI state
+
+**مثال:** Modal open/close, dropdown state
+
+## Global State (Store)
+
+**استفاده کن برای:**
+- Data که چندین component نیاز دارد
+- User authentication state
+- Shopping cart
+- Theme preferences
+- Application settings
+
+**قانون:** اگر بیش از 2 component به state نیاز دارند، global است.
