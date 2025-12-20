@@ -1,12 +1,12 @@
 # 🔄 استراتژی مدیریت کنترل ورژن
 
-این سند استراتژی مدیریت کنترل ورژن (Version Control Strategy) پروژه OilChenger را توضیح می‌دهد.
+این سند استراتژی مدیریت کنترل ورژن (Version Control Strategy) پروژه KhodroBan (خودروبان) را توضیح می‌دهد.
 
 ---
 
 ## 📋 خلاصه
 
-پروژه OilChenger از **Monorepo** (یک Repository مشترک) برای مدیریت کنترل ورژن استفاده می‌کند. تمام بخش‌های پروژه (Backend، Frontend، و Docs) در یک Git repository قرار دارند.
+پروژه KhodroBan (خودروبان) از **Monorepo** (یک Repository مشترک) برای مدیریت کنترل ورژن استفاده می‌کند. تمام بخش‌های پروژه (Backend، Frontend، و Docs) در یک Git repository قرار دارند.
 
 **نکات کلیدی**:
 - هر پروژه می‌تواند `.gitignore` خودش را داشته باشد
@@ -42,7 +42,7 @@ git commit -m "feat: اضافه کردن endpoint جدید برای ثبت خو�
 مستندات پروژه (`docs/`) در کنار کد قرار دارد و تغییرات مستندات و کد همزمان commit می‌شوند:
 
 ```
-OilChenger/
+KhodroBan/
 ├── docs/
 │   └── technical/
 │       └── api/          # مستندات API در کنار کد backend
@@ -78,7 +78,7 @@ OilChenger/
 ## 🗂️ ساختار Repository
 
 ```
-OilChenger/                    # Root Git Repository
+KhodroBan/                    # Root Git Repository
 ├── .git/                      # Git repository اصلی
 ├── .gitignore                 # Gitignore اصلی (عمومی)
 ├── .cursor/                   # قوانین Cursor عمومی (اختیاری)
@@ -155,7 +155,7 @@ Git به صورت سلسله‌مراتبی `.gitignore` ها را بررسی م
 
 **مثال**:
 ```
-OilChenger/
+KhodroBan/
 ├── .gitignore              # قوانین عمومی
 ├── backend/
 │   └── .gitignore         # قوانین خاص Python
@@ -182,7 +182,7 @@ Cursor از سیستم **Project Rules** استفاده می‌کند که ام�
 ### ساختار پیشنهادی
 
 ```
-OilChenger/                           # Root workspace
+KhodroBan/                           # Root workspace
 ├── .cursor/                          # قوانین عمومی (اختیاری)
 │   └── rules/
 │       └── general.mdc              # قوانین عمومی برای کل پروژه
@@ -288,7 +288,7 @@ globs:
 alwaysApply: true
 ---
 
-# OilChenger General Guidelines
+# KhodroBan (خودروبان) General Guidelines
 
 ## Git Workflow
 - Use conventional commit messages
@@ -339,7 +339,7 @@ Git Submodules امکان قرار دادن یک Git repository داخل reposit
 ### ساختار با Submodules (مثال)
 
 ```
-OilChenger/                    # Main Repository
+KhodroBan/                    # Main Repository
 ├── .git/
 ├── .gitmodules               # فایل تنظیمات submodules
 ├── docs/                     # مستندات (در main repo)
