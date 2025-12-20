@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { push, querystring } from 'svelte-spa-router';
+  import { push, querystring } from '../../lib/router';
   import { Layout } from '../components/layout';
   import { Card, Button, Input, Select, Tabs } from '../components/common';
   import { vehiclesStore, servicesStore, expensesStore, toastStore } from '../stores';

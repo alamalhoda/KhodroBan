@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { link, location } from 'svelte-spa-router';
+  import { link, location } from '../../router';
   import { reminderStats } from '../../stores';
 
   const navItems = [

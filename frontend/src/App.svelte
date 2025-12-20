@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Router from 'svelte-spa-router';
-  import { wrap } from 'svelte-spa-router/wrap';
+  import Router from './lib/router/Router.svelte';
+  import { wrap, push } from './lib/router';
   import { authStore } from './lib/stores/auth';
   import Toast from './lib/components/common/Toast.svelte';
   import { toastStore } from './lib/stores/ui';
@@ -59,12 +59,12 @@
   // Handle route conditions failed
   function conditionsFailed() {
     // Redirect to login if not authenticated
-    window.location.hash = '#/login';
+    push('/login');
   }
 </script>
 
 <div class="app">
-  <Router {routes} on:conditionsFailed={conditionsFailed} />
+  <Router {routes} onConditionsFailed={conditionsFailed} />
   
   {#if $toastStore.visible}
     <Toast 
