@@ -132,7 +132,7 @@ jobs:
 1. **در Replit:**
    - Create new Repl
    - Import from GitHub
-   - Repository: `your-username/OilChenger`
+   - Repository: `your-username/KhodroBan (خودروبان)`
    - Root directory: `frontend/`
 
 2. **تنظیمات:**
@@ -160,7 +160,7 @@ git subtree push --prefix=frontend origin frontend-only
 
 1. **در Hugging Face:**
    - Create new Space
-   - Git Repository: `your-username/OilChenger`
+   - Git Repository: `your-username/KhodroBan (خودروبان)`
    - Root directory: `backend/`
 
 2. **تنظیمات `backend/README.md`:**
@@ -356,7 +356,7 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return {"message": "OilChenger Backend API"}
+    return {"message": "KhodroBan (خودروبان) Backend API"}
 
 # ... سایر endpoints
 ```
@@ -365,7 +365,7 @@ def read_root():
 
 ## 🎯 توصیه نهایی
 
-برای پروژه شما (OilChenger):
+برای پروژه شما (KhodroBan (خودروبان)):
 
 1. **برای MVP:** از روش 1 (Direct Deploy) استفاده کنید
    - Frontend → Replit/Vercel با root directory: `frontend/`
@@ -388,4 +388,4 @@ def read_root():
 
 ---
 
-**آخرین به‌روزرسانی**: این راهنما برای پروژه OilChenger و Monorepo structure نوشته شده است.
+**آخرین به‌روزرسانی**: این راهنما برای پروژه KhodroBan (خودروبان) و Monorepo structure نوشته شده است.
