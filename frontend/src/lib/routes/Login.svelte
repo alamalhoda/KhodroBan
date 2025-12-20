@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { push } from 'svelte-spa-router';
+  import { push } from '../../lib/router';
   import { Button, Input, Card } from '../components/common';
   import { authStore, toastStore } from '../stores';
   import { authService } from '../services';

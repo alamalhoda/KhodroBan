@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { link } from 'svelte-spa-router';
+  import { link } from '../../lib/router';
   import { Layout } from '../components/layout';
   import { Card, Button, Input, Modal, Spinner, EmptyState, Badge, Tabs } from '../components/common';
   import { vehiclesStore, servicesStore, expensesStore, toastStore } from '../stores';

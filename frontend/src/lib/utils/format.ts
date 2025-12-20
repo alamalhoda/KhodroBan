@@ -2,7 +2,9 @@
 // Formatting Utilities
 // ========================================
 
-import PersianDate from '@alireza-ab/persian-date';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import PersianDate from 'persian-date';
 
 /**
  * Format number with Persian digits and thousand separators

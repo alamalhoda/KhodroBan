@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { link } from 'svelte-spa-router';
+  import { link } from '../../router';
   import { Card, Badge } from '../common';
   import { formatNumber } from '../../utils/format';
   import { REMINDER_STATUS } from '../../utils/constants';

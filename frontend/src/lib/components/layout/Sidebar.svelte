@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { link, location } from 'svelte-spa-router';
+  import { link, location } from '../../router';
   import { fade, fly } from 'svelte/transition';
   import { authStore, currentUser, isPro, reminderStats } from '../../stores';
   import { MENU_ITEMS, APP_NAME } from '../../utils/constants';
