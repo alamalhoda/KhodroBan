@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Layout } from '../components/layout';
-  import { Card, Button, Input, Badge } from '../components/common';
-  import { authStore, currentUser, isPro, remindersStore, toastStore } from '../stores';
-  import { authService, reminderService } from '../services';
-  import { formatNumber } from '../utils/format';
-  import { REMINDER_CHANNEL_OPTIONS, FREE_TIER_LIMITS, PRO_TIER_FEATURES, APP_NAME } from '../utils/constants';
-  import type { ReminderSettings, ReminderChannel } from '../types';
+  import { goto } from '$app/navigation';
+  import { Layout } from '$lib/components/layout';
+  import { Card, Button, Input, Badge } from '$lib/components/ui';
+  import { authStore, currentUser, isPro, remindersStore, toastStore } from '$lib/stores';
+  import { authService, reminderService } from '$lib/services';
+  import { formatNumber } from '$lib/utils/format';
+  import { REMINDER_CHANNEL_OPTIONS, FREE_TIER_LIMITS, PRO_TIER_FEATURES, APP_NAME } from '$lib/utils/constants';
+  import type { ReminderSettings, ReminderChannel } from '$lib/types';
 
   let isLoading = $state(true);
   let isSaving = $state(false);
@@ -104,7 +105,7 @@
   function handleLogout() {
     if (confirm('آیا می‌خواهید از حساب خود خارج شوید؟')) {
       authStore.logout();
-      window.location.hash = '#/login';
+      goto('/login');
     }
   }
 </script>
@@ -440,3 +441,4 @@
     color: var(--color-text-muted);
   }
 </style>
+

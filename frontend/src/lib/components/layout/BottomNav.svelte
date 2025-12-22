@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { link, location } from '../../router';
+  import { page } from '$app/stores';
   import { reminderStats } from '../../stores';
 
   const navItems = [
@@ -11,8 +11,9 @@
   ];
 
   function isActive(path: string): boolean {
-    if (path === '/dashboard' && $location === '/') return true;
-    return $location === path || $location.startsWith(path + '/');
+    const currentPath = $page.url.pathname;
+    if (path === '/dashboard' && currentPath === '/') return true;
+    return currentPath === path || currentPath.startsWith(path + '/');
   }
 </script>
 
@@ -21,7 +22,6 @@
     {@const active = isActive(item.path)}
     <a 
       href={item.path} 
-      use:link 
       class="nav-item"
       class:active
       class:primary={item.isPrimary}

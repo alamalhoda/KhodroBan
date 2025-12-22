@@ -1,10 +1,17 @@
 import { writable, derived, get } from 'svelte/store';
+import { browser } from '$app/environment';
 import type { User, AuthState } from '../types';
+
+// Helper function to safely get token from localStorage
+function getToken(): string | null {
+  if (!browser) return null;
+  return localStorage.getItem('token');
+}
 
 // Initial state
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('token'),
+  token: getToken(),
   isLoading: false,
   error: null,
 };
@@ -29,7 +36,9 @@ function createAuthStore() {
 
     // Login success
     loginSuccess(user: User, token: string) {
-      localStorage.setItem('token', token);
+      if (browser) {
+        localStorage.setItem('token', token);
+      }
       update(state => ({
         ...state,
         user,
@@ -52,7 +61,9 @@ function createAuthStore() {
 
     // Logout
     logout() {
-      localStorage.removeItem('token');
+      if (browser) {
+        localStorage.removeItem('token');
+      }
       set({
         user: null,
         token: null,

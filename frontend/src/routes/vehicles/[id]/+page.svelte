@@ -1,19 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { link } from '../../lib/router';
-  import { Layout } from '../components/layout';
-  import { Card, Button, Input, Modal, Spinner, EmptyState, Badge, Tabs } from '../components/common';
-  import { vehiclesStore, servicesStore, expensesStore, toastStore } from '../stores';
-  import { vehicleService, serviceService, expenseService } from '../services';
-  import { formatNumber, formatCurrency, formatJalaliDate } from '../utils/format';
-  import { SERVICE_TYPES, EXPENSE_CATEGORIES, EXPENSE_ICONS } from '../utils/constants';
-  import type { Vehicle, ServiceRecord, Expense } from '../types';
-
-  interface Props {
-    params?: { id?: string };
-  }
-
-  let { params }: Props = $props();
+  import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
+  import { Layout } from '$lib/components/layout';
+  import { Card, Button, Input, Modal, Spinner, EmptyState, Badge, Tabs } from '$lib/components/ui';
+  import { vehiclesStore, servicesStore, expensesStore, toastStore } from '$lib/stores';
+  import { vehicleService, serviceService, expenseService } from '$lib/services';
+  import { formatNumber, formatCurrency, formatJalaliDate } from '$lib/utils/format';
+  import { SERVICE_TYPES, EXPENSE_CATEGORIES, EXPENSE_ICONS } from '$lib/utils/constants';
+  import type { Vehicle, ServiceRecord, Expense } from '$lib/types';
 
   let isLoading = $state(true);
   let vehicle = $state<Vehicle | null>(null);
@@ -31,8 +26,9 @@
   ];
 
   onMount(async () => {
-    if (params?.id) {
-      await loadVehicleData(params.id);
+    const id = $page.params.id;
+    if (id) {
+      await loadVehicleData(id);
     }
   });
 
@@ -95,7 +91,7 @@
           title="خودرو یافت نشد"
           description="این خودرو وجود ندارد یا حذف شده است"
         >
-          <Button variant="primary" onclick={() => window.location.hash = '#/vehicles'}>
+          <Button variant="primary" onclick={() => goto('/vehicles')}>
             بازگشت به لیست
           </Button>
         </EmptyState>
@@ -148,11 +144,11 @@
 
       <!-- Quick Actions -->
       <div class="quick-actions">
-        <a href="/add?tab=service&vehicle={vehicle.id}" use:link class="quick-btn">
+        <a href="/add?tab=service&vehicle={vehicle.id}" class="quick-btn">
           <span class="quick-icon">🔧</span>
           <span>ثبت سرویس</span>
         </a>
-        <a href="/add?tab=expense&vehicle={vehicle.id}" use:link class="quick-btn">
+        <a href="/add?tab=expense&vehicle={vehicle.id}" class="quick-btn">
           <span class="quick-icon">💰</span>
           <span>ثبت هزینه</span>
         </a>
@@ -170,7 +166,7 @@
                 title="سرویسی ثبت نشده"
                 description="اولین سرویس این خودرو را ثبت کنید"
               >
-                <a href="/add?tab=service&vehicle={vehicle.id}" use:link>
+                <a href="/add?tab=service&vehicle={vehicle.id}">
                   <Button variant="primary">ثبت سرویس</Button>
                 </a>
               </EmptyState>
@@ -211,7 +207,7 @@
                 title="هزینه‌ای ثبت نشده"
                 description="هزینه‌های این خودرو را ثبت کنید"
               >
-                <a href="/add?tab=expense&vehicle={vehicle.id}" use:link>
+                <a href="/add?tab=expense&vehicle={vehicle.id}">
                   <Button variant="primary">ثبت هزینه</Button>
                 </a>
               </EmptyState>
@@ -495,3 +491,4 @@
     margin-top: 1.5rem;
   }
 </style>
+

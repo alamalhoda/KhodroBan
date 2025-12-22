@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { push } from '../../lib/router';
-  import { Button, Input, Card } from '../components/common';
-  import { authStore, toastStore } from '../stores';
-  import { authService } from '../services';
-  import { validators, validateForm, getFieldError, type FieldError } from '../utils/validation';
-  import { APP_NAME } from '../utils/constants';
+  import { goto } from '$app/navigation';
+  import { Button, Input, Card } from '$lib/components/ui';
+  import { authStore, toastStore } from '$lib/stores';
+  import { authService } from '$lib/services';
+  import { validators, validateForm, getFieldError, type FieldError } from '$lib/utils/validation';
+  import { APP_NAME } from '$lib/utils/constants';
 
   let name = $state('');
   let email = $state('');
@@ -42,7 +42,7 @@
       const { user, token } = await authService.register({ name, email, password });
       authStore.loginSuccess(user, token);
       toastStore.success('حساب شما با موفقیت ایجاد شد!');
-      push('/dashboard');
+      goto('/dashboard');
     } catch (err: any) {
       const message = err?.message || 'خطا در ثبت‌نام. لطفاً دوباره تلاش کنید.';
       toastStore.error(message);
@@ -113,7 +113,7 @@
 
       <div class="auth-footer">
         <span>قبلاً ثبت‌نام کرده‌اید؟</span>
-        <a href="#/login">وارد شوید</a>
+        <a href="/login">وارد شوید</a>
       </div>
     </Card>
   </div>
@@ -180,3 +180,4 @@
     margin-right: 0.25rem;
   }
 </style>
+

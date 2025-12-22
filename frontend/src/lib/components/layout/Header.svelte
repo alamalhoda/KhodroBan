@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { link } from '../../router';
   import { authStore, currentUser, activeReminders } from '../../stores';
   import { APP_NAME } from '../../utils/constants';
 
@@ -42,7 +41,7 @@
     {#if title}
       <h1 class="header-title">{title}</h1>
     {:else}
-      <a href="/" use:link class="header-logo">
+      <a href="/" class="header-logo">
         <span class="logo-icon">🚗</span>
         <span class="logo-text">{APP_NAME}</span>
       </a>
@@ -50,14 +49,14 @@
   </div>
   
   <div class="header-end">
-    <a href="/settings" use:link class="header-btn notification-btn" aria-label="یادآورها">
+    <a href="/settings" class="header-btn notification-btn" aria-label="یادآورها">
       🔔
       {#if reminderCount > 0}
         <span class="notification-badge">{reminderCount > 9 ? '۹+' : reminderCount}</span>
       {/if}
     </a>
     
-    <a href="/settings" use:link class="header-user hide-mobile">
+    <a href="/settings" class="header-user hide-mobile">
       <span class="user-avatar">👤</span>
       <span class="user-name">{$currentUser?.name || 'کاربر'}</span>
     </a>
