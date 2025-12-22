@@ -17,7 +17,9 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@sveltejs/adapter-static": "^3.0.0",
+    "@sveltejs/adapter-auto": "^3.0.0",
+    "@sveltejs/adapter-netlify": "^5.0.0",
+    "@sveltejs/adapter-deno": "^5.0.0",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "@tsconfig/svelte": "^5.0.4",
