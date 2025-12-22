@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Layout } from '../components/layout';
-  import { Card, Button, Select, Spinner, EmptyState, Badge } from '../components/common';
-  import { vehiclesStore, isPro, toastStore } from '../stores';
-  import { vehicleService, reportService } from '../services';
-  import { formatNumber, formatCurrency, toPersianDigits } from '../utils/format';
-  import { EXPENSE_CATEGORIES, SERVICE_TYPES, EXPENSE_ICONS } from '../utils/constants';
-  import type { ReportSummary, ReportFilter, SelectOption } from '../types';
+  import { Layout } from '$lib/components/layout';
+  import { Card, Button, Select, Spinner, EmptyState, Badge } from '$lib/components/ui';
+  import { vehiclesStore, isPro, toastStore } from '$lib/stores';
+  import { vehicleService, reportService } from '$lib/services';
+  import { formatNumber, formatCurrency, toPersianDigits } from '$lib/utils/format';
+  import { EXPENSE_CATEGORIES, SERVICE_TYPES, EXPENSE_ICONS } from '$lib/utils/constants';
+  import type { ReportSummary, ReportFilter, SelectOption } from '$lib/types';
 
   let isLoading = $state(true);
   let isExporting = $state(false);
@@ -387,3 +387,4 @@
     margin-bottom: 1rem;
   }
 </style>
+

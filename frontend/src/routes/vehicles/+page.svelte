@@ -1,14 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { link } from '../../lib/router';
-  import { Layout } from '../components/layout';
-  import { Card, Button, Input, Modal, Spinner, EmptyState, Badge } from '../components/common';
-  import { vehiclesStore, remindersStore, activeReminders, toastStore, isPro } from '../stores';
-  import { vehicleService, reminderService } from '../services';
-  import { validators, validateForm, getFieldError, type FieldError } from '../utils/validation';
-  import { formatNumber, getCurrentJalaliYear } from '../utils/format';
-  import { FREE_TIER_LIMITS, REMINDER_STATUS } from '../utils/constants';
-  import type { Vehicle, VehicleFormData, Reminder } from '../types';
+  import { Layout } from '$lib/components/layout';
+  import { Card, Button, Input, Modal, Spinner, EmptyState, Badge } from '$lib/components/ui';
+  import { vehiclesStore, remindersStore, activeReminders, toastStore, isPro } from '$lib/stores';
+  import { vehicleService, reminderService } from '$lib/services';
+  import { validators, validateForm, getFieldError, type FieldError } from '$lib/utils/validation';
+  import { formatNumber, getCurrentJalaliYear } from '$lib/utils/format';
+  import { FREE_TIER_LIMITS, REMINDER_STATUS } from '$lib/utils/constants';
+  import type { Vehicle, VehicleFormData, Reminder } from '$lib/types';
 
   let isLoading = $state(true);
   let vehicles = $derived($vehiclesStore.vehicles);
@@ -174,7 +173,7 @@
         {#each vehicles as vehicle}
           {@const status = getVehicleStatus(vehicle.id)}
           <Card padding="none" variant="solid" class="vehicle-card">
-            <a href="/vehicles/{vehicle.id}" use:link class="vehicle-link">
+            <a href="/vehicles/{vehicle.id}" class="vehicle-link">
               <div class="vehicle-main">
                 <div class="vehicle-icon">🚗</div>
                 <div class="vehicle-info">
@@ -220,7 +219,7 @@
               <strong>نسخه رایگان:</strong>
               {vehicles.length} از {FREE_TIER_LIMITS.maxVehicles} خودرو استفاده شده
             </div>
-            <a href="/settings" use:link class="limit-link">ارتقا به Pro</a>
+            <a href="/settings" class="limit-link">ارتقا به Pro</a>
           </div>
         </Card>
       {/if}
@@ -445,3 +444,4 @@
     margin-top: 0.5rem;
   }
 </style>
+

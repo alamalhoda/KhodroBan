@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { link } from '../../router';
-  import { Card, Badge } from '../common';
+  import { Card, Badge } from '../ui';
   import { formatNumber } from '../../utils/format';
   import { REMINDER_STATUS } from '../../utils/constants';
   import type { Vehicle, Reminder } from '../../types';
@@ -29,7 +28,7 @@
 </script>
 
 <Card padding="none" variant="solid" class="vehicle-card">
-  <a href="/vehicles/{vehicle.id}" use:link class="vehicle-link">
+  <a href="/vehicles/{vehicle.id}" class="vehicle-link">
     <div class="vehicle-main">
       <div class="vehicle-icon">🚗</div>
       <div class="vehicle-info">

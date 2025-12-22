@@ -1,13 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { link } from '../../lib/router';
-  import { Layout } from '../components/layout';
-  import { Card, Button, Badge, Spinner, EmptyState } from '../components/common';
-  import { vehiclesStore, servicesStore, expensesStore, remindersStore, activeReminders, toastStore } from '../stores';
-  import { vehicleService, serviceService, expenseService, reminderService } from '../services';
-  import { formatNumber, formatCurrency, formatKm, formatJalaliDate, getRelativeTime } from '../utils/format';
-  import { REMINDER_STATUS, SERVICE_TYPES, POLL_INTERVAL } from '../utils/constants';
-  import type { Vehicle, Reminder } from '../types';
+  import { goto } from '$app/navigation';
+  import { Layout } from '$lib/components/layout';
+  import { Card, Button, Badge, Spinner, EmptyState } from '$lib/components/ui';
+  import { vehiclesStore, servicesStore, expensesStore, remindersStore, activeReminders, toastStore } from '$lib/stores';
+  import { vehicleService, serviceService, expenseService, reminderService } from '$lib/services';
+  import { formatNumber, formatCurrency, formatKm, formatJalaliDate, getRelativeTime } from '$lib/utils/format';
+  import { REMINDER_STATUS, SERVICE_TYPES, POLL_INTERVAL } from '$lib/utils/constants';
+  import type { Vehicle, Reminder } from '$lib/types';
 
   let isLoading = $state(true);
   let vehicles = $derived($vehiclesStore.vehicles);
@@ -108,7 +108,7 @@
             <span>🚗</span>
             <span>خودروهای من</span>
           </h2>
-          <a href="/vehicles" use:link class="section-link">مشاهده همه</a>
+          <a href="/vehicles" class="section-link">مشاهده همه</a>
         </div>
 
         {#if vehicles.length === 0}
@@ -118,7 +118,7 @@
               title="خودرویی ثبت نشده"
               description="اولین خودرو خود را اضافه کنید"
             >
-              <Button variant="primary" onclick={() => window.location.hash = '#/vehicles'}>
+              <Button variant="primary" onclick={() => goto('/vehicles')}>
                 افزودن خودرو
               </Button>
             </EmptyState>
@@ -127,7 +127,7 @@
           <div class="vehicles-grid">
             {#each vehicles as vehicle}
               {@const status = getVehicleStatus(vehicle.id)}
-              <a href="/vehicles/{vehicle.id}" use:link class="vehicle-card-link">
+              <a href="/vehicles/{vehicle.id}" class="vehicle-card-link">
                 <Card hoverable clickable padding="md" variant="solid">
                   <div class="vehicle-card">
                     <div class="vehicle-header">
@@ -179,28 +179,28 @@
         </h2>
         
         <div class="quick-actions">
-          <a href="/add?tab=service" use:link class="quick-action">
+          <a href="/add?tab=service" class="quick-action">
             <Card hoverable padding="md">
               <span class="action-icon">🔧</span>
               <span class="action-label">ثبت سرویس</span>
             </Card>
           </a>
           
-          <a href="/add?tab=expense" use:link class="quick-action">
+          <a href="/add?tab=expense" class="quick-action">
             <Card hoverable padding="md">
               <span class="action-icon">💰</span>
               <span class="action-label">ثبت هزینه</span>
             </Card>
           </a>
           
-          <a href="/reports" use:link class="quick-action">
+          <a href="/reports" class="quick-action">
             <Card hoverable padding="md">
               <span class="action-icon">📊</span>
               <span class="action-label">گزارش‌ها</span>
             </Card>
           </a>
           
-          <a href="/vehicles" use:link class="quick-action">
+          <a href="/vehicles" class="quick-action">
             <Card hoverable padding="md">
               <span class="action-icon">➕</span>
               <span class="action-label">افزودن خودرو</span>
@@ -451,3 +451,4 @@
     font-weight: 500;
   }
 </style>
+

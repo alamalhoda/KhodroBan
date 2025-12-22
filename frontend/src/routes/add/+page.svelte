@@ -1,26 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { push, querystring } from '../../lib/router';
-  import { Layout } from '../components/layout';
-  import { Card, Button, Input, Select, Tabs } from '../components/common';
-  import { vehiclesStore, servicesStore, expensesStore, toastStore } from '../stores';
-  import { vehicleService, serviceService, expenseService } from '../services';
-  import { validators, validateForm, getFieldError, type FieldError } from '../utils/validation';
-  import { getCurrentJalaliDate } from '../utils/format';
-  import { SERVICE_TYPE_OPTIONS, EXPENSE_CATEGORY_OPTIONS } from '../utils/constants';
-  import type { ServiceFormData, ExpenseFormData, SelectOption } from '../types';
+  import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
+  import { Layout } from '$lib/components/layout';
+  import { Card, Button, Input, Select, Tabs } from '$lib/components/ui';
+  import { vehiclesStore, servicesStore, expensesStore, toastStore } from '$lib/stores';
+  import { vehicleService, serviceService, expenseService } from '$lib/services';
+  import { validators, validateForm, getFieldError, type FieldError } from '$lib/utils/validation';
+  import { getCurrentJalaliDate } from '$lib/utils/format';
+  import { SERVICE_TYPE_OPTIONS, EXPENSE_CATEGORY_OPTIONS } from '$lib/utils/constants';
+  import type { ServiceFormData, ExpenseFormData, SelectOption } from '$lib/types';
 
   // Parse query params
-  let initialTab = 'service';
-  let initialVehicle = '';
-
-  $effect(() => {
-    const params = new URLSearchParams($querystring);
-    const tab = params.get('tab');
-    const vehicle = params.get('vehicle');
-    if (tab === 'expense') initialTab = 'expense';
-    if (vehicle) initialVehicle = vehicle;
-  });
+  let initialTab = $derived($page.url.searchParams.get('tab') || 'service');
+  let initialVehicle = $derived($page.url.searchParams.get('vehicle') || '');
 
   let activeTab = $state(initialTab);
   let isLoading = $state(true);
@@ -49,19 +42,26 @@
     date: getCurrentJalaliDate(),
     amount: 0,
     category: 'fuel',
-    km: undefined,
     note: '',
+  });
+
+  $effect(() => {
+    const tab = $page.url.searchParams.get('tab');
+    const vehicle = $page.url.searchParams.get('vehicle');
+    
+    if (tab === 'expense') activeTab = 'expense';
+    if (vehicle) {
+      serviceForm.vehicleId = vehicle;
+      expenseForm.vehicleId = vehicle;
+    }
   });
 
   onMount(async () => {
     await loadVehicles();
     
     // Set initial vehicle after loading
-    const params = new URLSearchParams($querystring);
-    const tab = params.get('tab');
-    const vehicle = params.get('vehicle');
+    const vehicle = $page.url.searchParams.get('vehicle');
     
-    if (tab === 'expense') activeTab = 'expense';
     if (vehicle) {
       serviceForm.vehicleId = vehicle;
       expenseForm.vehicleId = vehicle;
@@ -124,7 +124,7 @@
       }
       
       toastStore.success('سرویس با موفقیت ثبت شد');
-      push('/dashboard');
+      goto('/dashboard');
     } catch {
       toastStore.error('خطا در ثبت سرویس');
     } finally {
@@ -167,7 +167,7 @@
       }
       
       toastStore.success('هزینه با موفقیت ثبت شد');
-      push('/dashboard');
+      goto('/dashboard');
     } catch {
       toastStore.error('خطا در ثبت هزینه');
     } finally {
@@ -188,7 +188,7 @@
       {#if vehicleOptions.length === 0 && !isLoading}
         <div class="no-vehicles">
           <p>ابتدا یک خودرو اضافه کنید</p>
-          <Button variant="primary" onclick={() => push('/vehicles')}>
+          <Button variant="primary" onclick={() => goto('/vehicles')}>
             افزودن خودرو
           </Button>
         </div>
@@ -369,3 +369,4 @@
     color: var(--color-text-light);
   }
 </style>
+

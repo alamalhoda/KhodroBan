@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Button, Card, EmptyState } from '../components/common';
+  import { goto } from '$app/navigation';
+  import { Button, Card, EmptyState } from '$lib/components/ui';
 </script>
 
 <div class="not-found-page">
@@ -9,7 +10,7 @@
       title="صفحه یافت نشد"
       description="صفحه‌ای که به دنبال آن هستید وجود ندارد یا منتقل شده است"
     >
-      <Button variant="primary" onclick={() => window.location.hash = '#/dashboard'}>
+      <Button variant="primary" onclick={() => goto('/dashboard')}>
         بازگشت به داشبورد
       </Button>
     </EmptyState>
@@ -26,3 +27,4 @@
     padding: 1rem;
   }
 </style>
+

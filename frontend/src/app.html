@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1E3A8A" />
     <meta name="description" content="خودروبان - مدیریت هوشمند نگهداری خودرو" />
     
-    <title>خودروبان | مدیریت نگهداری خودرو</title>
+    <title>%sveltekit.title%</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -18,9 +18,11 @@
     
     <!-- Liquid Glass Web Component (Optional - for glassmorphism effects) -->
     <script type="module" crossorigin src="https://glass.danilofiumi.com/web-comps/boundle.js"></script>
+    
+    %sveltekit.head%
   </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
   </body>
 </html>
+

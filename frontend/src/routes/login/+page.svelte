@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { push } from '../../lib/router';
-  import { Button, Input, Card } from '../components/common';
-  import { authStore, toastStore } from '../stores';
-  import { authService } from '../services';
-  import { validators, validateForm, getFieldError, type FieldError } from '../utils/validation';
-  import { APP_NAME } from '../utils/constants';
+  import { goto } from '$app/navigation';
+  import { Button, Input, Card } from '$lib/components/ui';
+  import { authStore, toastStore } from '$lib/stores';
+  import { authService } from '$lib/services';
+  import { validators, validateForm, getFieldError, type FieldError } from '$lib/utils/validation';
+  import { APP_NAME } from '$lib/utils/constants';
 
   let email = $state('');
   let password = $state('');
@@ -35,7 +35,7 @@
       const { user, token } = await authService.login({ email, password });
       authStore.loginSuccess(user, token);
       toastStore.success('خوش آمدید!');
-      push('/dashboard');
+      goto('/dashboard');
     } catch (err: any) {
       const message = err?.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.';
       toastStore.error(message);
@@ -78,7 +78,7 @@
         />
 
         <div class="forgot-link">
-          <a href="#/forgot-password">رمز عبور را فراموش کردم</a>
+          <a href="/forgot-password">رمز عبور را فراموش کردم</a>
         </div>
 
         <Button type="submit" variant="primary" fullWidth loading={isLoading}>
@@ -88,7 +88,7 @@
 
       <div class="auth-footer">
         <span>حساب کاربری ندارید؟</span>
-        <a href="#/register">ثبت‌نام کنید</a>
+        <a href="/register">ثبت‌نام کنید</a>
       </div>
     </Card>
 
@@ -179,3 +179,4 @@
     color: var(--color-text-muted);
   }
 </style>
+

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { link, location } from '../../router';
+  import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   import { fade, fly } from 'svelte/transition';
   import { authStore, currentUser, isPro, reminderStats } from '../../stores';
   import { MENU_ITEMS, APP_NAME } from '../../utils/constants';
@@ -22,14 +23,15 @@
 
   function handleLogout() {
     authStore.logout();
-    window.location.hash = '#/login';
+    goto('/login');
     close();
   }
 
   // Check if current path matches menu item
   function isActive(path: string): boolean {
-    if (path === '/dashboard' && $location === '/') return true;
-    return $location === path || $location.startsWith(path + '/');
+    const currentPath = $page.url.pathname;
+    if (path === '/dashboard' && currentPath === '/') return true;
+    return currentPath === path || currentPath.startsWith(path + '/');
   }
 </script>
 
@@ -61,7 +63,6 @@
       {@const isItemActive = isActive(item.path)}
       <a 
         href={item.path} 
-        use:link 
         class="nav-item"
         class:active={isItemActive}
         onclick={close}
@@ -77,7 +78,7 @@
 
   <div class="sidebar-footer">
     {#if !$isPro}
-      <a href="/settings" use:link class="upgrade-btn" onclick={close}>
+      <a href="/settings" class="upgrade-btn" onclick={close}>
         <span>🌟</span>
         <span>ارتقا به Pro</span>
       </a>

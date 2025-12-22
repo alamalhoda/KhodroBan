@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Card } from '../common';
+  import { Card } from '../ui';
   import type { Reminder } from '../../types';
 
   interface Props {

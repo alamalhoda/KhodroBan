@@ -2,11 +2,12 @@
   import { createEventDispatcher } from 'svelte';
 
   type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'date';
+  export type { InputType };
 
   interface Props {
     type?: InputType;
     name?: string;
-    value?: string | number;
+    value?: string | number | undefined;
     placeholder?: string;
     label?: string;
     error?: string;
@@ -25,7 +26,7 @@
   let {
     type = 'text',
     name = '',
-    value = $bindable(''),
+    value: valueProp = $bindable(),
     placeholder = '',
     label = '',
     error = '',
@@ -41,23 +42,36 @@
     onchange,
   }: Props = $props();
 
+  // Normalize undefined/null to empty string for the input element
+  // Use $state that syncs with valueProp for two-way binding
+  let value = $state(valueProp ?? '');
+
+  // Sync valueProp changes to local value
+  $effect(() => {
+    value = valueProp ?? '';
+  });
+
   const dispatch = createEventDispatcher();
   let inputEl: HTMLInputElement;
 
   function handleInput(e: Event) {
     const target = e.target as HTMLInputElement;
     if (type === 'number') {
-      value = target.value === '' ? '' : Number(target.value);
-    } else {
+      const numValue = target.value === '' ? undefined : Number(target.value);
       value = target.value;
+      valueProp = numValue;
+    } else {
+      const strValue = target.value === '' ? undefined : target.value;
+      value = target.value;
+      valueProp = strValue;
     }
     oninput?.(e);
-    dispatch('input', { value });
+    dispatch('input', { value: valueProp });
   }
 
   function handleChange(e: Event) {
     onchange?.(e);
-    dispatch('change', { value });
+    dispatch('change', { value: valueProp });
   }
 </script>
 
