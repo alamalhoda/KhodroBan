@@ -1,0 +1,57 @@
+# Supabase Local Development Configuration
+# این فایل برای توسعه محلی با Supabase CLI استفاده می‌شود
+
+[project]
+# نام پروژه
+name = "khodroban"
+
+[auth]
+# تنظیمات احراز هویت
+enable_signup = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/**"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+
+[auth.email]
+# تنظیمات ایمیل
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[api]
+# تنظیمات API
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+# تنظیمات دیتابیس
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+# تنظیمات Studio (Dashboard)
+enabled = true
+port = 54323
+
+[inbucket]
+# تنظیمات ایمیل تست (برای توسعه)
+enabled = true
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+# تنظیمات Storage
+enabled = true
+file_size_limit = "50MiB"
+
+[functions]
+# تنظیمات Edge Functions
+verify_jwt = false
+
