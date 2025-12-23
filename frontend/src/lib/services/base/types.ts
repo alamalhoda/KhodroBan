@@ -28,6 +28,7 @@ import type {
 export interface IAuthService {
   login(credentials: LoginCredentials): Promise<{ user: User; token: string }>;
   register(data: RegisterData): Promise<{ user: User; token: string }>;
+  loginWithGoogle(): Promise<void>;
   logout(): Promise<void>;
   getProfile(): Promise<User>;
   updateProfile(data: Partial<{ firstName: string; lastName: string }>): Promise<User>;
