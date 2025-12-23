@@ -9,7 +9,20 @@
   let email = $state('');
   let password = $state('');
   let isLoading = $state(false);
+  let isGoogleLoading = $state(false);
   let errors = $state<FieldError[]>([]);
+
+  async function handleGoogleLogin() {
+    isGoogleLoading = true;
+    try {
+      await authService.loginWithGoogle();
+      // Supabase خودش redirect می‌کند، پس نیازی به goto نیست
+    } catch (err: any) {
+      const message = err?.message || 'خطا در ورود با Google. لطفاً دوباره تلاش کنید.';
+      toastStore.error(message);
+      isGoogleLoading = false;
+    }
+  }
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
@@ -85,6 +98,20 @@
           ورود
         </Button>
       </form>
+
+      <div class="auth-divider">
+        <span>یا</span>
+      </div>
+
+      <Button 
+        variant="secondary" 
+        fullWidth 
+        loading={isGoogleLoading}
+        onclick={handleGoogleLogin}
+      >
+        <span class="google-icon">🔍</span>
+        ورود با Google
+      </Button>
 
       <div class="auth-footer">
         <span>حساب کاربری ندارید؟</span>
@@ -177,6 +204,32 @@
     text-align: center;
     font-size: 0.8125rem;
     color: var(--color-text-muted);
+  }
+
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+
+  .auth-divider::before,
+  .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .auth-divider span {
+    padding: 0 1rem;
+    color: var(--color-text-light);
+    font-size: 0.875rem;
+  }
+
+  .google-icon {
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
   }
 </style>
 

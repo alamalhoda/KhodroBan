@@ -90,6 +90,14 @@ const authServiceMock: IAuthService = {
     return { user: newUser, token };
   },
 
+  async loginWithGoogle(): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    // Mock: redirect به dashboard (در واقعیت این کار را Supabase انجام می‌دهد)
+    const token = 'mock-jwt-token-' + Date.now();
+    localStorage.setItem('token', token);
+    authStore.loginSuccess(mockUser, token);
+  },
+
   async logout(): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 200));
     localStorage.removeItem('token');
@@ -191,6 +199,25 @@ const authServiceSupabase: IAuthService = {
       return { user, token };
     } catch (error: any) {
       throw new Error(error.message || 'خطا در ثبت‌نام');
+    }
+  },
+
+  async loginWithGoogle(): Promise<void> {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message || 'خطا در ورود با Google');
+      }
+
+      // Supabase خودش redirect می‌کند، پس نیازی به return نیست
+    } catch (error: any) {
+      throw new Error(error.message || 'خطا در ورود با Google');
     }
   },
 
@@ -305,6 +332,11 @@ const authServiceDjango: IAuthService = {
     const token = response.data.data.token;
     localStorage.setItem('token', token);
     return response.data.data;
+  },
+
+  async loginWithGoogle(): Promise<void> {
+    // Django implementation - redirect به endpoint Django
+    window.location.href = '/api/auth/google/login/';
   },
 
   async logout(): Promise<void> {
