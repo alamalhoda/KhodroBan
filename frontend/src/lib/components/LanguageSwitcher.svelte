@@ -4,11 +4,12 @@
   import { Button } from '$lib/components/ui';
   import { _ } from 'svelte-i18n';
 
-  const languages = [
+  // تعریف زبان‌ها به صورت reactive
+  const languages = $derived([
     { code: 'fa', name: $_('language.persian'), flag: '🇮🇷' },
     { code: 'en', name: $_('language.english'), flag: '🇺🇸' },
     { code: 'ar', name: $_('language.arabic'), flag: '🇸🇦' }
-  ];
+  ]);
 
   function changeLanguage(langCode: string) {
     setLocale(langCode);

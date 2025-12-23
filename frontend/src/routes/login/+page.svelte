@@ -6,6 +6,15 @@
   import { validators, validateForm, getFieldError, type FieldError } from '$lib/utils/validation';
   import { APP_NAME } from '$lib/utils/constants';
   import { _ } from 'svelte-i18n';
+  import { browser } from '$app/environment';
+  import { initializeI18n, initializeLocale, setLocale } from '$lib/i18n';
+
+  // مقداردهی اولیه i18n اگر در کلاینت هستیم
+  if (browser) {
+    initializeI18n();
+    const initialLocale = initializeLocale();
+    setLocale(initialLocale);
+  }
 
   let email = $state('');
   let password = $state('');

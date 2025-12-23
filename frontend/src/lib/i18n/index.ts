@@ -1,16 +1,37 @@
-import { register, init, getLocaleFromNavigator, locale } from 'svelte-i18n';
+import { register, init, getLocaleFromNavigator, locale, dictionary } from 'svelte-i18n';
 
 import fa from './fa.json';
 import en from './en.json';
 import ar from './ar.json';
 
-// ثبت زبان‌ها
-register('fa', () => Promise.resolve(fa));
-register('en', () => Promise.resolve(en));
-register('ar', () => Promise.resolve(ar));
+// متغیر برای پیگیری مقداردهی اولیه
+let isInitialized = false;
 
-// تنظیم زبان پیش‌فرض بر اساس مرورگر یا ذخیره شده
-const getInitialLocale = (): string => {
+// تابع مقداردهی اولیه سیستم i18n
+export function initializeI18n(initialLocale: string = 'fa') {
+  if (isInitialized) return;
+
+  // ثبت زبان‌ها
+  register('fa', () => Promise.resolve(fa));
+  register('en', () => Promise.resolve(en));
+  register('ar', () => Promise.resolve(ar));
+
+  // مقداردهی اولیه سیستم i18n
+  init({
+    fallbackLocale: 'fa',
+    initialLocale,
+  });
+
+  isInitialized = true;
+}
+
+// تنظیم زبان پیش‌فرض بر اساس مرورگر یا ذخیره شده (فقط در کلاینت)
+export function initializeLocale(): string {
+  // بررسی وجود localStorage (کلاینت)
+  if (typeof localStorage === 'undefined') {
+    return 'fa'; // در SSR پیش‌فرض فارسی
+  }
+
   // ابتدا بررسی localStorage
   const savedLocale = localStorage.getItem('locale');
   if (savedLocale && ['fa', 'en', 'ar'].includes(savedLocale)) {
@@ -25,13 +46,7 @@ const getInitialLocale = (): string => {
 
   // پیش‌فرض فارسی
   return 'fa';
-};
-
-// مقداردهی اولیه سیستم i18n
-init({
-  fallbackLocale: 'fa',
-  initialLocale: getInitialLocale(),
-});
+}
 
 // تابع تغییر زبان با ذخیره در localStorage و تنظیم جهت صفحه
 export function setLocale(newLocale: string) {
@@ -40,21 +55,27 @@ export function setLocale(newLocale: string) {
     return;
   }
 
-  // ذخیره در localStorage
-  localStorage.setItem('locale', newLocale);
+  // ذخیره در localStorage (اگر در کلاینت هستیم)
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('locale', newLocale);
+  }
 
-  // مقداردهی مجدد سیستم i18n
-  init({
-    fallbackLocale: 'fa',
-    initialLocale: newLocale,
-  });
+  // تغییر زبان در svelte-i18n
+  locale.set(newLocale);
 
-  // تنظیم جهت صفحه و زبان HTML
-  updateDocumentAttributes(newLocale);
+  // تنظیم جهت صفحه و زبان HTML (اگر در کلاینت هستیم)
+  if (typeof document !== 'undefined') {
+    updateDocumentAttributes(newLocale);
+  }
 }
 
 // تنظیم ویژگی‌های document بر اساس زبان
 export function updateDocumentAttributes(locale: string) {
+  // چک کردن وجود document (کلاینت)
+  if (typeof document === 'undefined') {
+    return;
+  }
+
   const html = document.documentElement;
 
   switch (locale) {
