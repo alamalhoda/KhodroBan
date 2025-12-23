@@ -1,10 +1,11 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { Button, Input, Card } from '$lib/components/ui';
+  import { Button, Input, Card, LanguageSwitcher } from '$lib/components';
   import { authStore, toastStore } from '$lib/stores';
   import { authService } from '$lib/services';
   import { validators, validateForm, getFieldError, type FieldError } from '$lib/utils/validation';
   import { APP_NAME } from '$lib/utils/constants';
+  import { _ } from 'svelte-i18n';
 
   let email = $state('');
   let password = $state('');
@@ -18,8 +19,8 @@
     const validation = validateForm(
       { email, password },
       {
-        email: [(v) => validators.required(v, 'ایمیل'), validators.email],
-        password: [(v) => validators.required(v, 'رمز عبور')],
+        email: [(v) => validators.required(v, $_('auth.email')), validators.email],
+        password: [(v) => validators.required(v, $_('auth.password'))],
       }
     );
 
@@ -34,10 +35,10 @@
     try {
       const { user, token } = await authService.login({ email, password });
       authStore.loginSuccess(user, token);
-      toastStore.success('خوش آمدید!');
+      toastStore.success($_('auth.welcome'));
       goto('/dashboard');
     } catch (err: any) {
-      const message = err?.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.';
+      const message = err?.message || $_('auth.loginError');
       toastStore.error(message);
     } finally {
       isLoading = false;
@@ -51,14 +52,14 @@
       <div class="auth-header">
         <span class="auth-logo">🚗</span>
         <h1 class="auth-title">{APP_NAME}</h1>
-        <p class="auth-subtitle">مدیریت هوشمند نگهداری خودرو</p>
+        <p class="auth-subtitle">{$_('dashboard.welcome')}</p>
       </div>
 
       <form class="auth-form" onsubmit={handleSubmit}>
         <Input
           type="email"
           name="email"
-          label="ایمیل"
+          label={$_('auth.email')}
           placeholder="email@example.com"
           bind:value={email}
           error={getFieldError(errors, 'email')}
@@ -69,8 +70,8 @@
         <Input
           type="password"
           name="password"
-          label="رمز عبور"
-          placeholder="رمز عبور خود را وارد کنید"
+          label={$_('auth.password')}
+          placeholder="Enter your password"
           bind:value={password}
           error={getFieldError(errors, 'password')}
           required
@@ -78,22 +79,26 @@
         />
 
         <div class="forgot-link">
-          <a href="/forgot-password">رمز عبور را فراموش کردم</a>
+          <a href="/forgot-password">{$_('auth.forgotPassword')}</a>
         </div>
 
         <Button type="submit" variant="primary" fullWidth loading={isLoading}>
-          ورود
+          {$_('auth.login')}
         </Button>
       </form>
 
       <div class="auth-footer">
-        <span>حساب کاربری ندارید؟</span>
-        <a href="/register">ثبت‌نام کنید</a>
+        <span>Don't have an account?</span>
+        <a href="/register">{$_('auth.register')}</a>
       </div>
     </Card>
 
+    <div class="auth-language">
+      <LanguageSwitcher />
+    </div>
+
     <p class="demo-hint">
-      برای تست، هر ایمیل و رمز عبوری وارد کنید
+      For testing, enter any email and password
     </p>
   </div>
 </div>
@@ -170,6 +175,12 @@
     color: var(--color-primary);
     font-weight: 500;
     margin-right: 0.25rem;
+  }
+
+  .auth-language {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
   }
 
   .demo-hint {
