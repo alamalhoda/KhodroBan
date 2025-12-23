@@ -2,6 +2,8 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import adapterAuto from '@sveltejs/adapter-auto';
 import adapterDeno from '@deno/svelte-adapter';
 import adapterNetlify from '@sveltejs/adapter-netlify';
+import adapterStatic from '@sveltejs/adapter-static';
+
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -15,7 +17,15 @@ const config = {
       if (typeof process === 'undefined') {
         return adapterAuto();
       }
-
+       // حالت مخصوص GitHub Pages → خروجی کاملاً استاتیک
+      if (process.env.STATIC_PAGES === 'true') {
+        return adapterStatic({
+          pages: 'build',
+          assets: 'build',
+          fallback: 'index.html',
+          precompress: false
+        });
+      }
       // Deno Deploy: متغیرهای DENO_REGION یا DENO_DEPLOY همیشه وجود دارن
       if (process.env.DENO_REGION || process.env.DENO_DEPLOY) {
         return adapterDeno();
