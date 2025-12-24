@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [sveltekit()],
   base: isStaticPages ? '/KhodroBan/' : '/',
   server: {
-    port: 5173,
+    port: process.env.PORT ? parseInt(process.env.PORT) : 5173,
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
