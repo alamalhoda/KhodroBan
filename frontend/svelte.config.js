@@ -41,7 +41,12 @@ const config = {
         return adapterNetlify();
       }
 
-      // SPA برای همه محیط‌ها (local development, production)
+      // Development: از SSR استفاده کنیم برای SPA routing
+      if (process.env.NODE_ENV !== 'production') {
+        return adapterAuto();
+      }
+
+      // Production: SPA با adapterStatic
       return adapterStatic({
         pages: 'build',
         assets: 'build',
