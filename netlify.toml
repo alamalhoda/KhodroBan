@@ -5,9 +5,6 @@
 
 [build.environment]
   VITE_BACKEND_TYPE = "supabase"
-
-# تنظیمات secrets scanning - غیرفعال کردن برای این پروژه
-[build.environment]
   SECRETS_SCAN_ENABLED = "false"
 
 # Headers برای caching assets
