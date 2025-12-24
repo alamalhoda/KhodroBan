@@ -7,9 +7,9 @@
   VITE_BACKEND_TYPE = "supabase"
 
 # تنظیمات secrets scanning - کلیدهای Supabase را ignore کن
-[build.processing.secrets_scan]
+[build.secrets_scan]
+  omit_paths = ["build", ".svelte-kit"]
   omit_keys = ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY"]
-  enabled = true
 
 # Headers برای caching assets
 [[headers]]
