@@ -64,7 +64,7 @@
 </script>
 
 <Layout headerTitle="داشبورد">
-  <div class="page">
+  <div class="page-container">
     {#if isLoading}
       <div class="loading-container">
         <Spinner size="lg" />
@@ -213,55 +213,64 @@
 </Layout>
 
 <style>
-  .page {
-    padding: 1rem;
-    padding-bottom: calc(70px + 1rem);
+  /* Home page specific styles */
+
+  /* Quick actions */
+  .quick-actions {
+    display: grid;
+    gap: var(--space-lg);
   }
 
   @media (min-width: 768px) {
-    .page {
-      padding: 1.5rem;
-      padding-bottom: 1.5rem;
+    .quick-actions {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
-  .loading-container {
+  .quick-action {
+    display: block;
+    padding: var(--space-lg);
+    text-decoration: none;
+    color: inherit;
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    box-shadow: var(--glass-shadow);
+    transition: all var(--transition-fast);
+  }
+
+  .quick-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .action-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-sm);
+    display: block;
+  }
+
+  .action-label {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  /* Alerts */
+  .alerts-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    gap: 1rem;
-    color: var(--color-text-light);
+    gap: var(--space-sm);
   }
 
-  .section {
-    margin-bottom: 2rem;
+  :global(.alert-card) {
+    border-right: 4px solid var(--color-warning) !important;
   }
 
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
-
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0 0 1rem;
-    font-size: 1.125rem;
-    font-weight: 600;
-  }
-
-  .section-header .section-title {
-    margin-bottom: 0;
-  }
-
-  .section-link {
-    font-size: 0.875rem;
-    color: var(--color-primary);
+  :global(.alert-overdue) {
+    border-right-color: var(--color-danger) !important;
   }
 
   /* Alerts */

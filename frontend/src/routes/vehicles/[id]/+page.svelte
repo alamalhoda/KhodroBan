@@ -78,7 +78,7 @@
 </script>
 
 <Layout showBack={true} headerTitle={vehicle?.model || 'جزئیات خودرو'}>
-  <div class="page">
+  <div class="page-container">
     {#if isLoading}
       <div class="loading-container">
         <Spinner size="lg" />
@@ -269,29 +269,7 @@
 </Modal>
 
 <style>
-  .page {
-    padding: 1rem;
-    padding-bottom: calc(70px + 1rem);
-  }
-
-  @media (min-width: 768px) {
-    .page {
-      padding: 1.5rem;
-      padding-bottom: 1.5rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-  }
-
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    gap: 1rem;
-    color: var(--color-text-light);
-  }
+  /* Vehicle detail page specific styles */
 
   /* Vehicle Info Card */
   :global(.vehicle-info-card) {

@@ -113,7 +113,7 @@
 </script>
 
 <Layout headerTitle="گزارش‌ها">
-  <div class="page">
+  <div class="page-container">
     <!-- Filters -->
     <Card variant="solid" padding="md" class="filters-card">
       <div class="filters">
@@ -221,50 +221,28 @@
 </Layout>
 
 <style>
-  .page {
-    padding: 1rem;
-    padding-bottom: calc(70px + 1rem);
-  }
-
-  @media (min-width: 768px) {
-    .page {
-      padding: 1.5rem;
-      padding-bottom: 1.5rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-  }
-
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    gap: 1rem;
-    color: var(--color-text-light);
-  }
+  /* Reports page specific styles */
 
   :global(.filters-card) {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-lg);
   }
 
   .filters {
     display: grid;
-    gap: 1rem;
+    gap: var(--space-lg);
   }
 
   @media (min-width: 768px) {
     .filters {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
   /* Summary Grid */
   .summary-grid {
     display: grid;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
   }
 
   @media (min-width: 768px) {
