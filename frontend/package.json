@@ -43,6 +43,7 @@
     "vitest": "^4.0.16"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.89.0",
     "axios": "^1.7.0",
     "chart.js": "^4.4.0",
     "persian-date": "^1.1.0",

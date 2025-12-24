@@ -1,7 +1,13 @@
+import { supabase } from '../supabase';
 import api from './api';
 import type { Vehicle, VehicleFormData, ApiResponse } from '../types';
+import { selectService } from './base/router';
+import type { IVehicleService } from './base/types';
 
-// Mock data for development
+// ============================================
+// MOCK IMPLEMENTATION
+// ============================================
+
 const mockVehicles: Vehicle[] = [
   {
     id: '1',
@@ -26,110 +32,245 @@ const mockVehicles: Vehicle[] = [
   },
 ];
 
-const USE_MOCK = true;
-
-export const vehicleService = {
-  /**
-   * Get all vehicles for current user
-   */
+const vehicleServiceMock: IVehicleService = {
   async getAll(): Promise<Vehicle[]> {
-    if (USE_MOCK) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return mockVehicles;
-    }
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return [...mockVehicles];
+  },
 
+  async getById(id: string): Promise<Vehicle> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const vehicle = mockVehicles.find(v => v.id === id);
+    if (!vehicle) throw new Error('خودرو یافت نشد');
+    return vehicle;
+  },
+
+  async create(data: VehicleFormData): Promise<Vehicle> {
+    await new Promise(resolve => setTimeout(resolve, 600));
+    const newVehicle: Vehicle = {
+      id: Date.now().toString(),
+      userId: '1',
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    mockVehicles.push(newVehicle);
+    return newVehicle;
+  },
+
+  async update(id: string, data: Partial<VehicleFormData>): Promise<Vehicle> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const index = mockVehicles.findIndex(v => v.id === id);
+    if (index === -1) throw new Error('خودرو یافت نشد');
+    
+    mockVehicles[index] = {
+      ...mockVehicles[index],
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+    return mockVehicles[index];
+  },
+
+  async delete(id: string): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 400));
+    const index = mockVehicles.findIndex(v => v.id === id);
+    if (index !== -1) {
+      mockVehicles.splice(index, 1);
+    }
+  },
+
+  async updateKm(id: string, km: number): Promise<Vehicle> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const index = mockVehicles.findIndex(v => v.id === id);
+    if (index === -1) throw new Error('خودرو یافت نشد');
+    
+    mockVehicles[index].currentKm = km;
+    mockVehicles[index].updatedAt = new Date().toISOString();
+    return mockVehicles[index];
+  },
+};
+
+// ============================================
+// SUPABASE IMPLEMENTATION
+// ============================================
+
+const vehicleServiceSupabase: IVehicleService = {
+  async getAll(): Promise<Vehicle[]> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('کاربر لاگین نشده است');
+
+    const { data, error } = await supabase
+      .from('vehicles')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    return data.map(v => ({
+      id: v.vehicle_id.toString(),
+      userId: v.user_id,
+      model: v.model,
+      year: v.year,
+      plateNumber: v.plate_number,
+      currentKm: v.current_km,
+      note: v.description || undefined,
+      createdAt: v.created_at,
+      updatedAt: v.updated_at,
+    }));
+  },
+
+  async getById(id: string): Promise<Vehicle> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('کاربر لاگین نشده است');
+
+    const { data, error } = await supabase
+      .from('vehicles')
+      .select('*')
+      .eq('vehicle_id', id)
+      .eq('user_id', user.id)
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    return {
+      id: data.vehicle_id.toString(),
+      userId: data.user_id,
+      model: data.model,
+      year: data.year,
+      plateNumber: data.plate_number,
+      currentKm: data.current_km,
+      note: data.description || undefined,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
+  },
+
+  async create(data: VehicleFormData): Promise<Vehicle> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('کاربر لاگین نشده است');
+
+    const { data: newVehicle, error } = await supabase
+      .from('vehicles')
+      .insert({
+        user_id: user.id,
+        model: data.model,
+        year: data.year,
+        plate_number: data.plateNumber,
+        current_km: data.currentKm,
+        description: data.note || null,
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    return {
+      id: newVehicle.vehicle_id.toString(),
+      userId: newVehicle.user_id,
+      model: newVehicle.model,
+      year: newVehicle.year,
+      plateNumber: newVehicle.plate_number,
+      currentKm: newVehicle.current_km,
+      note: newVehicle.description || undefined,
+      createdAt: newVehicle.created_at,
+      updatedAt: newVehicle.updated_at,
+    };
+  },
+
+  async update(id: string, data: Partial<VehicleFormData>): Promise<Vehicle> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('کاربر لاگین نشده است');
+
+    const updates: any = {};
+    if (data.model) updates.model = data.model;
+    if (data.year) updates.year = data.year;
+    if (data.plateNumber) updates.plate_number = data.plateNumber;
+    if (data.currentKm !== undefined) updates.current_km = data.currentKm;
+    if (data.note !== undefined) updates.description = data.note;
+
+    const { data: updatedVehicle, error } = await supabase
+      .from('vehicles')
+      .update(updates)
+      .eq('vehicle_id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    return {
+      id: updatedVehicle.vehicle_id.toString(),
+      userId: updatedVehicle.user_id,
+      model: updatedVehicle.model,
+      year: updatedVehicle.year,
+      plateNumber: updatedVehicle.plate_number,
+      currentKm: updatedVehicle.current_km,
+      note: updatedVehicle.description || undefined,
+      createdAt: updatedVehicle.created_at,
+      updatedAt: updatedVehicle.updated_at,
+    };
+  },
+
+  async delete(id: string): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('کاربر لاگین نشده است');
+
+    const { error } = await supabase
+      .from('vehicles')
+      .delete()
+      .eq('vehicle_id', id)
+      .eq('user_id', user.id);
+
+    if (error) throw new Error(error.message);
+  },
+
+  async updateKm(id: string, km: number): Promise<Vehicle> {
+    return this.update(id, { currentKm: km });
+  },
+};
+
+// ============================================
+// DJANGO IMPLEMENTATION (Placeholder)
+// ============================================
+
+const vehicleServiceDjango: IVehicleService = {
+  async getAll(): Promise<Vehicle[]> {
     const response = await api.get<ApiResponse<Vehicle[]>>('/vehicles/');
     return response.data.data;
   },
 
-  /**
-   * Get a single vehicle by ID
-   */
   async getById(id: string): Promise<Vehicle> {
-    if (USE_MOCK) {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const vehicle = mockVehicles.find(v => v.id === id);
-      if (!vehicle) throw new Error('خودرو یافت نشد');
-      return vehicle;
-    }
-
     const response = await api.get<ApiResponse<Vehicle>>(`/vehicles/${id}/`);
     return response.data.data;
   },
 
-  /**
-   * Create a new vehicle
-   */
   async create(data: VehicleFormData): Promise<Vehicle> {
-    if (USE_MOCK) {
-      await new Promise(resolve => setTimeout(resolve, 600));
-      const newVehicle: Vehicle = {
-        id: Date.now().toString(),
-        userId: '1',
-        ...data,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      mockVehicles.push(newVehicle);
-      return newVehicle;
-    }
-
     const response = await api.post<ApiResponse<Vehicle>>('/vehicles/', data);
     return response.data.data;
   },
 
-  /**
-   * Update a vehicle
-   */
   async update(id: string, data: Partial<VehicleFormData>): Promise<Vehicle> {
-    if (USE_MOCK) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const index = mockVehicles.findIndex(v => v.id === id);
-      if (index === -1) throw new Error('خودرو یافت نشد');
-      
-      mockVehicles[index] = {
-        ...mockVehicles[index],
-        ...data,
-        updatedAt: new Date().toISOString(),
-      };
-      return mockVehicles[index];
-    }
-
     const response = await api.patch<ApiResponse<Vehicle>>(`/vehicles/${id}/`, data);
     return response.data.data;
   },
 
-  /**
-   * Delete a vehicle
-   */
   async delete(id: string): Promise<void> {
-    if (USE_MOCK) {
-      await new Promise(resolve => setTimeout(resolve, 400));
-      const index = mockVehicles.findIndex(v => v.id === id);
-      if (index !== -1) {
-        mockVehicles.splice(index, 1);
-      }
-      return;
-    }
-
     await api.delete(`/vehicles/${id}/`);
   },
 
-  /**
-   * Update vehicle kilometers
-   */
   async updateKm(id: string, km: number): Promise<Vehicle> {
-    if (USE_MOCK) {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const index = mockVehicles.findIndex(v => v.id === id);
-      if (index === -1) throw new Error('خودرو یافت نشد');
-      
-      mockVehicles[index].currentKm = km;
-      mockVehicles[index].updatedAt = new Date().toISOString();
-      return mockVehicles[index];
-    }
-
     const response = await api.patch<ApiResponse<Vehicle>>(`/vehicles/${id}/km/`, { km });
     return response.data.data;
   },
 };
+
+// ============================================
+// EXPORTED SERVICE (Router)
+// ============================================
+
+export const vehicleService = selectService(
+  vehicleServiceMock,
+  vehicleServiceSupabase,
+  vehicleServiceDjango
+);
