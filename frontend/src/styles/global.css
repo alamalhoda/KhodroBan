@@ -3,6 +3,9 @@
    Glassmorphism Theme + RTL + Persian
    ======================================== */
 
+/* Import RTL styles */
+@import './rtl.css';
+
 /* CSS Variables / Theme */
 :root {
   /* Colors */
