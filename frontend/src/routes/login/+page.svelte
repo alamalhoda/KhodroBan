@@ -1,14 +1,3 @@
-<script lang="ts" context="module">
-  import type { PageLoad } from './$types';
-
-  export const load: PageLoad = async () => {
-    return {
-      // Flag to indicate page is ready for client-side i18n
-      ready: true
-    };
-  };
-</script>
-
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { Button, Input, Card, LanguageSwitcher } from '$lib/components';

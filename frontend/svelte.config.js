@@ -15,7 +15,12 @@ const config = {
     adapter: (() => {
       // در محیط‌های بدون process (مثل بعضی buildهای قدیمی) ایمن باش
       if (typeof process === 'undefined') {
-        return adapterAuto();
+        return adapterStatic({
+          pages: 'build',
+          assets: 'build',
+          fallback: 'index.html',
+          precompress: false
+        });
       }
        // حالت مخصوص GitHub Pages → خروجی کاملاً استاتیک
       if (process.env.STATIC_PAGES === 'true') {
@@ -36,9 +41,14 @@ const config = {
         return adapterNetlify();
       }
 
-      // local development یا محیط‌های دیگه
-      return adapterAuto();
-    })(),
+      // SPA برای همه محیط‌ها (local development, production)
+      return adapterStatic({
+        pages: 'build',
+        assets: 'build',
+        fallback: 'index.html',
+        precompress: false
+      });
+    })()
   },
 };
 
