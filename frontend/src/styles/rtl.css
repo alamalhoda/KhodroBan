@@ -1,0 +1,192 @@
+/* RTL (Right-to-Left) Support for Persian and Arabic */
+
+/* Base RTL styles */
+[dir="rtl"] {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="ltr"] {
+  text-align: left;
+  direction: ltr;
+}
+
+/* Flexbox RTL adjustments */
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row;
+}
+
+[dir="rtl"] .justify-start {
+  justify-content: flex-end;
+}
+
+[dir="rtl"] .justify-end {
+  justify-content: flex-start;
+}
+
+/* Text alignment */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* Margins and paddings */
+[dir="rtl"] .ml-1 { margin-right: 0.25rem; margin-left: 0; }
+[dir="rtl"] .ml-2 { margin-right: 0.5rem; margin-left: 0; }
+[dir="rtl"] .ml-3 { margin-right: 0.75rem; margin-left: 0; }
+[dir="rtl"] .ml-4 { margin-right: 1rem; margin-left: 0; }
+[dir="rtl"] .ml-6 { margin-right: 1.5rem; margin-left: 0; }
+[dir="rtl"] .ml-8 { margin-right: 2rem; margin-left: 0; }
+
+[dir="rtl"] .mr-1 { margin-left: 0.25rem; margin-right: 0; }
+[dir="rtl"] .mr-2 { margin-left: 0.5rem; margin-right: 0; }
+[dir="rtl"] .mr-3 { margin-left: 0.75rem; margin-right: 0; }
+[dir="rtl"] .mr-4 { margin-left: 1rem; margin-right: 0; }
+[dir="rtl"] .mr-6 { margin-left: 1.5rem; margin-right: 0; }
+[dir="rtl"] .mr-8 { margin-left: 2rem; margin-right: 0; }
+
+[dir="rtl"] .pl-1 { padding-right: 0.25rem; padding-left: 0; }
+[dir="rtl"] .pl-2 { padding-right: 0.5rem; padding-left: 0; }
+[dir="rtl"] .pl-3 { padding-right: 0.75rem; padding-left: 0; }
+[dir="rtl"] .pl-4 { padding-right: 1rem; padding-left: 0; }
+[dir="rtl"] .pl-6 { padding-right: 1.5rem; padding-left: 0; }
+[dir="rtl"] .pl-8 { padding-right: 2rem; padding-left: 0; }
+
+[dir="rtl"] .pr-1 { padding-left: 0.25rem; padding-right: 0; }
+[dir="rtl"] .pr-2 { padding-left: 0.5rem; padding-right: 0; }
+[dir="rtl"] .pr-3 { padding-left: 0.75rem; padding-right: 0; }
+[dir="rtl"] .pr-4 { padding-left: 1rem; padding-right: 0; }
+[dir="rtl"] .pr-6 { padding-left: 1.5rem; padding-right: 0; }
+[dir="rtl"] .pr-8 { padding-left: 2rem; padding-right: 0; }
+
+/* Borders */
+[dir="rtl"] .border-l {
+  border-right-width: 1px;
+  border-left-width: 0;
+}
+
+[dir="rtl"] .border-r {
+  border-left-width: 1px;
+  border-right-width: 0;
+}
+
+[dir="rtl"] .border-l-2 {
+  border-right-width: 2px;
+  border-left-width: 0;
+}
+
+[dir="rtl"] .border-r-2 {
+  border-left-width: 2px;
+  border-right-width: 0;
+}
+
+/* Positions */
+[dir="rtl"] .left-0 { right: 0; left: auto; }
+[dir="rtl"] .left-4 { right: 1rem; left: auto; }
+[dir="rtl"] .right-0 { left: 0; right: auto; }
+[dir="rtl"] .right-4 { left: 1rem; right: auto; }
+
+/* Form elements */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] input[type="number"],
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+/* Icons and buttons */
+[dir="rtl"] .icon-left { transform: scaleX(-1); }
+[dir="rtl"] .icon-right { transform: scaleX(-1); }
+
+/* Navigation */
+[dir="rtl"] .nav-item:first-child { margin-right: 0; margin-left: 1rem; }
+[dir="rtl"] .nav-item:last-child { margin-left: 0; margin-right: 1rem; }
+
+/* Cards and containers */
+[dir="rtl"] .card-actions {
+  flex-direction: row-reverse;
+}
+
+/* Tables */
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+/* Specific component overrides */
+[dir="rtl"] .auth-footer a {
+  margin-right: 0;
+  margin-left: 0.25rem;
+}
+
+[dir="rtl"] .forgot-link {
+  text-align: right;
+}
+
+[dir="rtl"] .demo-hint {
+  text-align: center; /* Keep centered for demo hints */
+}
+
+/* Modal and overlays */
+[dir="rtl"] .modal-content {
+  text-align: right;
+}
+
+/* Toast notifications */
+[dir="rtl"] .toast-container {
+  left: 1rem;
+  right: auto;
+}
+
+/* Language switcher */
+[dir="rtl"] .language-switcher {
+  align-items: flex-end;
+}
+
+[dir="rtl"] .language-buttons {
+  flex-direction: row-reverse;
+}
+
+/* Ensure LTR content stays LTR */
+[dir="rtl"] .ltr-content {
+  direction: ltr;
+  text-align: left;
+}
+
+[dir="rtl"] .ltr-content * {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Code blocks and technical content */
+[dir="rtl"] code,
+[dir="rtl"] pre,
+[dir="rtl"] .code-block {
+  direction: ltr;
+  text-align: left;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Numbers and technical data should remain LTR */
+[dir="rtl"] .number,
+[dir="rtl"] .price,
+[dir="rtl"] .date,
+[dir="rtl"] .phone,
+[dir="rtl"] .email,
+[dir="rtl"] .url {
+  direction: ltr;
+  text-align: left;
+}

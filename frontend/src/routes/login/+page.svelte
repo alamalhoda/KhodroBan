@@ -1,10 +1,20 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { Button, Input, Card } from '$lib/components/ui';
+  import { Button, Input, Card, LanguageSwitcher } from '$lib/components';
   import { authStore, toastStore } from '$lib/stores';
   import { authService } from '$lib/services';
   import { validators, validateForm, getFieldError, type FieldError } from '$lib/utils/validation';
   import { APP_NAME } from '$lib/utils/constants';
+  import { _ } from 'svelte-i18n';
+  import { browser } from '$app/environment';
+  import { initializeI18n, initializeLocale, setLocale } from '$lib/i18n';
+
+  // مقداردهی اولیه i18n اگر در کلاینت هستیم
+  if (browser) {
+    initializeI18n();
+    const initialLocale = initializeLocale();
+    setLocale(initialLocale);
+  }
 
   let email = $state('');
   let password = $state('');
@@ -31,8 +41,8 @@
     const validation = validateForm(
       { email, password },
       {
-        email: [(v) => validators.required(v, 'ایمیل'), validators.email],
-        password: [(v) => validators.required(v, 'رمز عبور')],
+        email: [(v) => validators.required(v, $_('auth.email')), validators.email],
+        password: [(v) => validators.required(v, $_('auth.password'))],
       }
     );
 
@@ -47,10 +57,10 @@
     try {
       const { user, token } = await authService.login({ email, password });
       authStore.loginSuccess(user, token);
-      toastStore.success('خوش آمدید!');
+      toastStore.success($_('auth.welcome'));
       goto('/dashboard');
     } catch (err: any) {
-      const message = err?.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.';
+      const message = err?.message || $_('auth.loginError');
       toastStore.error(message);
     } finally {
       isLoading = false;
@@ -64,14 +74,14 @@
       <div class="auth-header">
         <span class="auth-logo">🚗</span>
         <h1 class="auth-title">{APP_NAME}</h1>
-        <p class="auth-subtitle">مدیریت هوشمند نگهداری خودرو</p>
+        <p class="auth-subtitle">{$_('auth.subtitle')}</p>
       </div>
 
       <form class="auth-form" onsubmit={handleSubmit}>
         <Input
           type="email"
           name="email"
-          label="ایمیل"
+          label={$_('auth.email')}
           placeholder="email@example.com"
           bind:value={email}
           error={getFieldError(errors, 'email')}
@@ -82,8 +92,8 @@
         <Input
           type="password"
           name="password"
-          label="رمز عبور"
-          placeholder="رمز عبور خود را وارد کنید"
+          label={$_('auth.password')}
+          placeholder={$_('auth.password')}
           bind:value={password}
           error={getFieldError(errors, 'password')}
           required
@@ -91,11 +101,11 @@
         />
 
         <div class="forgot-link">
-          <a href="/forgot-password">رمز عبور را فراموش کردم</a>
+          <a href="/forgot-password">{$_('auth.forgotPassword')}</a>
         </div>
 
         <Button type="submit" variant="primary" fullWidth loading={isLoading}>
-          ورود
+          {$_('auth.login')}
         </Button>
       </form>
 
@@ -117,7 +127,7 @@
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          ورود با Google
+          {$_('auth.loginWithGoogle')}
         </Button>
 
         <Button
@@ -129,7 +139,7 @@
           <svg class="social-icon facebook-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
           </svg>
-          ورود با Facebook
+          {$_('auth.loginWithFacebook')}
         </Button>
 
         <Button
@@ -141,18 +151,22 @@
           <svg class="social-icon twitter-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path fill="#000000" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
-          ورود با X (Twitter)
+          {$_('auth.loginWithTwitter')}
         </Button>
       </div>
 
       <div class="auth-footer">
-        <span>حساب کاربری ندارید؟</span>
-        <a href="/register">ثبت‌نام کنید</a>
+        <span>{$_('auth.registerPrompt')}</span>
+        <a href="/register">{$_('auth.register')}</a>
       </div>
     </Card>
 
+    <div class="auth-language">
+      <LanguageSwitcher />
+    </div>
+
     <p class="demo-hint">
-      برای تست، هر ایمیل و رمز عبوری وارد کنید
+      {$_('auth.demoHint')}
     </p>
   </div>
 </div>
@@ -229,6 +243,12 @@
     color: var(--color-primary);
     font-weight: 500;
     margin-right: 0.25rem;
+  }
+
+  .auth-language {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
   }
 
   .demo-hint {
