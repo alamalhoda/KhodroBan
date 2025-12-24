@@ -143,7 +143,7 @@
 </script>
 
 <Layout headerTitle="خودروها">
-  <div class="page">
+  <div class="page-container">
     <div class="page-header">
       <h1 class="page-title">خودروهای من</h1>
       <Button variant="primary" onclick={openAddModal} icon="➕">
@@ -290,45 +290,25 @@
 </Modal>
 
 <style>
-  .page {
-    padding: 1rem;
-    padding-bottom: calc(70px + 1rem);
-  }
-
-  @media (min-width: 768px) {
-    .page {
-      padding: 1.5rem;
-      padding-bottom: 1.5rem;
-    }
-  }
+  /* Vehicles page specific styles */
 
   .page-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-xl);
   }
 
   .page-title {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
     font-weight: 600;
-  }
-
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    gap: 1rem;
-    color: var(--color-text-light);
   }
 
   .vehicles-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--space-md);
   }
 
   :global(.vehicle-card) {
@@ -337,7 +317,7 @@
 
   .vehicle-link {
     display: block;
-    padding: 1rem;
+    padding: var(--space-lg);
     text-decoration: none;
     color: inherit;
   }
@@ -345,8 +325,8 @@
   .vehicle-main {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
   }
 
   .vehicle-icon {

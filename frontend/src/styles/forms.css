@@ -1,0 +1,229 @@
+/* ========================================
+   Form Patterns & Styles
+   ======================================== */
+
+/* Form Containers */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Form Groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+@media (min-width: 768px) {
+  .form-row {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--space-md);
+  }
+
+  .form-row .form-group {
+    flex: 1;
+  }
+}
+
+/* Form Labels */
+.form-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: var(--space-xs);
+}
+
+.form-label.required::after {
+  content: ' *';
+  color: var(--color-danger);
+}
+
+/* Form Hints */
+.form-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+  margin-top: var(--space-xs);
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+@media (min-width: 480px) {
+  .form-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+/* Profile Form */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* Settings Form */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* Channel Selection */
+.channels-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.channels-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.channels-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.channel-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid transparent;
+  border-radius: var(--glass-radius);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: right;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--color-text);
+}
+
+.channel-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.channel-item.active {
+  background: rgba(30, 58, 138, 0.1);
+  border-color: var(--color-primary);
+}
+
+.channel-item.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.channel-checkbox {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-text-muted);
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  transition: all var(--transition-fast);
+}
+
+.channel-item.active .channel-checkbox {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.channel-label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.channel-badge {
+  font-size: var(--font-size-xs);
+}
+
+/* Pro Features */
+.pro-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.pro-features li {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.pro-features li::before {
+  content: '✓';
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+/* Error States */
+.form-error {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+  margin-top: var(--space-xs);
+}
+
+.field-error {
+  border-color: var(--color-danger) !important;
+  background: var(--color-danger-bg) !important;
+}
+
+/* Success States */
+.field-success {
+  border-color: var(--color-success) !important;
+  background: var(--color-success-bg) !important;
+}
+
+/* Loading States */
+.form-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.form-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-text-muted);
+  border-radius: 50%;
+  border-top-color: var(--color-primary);
+  animation: spin 1s ease-in-out infinite;
+}

@@ -111,7 +111,7 @@
 </script>
 
 <Layout headerTitle="تنظیمات">
-  <div class="page">
+  <div class="page-container">
     <!-- Profile Section -->
     <Card variant="solid" padding="lg" title="پروفایل">
       <div class="profile-header">
@@ -127,7 +127,7 @@
         </div>
       </div>
 
-      <form class="profile-form" onsubmit={(e) => { e.preventDefault(); saveProfile(); }}>
+      <form class="form-container" onsubmit={(e) => { e.preventDefault(); saveProfile(); }}>
         <Input
           name="name"
           label="نام"
@@ -149,7 +149,7 @@
 
     <!-- Reminder Settings -->
     <Card variant="solid" padding="lg" title="تنظیمات یادآور">
-      <form class="settings-form" onsubmit={(e) => { e.preventDefault(); saveSettings(); }}>
+      <form class="form-container" onsubmit={(e) => { e.preventDefault(); saveSettings(); }}>
         <Input
           type="number"
           name="kmInterval"
@@ -181,7 +181,7 @@
         />
 
         <div class="channels-section">
-          <label class="section-label">کانال‌های یادآوری</label>
+          <label class="form-label">کانال‌های یادآوری</label>
           <div class="channels-list">
             {#each REMINDER_CHANNEL_OPTIONS as channel}
               <button
@@ -194,10 +194,12 @@
                 <span class="channel-checkbox">
                   {settings.channels.includes(channel.value as ReminderChannel) ? '✓' : ''}
                 </span>
-                <span class="channel-label">{channel.label}</span>
-                {#if channel.isPro && !$isPro}
-                  <Badge variant="warning" size="sm">Pro</Badge>
-                {/if}
+                <span class="channel-label">
+                  {channel.label}
+                  {#if channel.isPro && !$isPro}
+                    <Badge variant="warning" size="sm">Pro</Badge>
+                  {/if}
+                </span>
               </button>
             {/each}
           </div>
@@ -216,7 +218,7 @@
           <span class="pro-icon">🌟</span>
           <h3 class="pro-title">ارتقا به نسخه Pro</h3>
         </div>
-        
+
         <ul class="pro-features">
           <li>✓ خودروهای نامحدود</li>
           <li>✓ همگام‌سازی ابری</li>
@@ -250,195 +252,12 @@
 </Layout>
 
 <style>
-  .page {
-    padding: 1rem;
-    padding-bottom: calc(70px + 1rem);
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
+  /* Custom overrides for settings page */
 
-  @media (min-width: 768px) {
-    .page {
-      padding: 1.5rem;
-      padding-bottom: 1.5rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-  }
-
-  /* Profile */
-  .profile-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  }
-
-  .profile-avatar {
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-    color: white;
-    border-radius: 16px;
-    font-size: 2rem;
-  }
-
-  .profile-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .profile-name {
-    font-size: 1.125rem;
-    font-weight: 600;
-  }
-
-  .profile-email {
-    font-size: 0.875rem;
-    color: var(--color-text-light);
-  }
-
-  .profile-form,
-  .settings-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  /* Channels */
-  .section-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--color-text);
-    margin-bottom: 0.5rem;
-  }
-
-  .channels-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .channel-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem;
-    background: rgba(0, 0, 0, 0.02);
-    border: 1px solid transparent;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: right;
-    font-family: inherit;
-    font-size: inherit;
-    color: var(--color-text);
-  }
-
-  .channel-item:hover {
-    background: rgba(0, 0, 0, 0.04);
-  }
-
-  .channel-item.active {
-    background: rgba(30, 58, 138, 0.1);
-    border-color: var(--color-primary);
-  }
-
-  .channel-item.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .channel-checkbox {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid var(--color-text-muted);
-    border-radius: 4px;
-    font-size: 0.75rem;
-    transition: all 0.2s;
-  }
-
-  .channel-item.active .channel-checkbox {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    color: white;
-  }
-
-  .channel-label {
-    flex: 1;
-  }
-
-  /* Pro Card */
+  /* Pro card gradient */
   :global(.pro-card) {
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(249, 115, 22, 0.1)) !important;
     border-color: rgba(245, 158, 11, 0.3) !important;
-  }
-
-  .pro-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .pro-icon {
-    font-size: 2rem;
-  }
-
-  .pro-title {
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--color-warning);
-  }
-
-  .pro-features {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .pro-features li {
-    font-size: 0.9375rem;
-    color: var(--color-text);
-  }
-
-  /* App Info */
-  .app-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .app-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.25rem;
-  }
-
-  .app-name {
-    font-weight: 600;
-    color: var(--color-primary);
-  }
-
-  .app-version {
-    font-size: 0.8125rem;
-    color: var(--color-text-muted);
   }
 </style>
 
