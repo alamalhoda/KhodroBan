@@ -14,10 +14,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-    // SPA fallback for development
-    historyApiFallback: {
-      index: '/index.html'
-    }
   },
   test: {
     globals: true,
