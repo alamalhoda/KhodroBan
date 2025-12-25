@@ -12,7 +12,7 @@ const config = {
   },
   kit: {
     paths: {
-      base: process.env.STATIC_PAGES === 'true' ? '/KhodroBan' : ''
+      base: process.env.STATIC_PAGES === 'true' ? `/${process.env.REPO_NAME || 'KhodroBan'}` : ''
     },
     adapter: (() => {
       // در محیط‌های بدون process (مثل بعضی buildهای قدیمی) ایمن باش
