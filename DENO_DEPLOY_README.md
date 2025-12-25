@@ -1,0 +1,172 @@
+# 🚀 راهنمای تنظیم Deno Deploy
+
+این سند راهنمای کامل برای تنظیم و رفع مشکل build در Deno Deploy است.
+
+---
+
+## 📋 مشکل اصلی
+
+خطای `vite: command not found` در Deno Deploy به خاطر این است که:
+- Deno از محیط ایزوله استفاده می‌کند
+- npm/node_modules در Deno وجود ندارد
+- Deno از سیستم ماژول مخصوص خودش استفاده می‌کند
+
+---
+
+## ✅ راه‌حل
+
+### فایل‌های اضافه شده
+
+#### 1. `deno.jsonc` (root)
+```json
+{
+  "tasks": {
+    "build": "cd frontend && deno task build",
+    "start": "cd frontend && deno task start"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "importMap": "frontend/import_map.json"
+}
+```
+
+#### 2. `frontend/deno.jsonc`
+```json
+{
+  "tasks": {
+    "dev": "deno run --allow-read --allow-write --allow-env --allow-net npm:vite@^5.4.0 dev",
+    "build": "deno run --allow-read --allow-write --allow-env --allow-net npm:vite@^5.4.0 build",
+    "preview": "deno run --allow-read --allow-write --allow-env --allow-net npm:vite@^5.4.0 preview",
+    "check": "deno run --allow-read --allow-write --allow-env --allow-net npm:svelte-kit@^2.0.0 sync && deno run --allow-read --allow-write --allow-env --allow-net npm:svelte-check@^4.0.0 --tsconfig ./tsconfig.json check"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "importMap": "./import_map.json"
+}
+```
+
+#### 3. `frontend/import_map.json`
+```json
+{
+  "imports": {
+    "svelte": "npm:svelte@^5.0.0",
+    "svelte/": "npm:svelte@^5.0.0/",
+    "@sveltejs/kit": "npm:@sveltejs/kit@^2.0.0",
+    "@sveltejs/vite-plugin-svelte": "npm:@sveltejs/vite-plugin-svelte@^4.0.0",
+    "@sveltejs/adapter-netlify": "npm:@sveltejs/adapter-netlify@^5.2.4",
+    "@sveltejs/adapter-static": "npm:@sveltejs/adapter-static@^3.0.10",
+    "@deno/svelte-adapter": "npm:@deno/svelte-adapter@^0.1.0",
+    "vite": "npm:vite@^5.4.0",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@^2.89.0",
+    "axios": "npm:axios@^1.7.0",
+    "chart.js": "npm:chart.js@^4.4.0",
+    "persian-date": "npm:persian-date@^1.1.0",
+    "svelte-i18n": "npm:svelte-i18n@^4.0.1"
+  }
+}
+```
+
+---
+
+## 🚀 تنظیم Deno Deploy
+
+### مرحله 1: ایجاد حساب Deno Deploy
+
+1. به https://deno.com/deploy بروید
+2. حساب رایگان ایجاد کنید
+3. یک پروژه جدید بسازید
+
+### مرحله 2: اتصال به GitHub
+
+1. روی "Connect to Git" کلیک کنید
+2. Repository خود را انتخاب کنید: `your-username/OilChenger`
+3. Branch مورد نظر را انتخاب کنید: `fix-deno-deploy`
+
+### مرحله 3: تنظیمات Build
+
+در تنظیمات پروژه Deno Deploy:
+
+```yaml
+# Root Directory
+frontend/
+
+# Build Command
+deno task build
+
+# Entry Point
+index.html
+
+# Environment Variables
+DENO_REGION=true
+DENO_DEPLOY=true
+VITE_BACKEND_TYPE=supabase
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_REDIRECT_BASE_URL=https://your-deno-app.deno.dev
+```
+
+### مرحله 4: Deploy
+
+1. تنظیمات را ذخیره کنید
+2. Deno Deploy به صورت خودکار build و deploy می‌کند
+3. URL تولید شده را کپی کنید (مثل: `https://your-app.deno.dev`)
+
+---
+
+## 🔧 عیب‌یابی
+
+### خطای "vite: command not found"
+
+**علت:** Vite پیدا نمی‌شود
+
+**راه‌حل:**
+- مطمئن شوید `frontend/deno.jsonc` وجود دارد
+- مطمئن شوید `frontend/import_map.json` وجود دارد
+- Build command باید `deno task build` باشد
+
+### خطای import
+
+**علت:** ماژول‌ها پیدا نمی‌شوند
+
+**راه‌حل:**
+- بررسی کنید `import_map.json` کامل باشد
+- همه dependencies در import_map تعریف شده باشند
+- نسخه‌ها با package.json سازگار باشند
+
+### خطای build
+
+**علت:** مشکلات build
+
+**راه‌حل:**
+- Log های build را بررسی کنید
+- مطمئن شوید همه فایل‌ها commit شده‌اند
+- از Deno Deploy dashboard برای دیدن log ها استفاده کنید
+
+---
+
+## 🎯 نتیجه
+
+بعد از تنظیمات بالا:
+
+1. **Netlify** همچنان روی branch اصلی کار می‌کند (برای backup)
+2. **Deno Deploy** از تنظیمات جدید استفاده می‌کند
+3. Build در Deno موفق می‌شود
+4. محدودیت build Netlify تمام نمی‌شود
+
+---
+
+## 📚 منابع
+
+- [Deno Deploy Documentation](https://deno.com/deploy/docs)
+- [Deno Manual](https://deno.land/manual)
+- [SvelteKit Deployment](https://kit.svelte.dev/docs/adapters)
+
+---
+
+**نکته:** اگر هنوز مشکل دارید، log های Deno Deploy را بررسی کنید و در صورت نیاز تنظیمات را تغییر دهید.
