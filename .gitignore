@@ -117,3 +117,5 @@ htmlcov/
 *.sqlite
 *.sqlite3
 
+
+sync_config.jsonc
