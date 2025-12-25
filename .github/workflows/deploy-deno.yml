@@ -28,4 +28,4 @@ jobs:
       - name: Deploy to Deno Deploy
         run: |
           cd frontend
-          deno run --allow-all --unstable https://deno.land/x/deploy@1.6.3/deployctl.ts deploy --project=khodroban --entrypoint=index.html --include=build
+          deno run --allow-all --unstable https://deno.land/x/deploy@1.6.3/deployctl.ts deploy --project=khodroban --entrypoint=index.html --include=build --token=${{ secrets.DENO_DEPLOY_TOKEN }}

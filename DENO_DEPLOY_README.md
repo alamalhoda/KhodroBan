@@ -74,48 +74,58 @@
 
 ---
 
-## 🚀 تنظیم Deno Deploy
+## 🚀 تنظیم Deno Deploy با GitHub Actions
 
-### مرحله 1: ایجاد حساب Deno Deploy
+### چرا GitHub Actions؟
+
+چون Deno Deploy امکان انتخاب برنچ ندارد و همیشه از برنچ اصلی (main) استفاده می‌کند، از GitHub Actions برای deploy استفاده می‌کنیم.
+
+### مرحله 1: ایجاد پروژه در Deno Deploy
 
 1. به https://deno.com/deploy بروید
 2. حساب رایگان ایجاد کنید
 3. یک پروژه جدید بسازید
+4. نام پروژه را یادداشت کنید (مثل: `khodroban`)
 
-### مرحله 2: اتصال به GitHub
+### مرحله 2: تنظیم GitHub Actions
 
-1. روی "Connect to Git" کلیک کنید
-2. Repository خود را انتخاب کنید: `your-username/OilChenger`
-3. Branch مورد نظر را انتخاب کنید: `fix-deno-deploy`
+1. **به GitHub repository بروید**
+2. **روی Settings → Secrets and variables → Actions کلیک کنید**
+3. **یک secret جدید اضافه کنید:**
+   - Name: `DENO_DEPLOY_TOKEN`
+   - Value: از https://deno.com/deploy/account#access-tokens کپی کنید
 
-### مرحله 3: تنظیمات Build
+### مرحله 3: تنظیمات Environment Variables در Deno Deploy
 
-در تنظیمات پروژه Deno Deploy:
+در dashboard Deno Deploy، environment variables زیر را اضافه کنید:
 
-```yaml
-# Root Directory
-frontend/
-
-# Build Command
-deno task build
-
-# Entry Point
-index.html
-
-# Environment Variables
+```env
 DENO_REGION=true
 DENO_DEPLOY=true
 VITE_BACKEND_TYPE=supabase
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_REDIRECT_BASE_URL=https://your-deno-app.deno.dev
+VITE_REDIRECT_BASE_URL=https://khodroban.deno.dev
 ```
 
-### مرحله 4: Deploy
+### مرحله 4: غیرفعال کردن Netlify Build
 
-1. تنظیمات را ذخیره کنید
-2. Deno Deploy به صورت خودکار build و deploy می‌کند
-3. URL تولید شده را کپی کنید (مثل: `https://your-app.deno.dev`)
+**روش 1: از فایل .no-netlify**
+- فایل `.no-netlify` در root پروژه وجود دارد
+- این فایل به Netlify می‌گوید که build نکند
+
+**روش 2: از Netlify Dashboard**
+- به https://app.netlify.com بروید
+- پروژه خود را انتخاب کنید
+- Build settings → Stop builds
+
+### مرحله 5: Deploy خودکار
+
+وقتی به برنچ `main` push می‌کنید:
+1. GitHub Actions اجرا می‌شود
+2. پروژه build می‌شود
+3. به Deno Deploy deploy می‌شود
+4. URL شما آماده است!
 
 ---
 
