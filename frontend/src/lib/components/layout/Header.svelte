@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import { goto } from '$app/navigation';
   import { authStore, currentUser, activeReminders } from '../../stores';
   import { APP_NAME } from '../../utils/constants';
 
@@ -23,6 +24,11 @@
     window.history.back();
   }
 
+  async function handleLogoClick(event: Event) {
+    event.preventDefault();
+    await goto('/');
+  }
+
   let reminderCount = $derived($activeReminders?.length || 0);
 </script>
 
@@ -41,7 +47,7 @@
     {#if title}
       <h1 class="header-title">{title}</h1>
     {:else}
-      <a href="/" class="header-logo">
+      <a href="/" on:click={handleLogoClick} class="header-logo">
         <span class="logo-icon">🚗</span>
         <span class="logo-text">{APP_NAME}</span>
       </a>

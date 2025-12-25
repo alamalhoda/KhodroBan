@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   import { reminderStats } from '../../stores';
 
   const navItems = [
@@ -15,13 +16,19 @@
     if (path === '/dashboard' && currentPath === '/') return true;
     return currentPath === path || currentPath.startsWith(path + '/');
   }
+
+  async function handleNavigation(path: string, event: Event) {
+    event.preventDefault();
+    await goto(path);
+  }
 </script>
 
 <nav class="bottom-nav">
   {#each navItems as item}
     {@const active = isActive(item.path)}
-    <a 
-      href={item.path} 
+    <a
+      href={item.path}
+      on:click={(event) => handleNavigation(item.path, event)}
       class="nav-item"
       class:active
       class:primary={item.isPrimary}
