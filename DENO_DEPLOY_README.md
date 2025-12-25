@@ -100,13 +100,14 @@
 در dashboard Deno Deploy، environment variables زیر را اضافه کنید:
 
 ```env
-DENO_REGION=true
-DENO_DEPLOY=true
+DEPLOY_PLATFORM=deno
 VITE_BACKEND_TYPE=supabase
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 VITE_REDIRECT_BASE_URL=https://khodroban.deno.dev
 ```
+
+⚠️ **نکته مهم:** متغیرهای `DENO_REGION` و `DENO_DEPLOY` را اضافه نکنید چون Deno Deploy اجازه تغییر متغیرهای محیطی که با `DENO_` شروع می‌شوند را نمی‌دهد.
 
 ### مرحله 4: غیرفعال کردن Netlify Build
 

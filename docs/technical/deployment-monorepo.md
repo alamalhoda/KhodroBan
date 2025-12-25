@@ -169,8 +169,7 @@ Deno Deploy یک پلتفرم serverless است که از Deno runtime استف�
 
 4. **Environment Variables:**
    ```env
-   DENO_REGION=true
-   DENO_DEPLOY=true
+   DEPLOY_PLATFORM=deno
    VITE_BACKEND_TYPE=supabase
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_anon_key
