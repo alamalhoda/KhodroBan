@@ -2,13 +2,8 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import path from 'path';
 
-const isStaticPages = process.env.STATIC_PAGES === 'true';
-const repoName = process.env.REPO_NAME || 'KhodroBan';
-const basePath = process.env.BASE_PATH || (isStaticPages ? `/${repoName}/` : '/');
-
 export default defineConfig({
   plugins: [sveltekit()],
-  base: basePath,
   resolve: {
     alias: {
       $lib: path.resolve('./src/lib'),
