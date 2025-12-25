@@ -4,6 +4,7 @@ import type { User, LoginCredentials, RegisterData, ApiResponse } from '../types
 import { authStore } from '../stores/auth';
 import { selectService } from './base/router';
 import type { IAuthService } from './base/types';
+import { config } from '../utils/config';
 
 // ============================================
 // Helper Functions
@@ -204,7 +205,7 @@ const authServiceSupabase: IAuthService = {
 
   async loginWithGoogle(): Promise<void> {
     try {
-      const redirectBaseUrl = import.meta.env.VITE_REDIRECT_BASE_URL || window.location.origin;
+      const redirectBaseUrl = config.redirectBaseUrl;
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -279,7 +280,7 @@ const authServiceSupabase: IAuthService = {
 
   async forgotPassword(email: string): Promise<void> {
     try {
-      const redirectBaseUrl = import.meta.env.VITE_REDIRECT_BASE_URL || window.location.origin;
+      const redirectBaseUrl = config.redirectBaseUrl;
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${redirectBaseUrl}/reset-password`,

@@ -106,8 +106,7 @@ VITE_SUPABASE_ANON_KEY=YOUR_ANON_KEY_HERE
 VITE_APP_NAME=خودروبان
 VITE_APP_VERSION=1.0.0
 
-# Redirect URLs (برای OAuth)
-VITE_REDIRECT_BASE_URL=http://localhost:3000
+# Redirect URLs (برای OAuth) - به صورت خودکار تشخیص داده می‌شود
 ```
 
 <div dir="rtl" align="right">
@@ -214,9 +213,7 @@ vercel
 
 ### Deploy به Netlify
 
-**نکته مهم:** برای عملکرد صحیح OAuth (ورود با گوگل)، باید متغیر محیطی زیر را در Netlify dashboard تنظیم کنید:
-
-- `VITE_REDIRECT_BASE_URL` = `https://your-site-name.netlify.app`
+**نکته مهم:** برای عملکرد صحیح OAuth (ورود با گوگل)، URL redirect به صورت خودکار بر اساس محیط deploy تشخیص داده می‌شود.
 
 </div>
 
@@ -232,7 +229,7 @@ netlify deploy --prod
 1. به [Netlify Dashboard](https://app.netlify.com) بروید
 2. پروژه خود را انتخاب کنید
 3. به بخش **Site settings** → **Environment variables** بروید
-4. متغیر `VITE_REDIRECT_BASE_URL` را با URL واقعی سایت خود تنظیم کنید
+4. متغیرهای محیطی دیگر را تنظیم کنید (VITE_REDIRECT_BASE_URL به صورت خودکار تشخیص داده می‌شود)
 
 </div>
 
