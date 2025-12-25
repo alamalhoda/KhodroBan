@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { reminderStats } from '../../stores';
+  import { navigateTo } from '../../utils/navigation';
 
   const navItems = [
     { path: '/dashboard', label: 'خانه', icon: '🏠' },
@@ -22,10 +23,7 @@
 
   async function handleNavigation(path: string, event: Event) {
     event.preventDefault();
-    // For GitHub Pages, ensure base path is included
-    const basePath = '/KhodroBan';
-    const fullPath = path.startsWith('/') ? `${basePath}${path}` : path;
-    await goto(fullPath);
+    await navigateTo(path);
   }
 </script>
 
@@ -33,7 +31,7 @@
   {#each navItems as item}
     {@const active = isActive(item.path)}
     <a
-      href={item.path}
+      href="#"
       onclick={(event) => handleNavigation(item.path, event)}
       class="nav-item"
       class:active
