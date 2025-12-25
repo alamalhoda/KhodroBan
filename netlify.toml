@@ -5,6 +5,9 @@
 
 [build.environment]
   VITE_BACKEND_TYPE = "supabase"
+  # VITE_REDIRECT_BASE_URL should be set in Netlify dashboard to your production URL
+  # Example: https://your-site-name.netlify.app
+  VITE_REDIRECT_BASE_URL= "https://khodroban.netlify.app"
   SECRETS_SCAN_ENABLED = "false"
 
 # Headers برای caching assets

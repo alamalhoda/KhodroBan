@@ -94,9 +94,20 @@ npm run preview
 </div>
 
 ```env
+# Backend Configuration
+VITE_BACKEND_TYPE=supabase
 VITE_API_URL=http://localhost:8000/api
+
+# Supabase Configuration
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_ANON_KEY_HERE
+
+# App Configuration
 VITE_APP_NAME=خودروبان
 VITE_APP_VERSION=1.0.0
+
+# Redirect URLs (برای OAuth)
+VITE_REDIRECT_BASE_URL=http://localhost:3000
 ```
 
 <div dir="rtl" align="right">
@@ -203,12 +214,27 @@ vercel
 
 ### Deploy به Netlify
 
+**نکته مهم:** برای عملکرد صحیح OAuth (ورود با گوگل)، باید متغیر محیطی زیر را در Netlify dashboard تنظیم کنید:
+
+- `VITE_REDIRECT_BASE_URL` = `https://your-site-name.netlify.app`
+
 </div>
 
 ```bash
 npm install -g netlify-cli
 netlify deploy --prod
 ```
+
+<div dir="rtl" align="right">
+
+**گام‌های تنظیم Netlify:**
+
+1. به [Netlify Dashboard](https://app.netlify.com) بروید
+2. پروژه خود را انتخاب کنید
+3. به بخش **Site settings** → **Environment variables** بروید
+4. متغیر `VITE_REDIRECT_BASE_URL` را با URL واقعی سایت خود تنظیم کنید
+
+</div>
 
 <div dir="rtl" align="right">
 
