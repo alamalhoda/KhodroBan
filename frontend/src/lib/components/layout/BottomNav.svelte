@@ -31,7 +31,7 @@
     {@const active = isActive(item.path)}
     <a
       href={item.path}
-      on:click={(event) => handleNavigation(item.path, event)}
+      onclick={(event) => handleNavigation(item.path, event)}
       class="nav-item"
       class:active
       class:primary={item.isPrimary}

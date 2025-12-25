@@ -47,7 +47,7 @@
     {#if title}
       <h1 class="header-title">{title}</h1>
     {:else}
-      <a href="/" on:click={handleLogoClick} class="header-logo">
+      <a href="/" onclick={handleLogoClick} class="header-logo">
         <span class="logo-icon">🚗</span>
         <span class="logo-text">{APP_NAME}</span>
       </a>
