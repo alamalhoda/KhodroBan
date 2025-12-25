@@ -69,7 +69,7 @@
       {@const isItemActive = isActive(item.path)}
       <a
         href={item.path}
-        on:click={(event) => handleNavigation(item.path, event)}
+        onclick={(event) => handleNavigation(item.path, event)}
         class="nav-item"
         class:active={isItemActive}
       >
@@ -84,7 +84,7 @@
 
   <div class="sidebar-footer">
     {#if !$isPro}
-      <a href="/settings" class="upgrade-btn" on:click={(event) => handleNavigation('/settings', event)}>
+      <a href="/settings" class="upgrade-btn" onclick={(event) => handleNavigation('/settings', event)}>
         <span>🌟</span>
         <span>ارتقا به Pro</span>
       </a>
