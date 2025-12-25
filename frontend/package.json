@@ -16,7 +16,10 @@
     "lint:fix": "eslint . --ext .js,.ts,.svelte --fix",
     "format": "prettier --write \"src/**/*.{js,ts,svelte,css,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,ts,svelte,css,json,md}\"",
-    "validate": "npm run check && npm run lint && npm run format:check"
+    "validate": "npm run check && npm run lint && npm run format:check",
+    "deno:dev": "deno task dev",
+    "deno:build": "deno task build",
+    "deno:preview": "deno task preview"
   },
   "devDependencies": {
     "@deno/svelte-adapter": "^0.1.0",

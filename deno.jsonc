@@ -1,0 +1,12 @@
+{
+  "tasks": {
+    "build": "cd frontend && deno task build",
+    "start": "cd frontend && deno task start"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "importMap": "frontend/import_map.json"
+}
