@@ -204,10 +204,12 @@ const authServiceSupabase: IAuthService = {
 
   async loginWithGoogle(): Promise<void> {
     try {
+      const redirectBaseUrl = import.meta.env.VITE_REDIRECT_BASE_URL || window.location.origin;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${redirectBaseUrl}/auth/callback`,
         },
       });
 
@@ -277,8 +279,10 @@ const authServiceSupabase: IAuthService = {
 
   async forgotPassword(email: string): Promise<void> {
     try {
+      const redirectBaseUrl = import.meta.env.VITE_REDIRECT_BASE_URL || window.location.origin;
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${redirectBaseUrl}/reset-password`,
       });
 
       if (error) {
