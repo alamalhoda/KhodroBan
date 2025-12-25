@@ -6,6 +6,11 @@
 /* Import RTL styles */
 @import './rtl.css';
 
+/* Import component styles */
+@import './layouts.css';
+@import './forms.css';
+@import './components.css';
+
 /* CSS Variables / Theme */
 :root {
   /* Colors */
@@ -246,16 +251,7 @@ button {
   padding: 0 var(--space-md);
 }
 
-.page {
-  padding: var(--space-lg);
-  padding-bottom: calc(70px + var(--space-lg)); /* Space for bottom nav */
-}
-
-@media (min-width: 768px) {
-  .page {
-    padding-bottom: var(--space-lg);
-  }
-}
+/* Page layout is now in layouts.css */
 
 /* Flex utilities */
 .flex { display: flex; }

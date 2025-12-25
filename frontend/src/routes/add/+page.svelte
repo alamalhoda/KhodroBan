@@ -181,7 +181,7 @@
 </script>
 
 <Layout headerTitle="ثبت جدید" showBack={true}>
-  <div class="page">
+  <div class="page-container">
     <Card variant="solid" padding="lg">
       <Tabs {tabs} bind:activeTab on:change={handleTabChange} />
 
@@ -330,43 +330,39 @@
 </Layout>
 
 <style>
-  .page {
-    padding: 1rem;
-    padding-bottom: calc(70px + 1rem);
-  }
-
-  @media (min-width: 768px) {
-    .page {
-      padding: 1.5rem;
-      padding-bottom: 1.5rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-  }
+  /* Add page specific styles */
 
   .form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--space-lg);
   }
 
   .form-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: var(--space-md);
     justify-content: flex-end;
-    margin-top: 0.5rem;
-    padding-top: 1rem;
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
     border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  @media (min-width: 480px) {
+    .form-actions {
+      flex-direction: row;
+    }
   }
 
   .no-vehicles {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-    padding: 2rem;
-    text-align: center;
+    justify-content: center;
+    padding: 4rem var(--space-2xl);
+    gap: var(--space-lg);
     color: var(--color-text-light);
+    text-align: center;
   }
 </style>
+
 

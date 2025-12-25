@@ -12,15 +12,20 @@
   // Protected routes
   const protectedRoutes = ['/', '/dashboard', '/vehicles', '/add', '/reports', '/settings'];
   
-  // Initialize i18n on mount (only in browser)
-  onMount(() => {
+  // Initialize i18n immediately in browser (before hydration completes)
+  $effect(() => {
     if (browser) {
-      // مقداردهی اولیه سیستم i18n
-      initializeI18n();
-
-      // تنظیم زبان اولیه
-      const initialLocale = initializeLocale();
-      setLocale(initialLocale);
+      // مقداردهی اولیه سیستم i18n به صورت synchronous
+      try {
+        initializeI18n();
+        const initialLocale = initializeLocale();
+        setLocale(initialLocale);
+      } catch (error) {
+        console.warn('i18n initialization failed:', error);
+        // Fallback to Persian if initialization fails
+        initializeI18n();
+        setLocale('fa');
+      }
     }
   });
 
@@ -42,10 +47,8 @@
       goto('/login');
     }
 
-    // Redirect to dashboard if accessing login/register with auth
-    if ((path === '/login' || path === '/register') && isAuth && typeof window !== 'undefined') {
-      goto('/dashboard');
-    }
+    // Note: We allow access to login/register pages even when authenticated
+    // Users can access these pages to logout, switch accounts, etc.
   });
 </script>
 

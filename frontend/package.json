@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "build:spa": "STATIC_PAGES=true vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -19,7 +20,6 @@
   },
   "devDependencies": {
     "@deno/svelte-adapter": "^0.1.0",
-    "@sveltejs/adapter-auto": "^3.3.1",
     "@sveltejs/adapter-netlify": "^5.2.4",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.0.0",
