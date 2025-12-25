@@ -6,6 +6,7 @@
   import { authStore, currentUser, isPro, reminderStats } from '../../stores';
   import { MENU_ITEMS, APP_NAME } from '../../utils/constants';
   import { navigateTo } from '../../utils/navigation';
+  import { getBasePath } from '../../utils/config';
 
   interface Props {
     open?: boolean;
@@ -28,8 +29,8 @@
     close();
   }
 
-  async function handleNavigation(path: string, event: Event) {
-    event.preventDefault();
+  async function handleNavigation(path: string) {
+    console.log('Sidebar navigation:', path);
     await navigateTo(path);
     close();
   }
@@ -37,8 +38,19 @@
   // Check if current path matches menu item
   function isActive(path: string): boolean {
     const currentPath = $page.url.pathname;
-    if (path === '/dashboard' && currentPath === '/') return true;
-    return currentPath === path || currentPath.startsWith(path + '/');
+    const basePath = getBasePath();
+    
+    // Remove base path from current path for comparison
+    const cleanPath = basePath && currentPath.startsWith(basePath) 
+      ? currentPath.slice(basePath.length) || '/' 
+      : currentPath;
+    
+    // Handle dashboard route (can be / or /dashboard)
+    if (path === '/dashboard') {
+      return cleanPath === '/' || cleanPath === '/dashboard' || cleanPath.startsWith('/dashboard/');
+    }
+    
+    return cleanPath === path || cleanPath.startsWith(path + '/');
   }
 </script>
 
@@ -68,27 +80,27 @@
   <nav class="sidebar-nav">
     {#each MENU_ITEMS as item}
       {@const isItemActive = isActive(item.path)}
-      <a
-        href="#"
-        onclick={(event) => handleNavigation(item.path, event)}
+      <button
+        onclick={() => handleNavigation(item.path)}
         class="nav-item"
         class:active={isItemActive}
+        type="button"
       >
         <span class="nav-icon">{item.icon}</span>
         <span class="nav-label">{item.label}</span>
         {#if item.path === '/dashboard' && $reminderStats.overdue > 0}
           <span class="nav-badge danger">{$reminderStats.overdue}</span>
         {/if}
-      </a>
+      </button>
     {/each}
   </nav>
 
   <div class="sidebar-footer">
     {#if !$isPro}
-      <a href="/settings" class="upgrade-btn" onclick={(event) => handleNavigation('/settings', event)}>
+      <button class="upgrade-btn" onclick={() => handleNavigation('/settings')} type="button">
         <span>🌟</span>
         <span>ارتقا به Pro</span>
-      </a>
+      </button>
     {/if}
     
     <button class="logout-btn" onclick={handleLogout}>

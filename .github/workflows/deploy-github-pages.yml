@@ -44,6 +44,7 @@ jobs:
           STATIC_PAGES: true
           GITHUB_PAGES: true
           REPO_NAME: KhodroBan
+          VITE_REPO_NAME: KhodroBan
           VITE_SUPABASE_URL: https://zwrzokyzjwircrhrtyyi.supabase.co
           VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cnpva3l6andpcmNyaHJ0eXlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY1MDg3NTgsImV4cCI6MjA4MjA4NDc1OH0.jZMGsQ2M7J7KxkMV-pdKX0ywr_nqi41qApHVCK7_sQg
           VITE_BACKEND_TYPE: supabase

@@ -8,6 +8,7 @@
   import Toast from '$lib/components/ui/Toast.svelte';
   import { toastStore } from '$lib/stores/ui';
   import { authStore } from '$lib/stores/auth';
+  import { authService } from '$lib/services';
   import { locale, initializeI18n, initializeLocale, setLocale, updateDocumentAttributes } from '$lib/i18n';
   
   // Protected routes
@@ -34,6 +35,37 @@
   $effect(() => {
     if (browser && $locale) {
       updateDocumentAttributes($locale);
+    }
+  });
+
+  // Initialize auth state from localStorage
+  $effect(() => {
+    if (browser) {
+      console.log('Initializing auth state...');
+      // Check if we have a token and try to restore user session
+      const token = localStorage.getItem('token');
+      console.log('Token from localStorage:', token ? 'exists' : 'not found');
+      if (token && !authStore.isAuthenticated()) {
+        console.log('Attempting to restore user session...');
+        // Try to validate token and restore user session
+        authService.getProfile().then((user) => {
+          console.log('getProfile result:', user);
+          if (user) {
+            authStore.loginSuccess(user, token);
+            console.log('User session restored successfully');
+          } else {
+            // Token is invalid, remove it
+            console.log('Token invalid, removing...');
+            localStorage.removeItem('token');
+          }
+        }).catch((error: unknown) => {
+          console.error('Token validation failed:', error);
+          // Token validation failed, remove it
+          localStorage.removeItem('token');
+        });
+      } else {
+        console.log('No token or already authenticated');
+      }
     }
   });
 

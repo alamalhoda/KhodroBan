@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { reminderStats } from '../../stores';
   import { navigateTo } from '../../utils/navigation';
+  import { getBasePath } from '../../utils/config';
 
   const navItems = [
     { path: '/dashboard', label: 'خانه', icon: '🏠' },
@@ -14,15 +15,22 @@
 
   function isActive(path: string): boolean {
     const currentPath = $page.url.pathname;
-    // Remove base path for comparison
-    const basePath = '/KhodroBan';
-    const cleanPath = currentPath.startsWith(basePath) ? currentPath.slice(basePath.length) : currentPath;
-    if (path === '/dashboard' && (cleanPath === '/' || cleanPath === '')) return true;
+    const basePath = getBasePath();
+    
+    // Remove base path from current path for comparison
+    const cleanPath = basePath && currentPath.startsWith(basePath) 
+      ? currentPath.slice(basePath.length) || '/' 
+      : currentPath;
+    
+    // Handle dashboard route (can be / or /dashboard)
+    if (path === '/dashboard') {
+      return cleanPath === '/' || cleanPath === '/dashboard' || cleanPath.startsWith('/dashboard/');
+    }
+    
     return cleanPath === path || cleanPath.startsWith(path + '/');
   }
 
-  async function handleNavigation(path: string, event: Event) {
-    event.preventDefault();
+  async function handleNavigation(path: string) {
     await navigateTo(path);
   }
 </script>
@@ -30,12 +38,12 @@
 <nav class="bottom-nav">
   {#each navItems as item}
     {@const active = isActive(item.path)}
-    <a
-      href="#"
-      onclick={(event) => handleNavigation(item.path, event)}
+    <button
+      onclick={() => handleNavigation(item.path)}
       class="nav-item"
       class:active
       class:primary={item.isPrimary}
+      type="button"
     >
       <span class="nav-icon" class:has-badge={item.path === '/dashboard' && $reminderStats.overdue > 0}>
         {item.icon}
@@ -44,7 +52,7 @@
         {/if}
       </span>
       <span class="nav-label">{item.label}</span>
-    </a>
+    </button>
   {/each}
 </nav>
 

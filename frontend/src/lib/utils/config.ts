@@ -7,19 +7,26 @@ export type DeployPlatform = 'deno' | 'netlify' | 'github-pages' | 'development'
 
 // تشخیص محیط deploy
 export function getDeployPlatform(): DeployPlatform {
-  // بررسی متغیر محیطی
-  if (import.meta.env.DEPLOY_PLATFORM === 'deno') return 'deno';
-  if (import.meta.env.NETLIFY) return 'netlify';
-  if (import.meta.env.GITHUB_PAGES === 'true') return 'github-pages';
-
-  // بررسی hostname
+  // بررسی hostname (اولویت بالاتر برای runtime)
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
+    console.log('Detecting platform from hostname:', hostname);
     if (hostname.includes('deno.dev')) return 'deno';
     if (hostname.includes('netlify.app')) return 'netlify';
     if (hostname.includes('github.io')) return 'github-pages';
   }
 
+  // بررسی متغیر محیطی (برای build time)
+  console.log('Checking env vars:', {
+    DEPLOY_PLATFORM: import.meta.env.DEPLOY_PLATFORM,
+    NETLIFY: import.meta.env.NETLIFY,
+    GITHUB_PAGES: import.meta.env.GITHUB_PAGES
+  });
+  if (import.meta.env.DEPLOY_PLATFORM === 'deno') return 'deno';
+  if (import.meta.env.NETLIFY) return 'netlify';
+  if (import.meta.env.GITHUB_PAGES === 'true') return 'github-pages';
+
+  console.log('Returning development as default');
   return 'development';
 }
 
@@ -65,5 +72,29 @@ export const config = {
     type: import.meta.env.VITE_BACKEND_TYPE || 'supabase',
   }
 };
+
+/**
+ * Get the base path for the current deployment
+ * This matches the base path configured in svelte.config.js
+ * For GitHub Pages, we detect the base path from the URL pathname
+ */
+export function getBasePath(): string {
+  const platform = getDeployPlatform();
+  if (platform === 'github-pages') {
+    // Detect base path from current URL pathname
+    // GitHub Pages URLs: username.github.io/repository-name/...
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
+      // Extract the first segment after the root (e.g., '/KhodroBan' from '/KhodroBan/...')
+      const segments = pathname.split('/').filter(Boolean);
+      if (segments.length > 0) {
+        return `/${segments[0]}`;
+      }
+    }
+    // Fallback: use env variable if available (for build time)
+    return `/${import.meta.env.VITE_REPO_NAME || import.meta.env.REPO_NAME || 'KhodroBan'}`;
+  }
+  return '';
+}
 
 export default config;

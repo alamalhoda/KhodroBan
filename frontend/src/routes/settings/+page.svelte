@@ -64,7 +64,15 @@
   async function saveProfile() {
     isSaving = true;
     try {
-      const updated = await authService.updateProfile({ name: profile.name });
+      // Split name into firstName and lastName (simple approach: first word = firstName, rest = lastName)
+      const nameParts = profile.name.trim().split(/\s+/);
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
+      const updated = await authService.updateProfile({ 
+        firstName,
+        lastName 
+      });
       authStore.updateUser(updated);
       toastStore.success('پروفایل به‌روزرسانی شد');
     } catch {
@@ -103,10 +111,10 @@
     }
   }
 
-  async function handleLogout() {
+  function handleLogout() {
     if (confirm('آیا می‌خواهید از حساب خود خارج شوید؟')) {
       authStore.logout();
-      await navigateTo('/login');
+      navigateTo('/login');
     }
   }
 </script>
