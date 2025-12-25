@@ -110,14 +110,16 @@ VITE_REDIRECT_BASE_URL=https://khodroban.deno.dev
 
 ### مرحله 4: غیرفعال کردن Netlify Build
 
-**روش 1: از فایل .no-netlify**
-- فایل `.no-netlify` در root پروژه وجود دارد
-- این فایل به Netlify می‌گوید که build نکند
+**از Netlify Dashboard:**
+1. به https://app.netlify.com/projects/khodroban/configuration/deploys#continuous-deployment بروید
+2. بخش **Build settings** را انتخاب کنید
+3. گزینه **Build status** را پیدا کنید
+4. از **Active builds** به **Stopped builds** تغییر دهید
 
-**روش 2: از Netlify Dashboard**
-- به https://app.netlify.com بروید
-- پروژه خود را انتخاب کنید
-- Build settings → Stop builds
+این کار باعث می‌شود:
+- Netlify دیگر به صورت خودکار build نکند
+- محدودیت build شما مصرف نشود
+- می‌توانید در صورت نیاز، دستی deploy کنید
 
 ### مرحله 5: Deploy خودکار
 
