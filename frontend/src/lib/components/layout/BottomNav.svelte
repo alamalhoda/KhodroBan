@@ -13,8 +13,11 @@
 
   function isActive(path: string): boolean {
     const currentPath = $page.url.pathname;
-    if (path === '/dashboard' && currentPath === '/') return true;
-    return currentPath === path || currentPath.startsWith(path + '/');
+    // Remove base path for comparison
+    const basePath = '/KhodroBan';
+    const cleanPath = currentPath.startsWith(basePath) ? currentPath.slice(basePath.length) : currentPath;
+    if (path === '/dashboard' && (cleanPath === '/' || cleanPath === '')) return true;
+    return cleanPath === path || cleanPath.startsWith(path + '/');
   }
 
   async function handleNavigation(path: string, event: Event) {
