@@ -21,9 +21,22 @@ jobs:
         with:
           deno-version: v1.x
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
       - name: Build project
         working-directory: ./frontend
         run: deno task build
+        env:
+          DEPLOY_PLATFORM: deno
 
       - name: Deploy to Deno Deploy
         run: |
