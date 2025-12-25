@@ -1,7 +1,6 @@
 import { goto } from '$app/navigation';
 import { base } from '$app/paths';
-import { config, getBasePath } from './config';
-import { getDeployPlatform } from './config';
+import { config, getBasePath, getDeployPlatform } from './config';
 
 /**
  * Navigate to a path with proper base path handling

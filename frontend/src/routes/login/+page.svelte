@@ -124,10 +124,6 @@
       <div class="auth-language">
         <LanguageSwitcher />
       </div>
-
-      <p class="demo-hint" role="note">
-        {t('auth.demoHint')}
-      </p>
     </div>
   </div>
 {:else}

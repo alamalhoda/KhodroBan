@@ -17,7 +17,6 @@
 </script>
 
 <div class="language-switcher">
-  <div class="language-label">{$_('language.selectLanguage')}</div>
   <div class="language-buttons">
     {#each languages as lang}
       <Button

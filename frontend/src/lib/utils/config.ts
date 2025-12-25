@@ -41,5 +41,83 @@ export function getBasePath(): string {
   return '';
 }
 
+/**
+ * Detect the deployment platform
+ */
+export function getDeployPlatform(): 'github-pages' | 'netlify' | 'deno' | 'other' {
+  if (typeof window === 'undefined') {
+    return 'other';
+  }
+
+  const hostname = window.location.hostname;
+  const env = typeof import.meta !== 'undefined' ? (import.meta as any).env || {} : {};
+
+  // Check for GitHub Pages (hostname contains github.io)
+  if (hostname.includes('github.io')) {
+    return 'github-pages';
+  }
+
+  // Check for Netlify (hostname contains netlify.app or netlify.com)
+  if (hostname.includes('netlify.app') || hostname.includes('netlify.com')) {
+    return 'netlify';
+  }
+
+  // Check for Deno Deploy (via environment variable)
+  if (env.DEPLOY_PLATFORM === 'deno' || (typeof process !== 'undefined' && process.env.DEPLOY_PLATFORM === 'deno')) {
+    return 'deno';
+  }
+
+  return 'other';
+}
+
+/**
+ * Get the redirect base URL for OAuth callbacks
+ */
+function getRedirectBaseUrl(): string {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  try {
+    const env = typeof import.meta !== 'undefined' ? (import.meta as any).env || {} : {};
+    
+    // Use explicit environment variable if provided
+    if (env.VITE_REDIRECT_BASE_URL) {
+      return String(env.VITE_REDIRECT_BASE_URL);
+    }
+
+    // Otherwise, construct from current location
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port ? `:${window.location.port}` : '';
+    const basePath = getBasePath();
+    
+    // Ensure the URL is valid
+    const url = `${protocol}//${hostname}${port}${basePath}`;
+    
+    // Validate URL by trying to create a URL object
+    try {
+      new URL(url);
+      return url;
+    } catch {
+      // If URL is invalid, return a safe fallback
+      return `${protocol}//${hostname}${port}`;
+    }
+  } catch (error) {
+    // If anything goes wrong, return empty string
+    console.warn('Error getting redirect base URL:', error);
+    return '';
+  }
+}
+
+/**
+ * Configuration object with lazy evaluation
+ */
+export const config = {
+  get redirectBaseUrl(): string {
+    return getRedirectBaseUrl();
+  },
+};
+
 export const BASE_PATH = getBasePath();
 export default BASE_PATH;
