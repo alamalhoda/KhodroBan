@@ -58,9 +58,26 @@ jobs:
         working-directory: ./frontend
         run: npm ci
       
-      - name: Build
+      - name: Build (for GitHub Pages)
         working-directory: ./frontend
+        env:
+          STATIC_PAGES: 'true'
+          REPO_NAME: KhodroBan
         run: npm run build
+      
+      - name: Create 404 fallback (so direct /login works)
+        working-directory: ./frontend
+        run: |
+          # برای GitHub Pages، 404.html باید کپی از index.html باشد
+          # تا SvelteKit بتواند client-side routing را handle کند
+          if [ -f build/index.html ]; then
+            cp build/index.html build/404.html
+            echo "✅ Created build/404.html fallback from index.html"
+          else
+            echo "❌ Error: build/index.html not found — build may have failed"
+            ls -la build || true
+            exit 1
+          fi
       
       - name: Check bundle size
         working-directory: ./frontend
@@ -97,6 +114,9 @@ jobs:
       
       - name: Build
         working-directory: ./frontend
+        env:
+          STATIC_PAGES: 'true'
+          REPO_NAME: KhodroBan
         run: npm run build
       
       - name: Run accessibility tests
