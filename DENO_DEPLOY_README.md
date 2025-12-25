@@ -104,8 +104,14 @@ DEPLOY_PLATFORM=deno
 VITE_BACKEND_TYPE=supabase
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-# VITE_REDIRECT_BASE_URL به صورت خودکار تشخیص داده می‌شود
 ```
+
+✅ **VITE_REDIRECT_BASE_URL به صورت خودکار تشخیص داده می‌شود** - نیازی به تنظیم دستی نیست!
+
+برنامه به صورت هوشمند URL مناسب را بر اساس محیط deploy انتخاب می‌کند:
+- **Deno Deploy**: `https://khodroban.deno.dev`
+- **Netlify**: `https://khodroban.netlify.app`
+- **توسعه محلی**: `http://localhost:5173`
 
 ⚠️ **نکته مهم:** متغیرهای `DENO_REGION` و `DENO_DEPLOY` را اضافه نکنید چون Deno Deploy اجازه تغییر متغیرهای محیطی که با `DENO_` شروع می‌شوند را نمی‌دهد.
 
