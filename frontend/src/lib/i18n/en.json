@@ -36,9 +36,9 @@
     "registerError": "Registration failed. Please try again.",
     "registerSuccess": "Account created successfully.",
     "subtitle": "Smart Vehicle Maintenance Management",
-    "loginWithGoogle": "Login with Google",
-    "loginWithFacebook": "Login with Facebook",
-    "loginWithTwitter": "Login with X (Twitter)",
+    "loginWithGoogle": "Google",
+    "loginWithFacebook": "Facebook",
+    "loginWithTwitter": "(Twitter)",
     "registerPrompt": "Don't have an account?",
     "demoHint": "For testing, enter any email and password",
     "or": "or"

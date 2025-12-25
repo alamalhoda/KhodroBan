@@ -36,9 +36,9 @@
     "registerError": "فشل التسجيل. يرجى المحاولة مرة أخرى.",
     "registerSuccess": "تم إنشاء الحساب بنجاح.",
     "subtitle": "إدارة ذكية لصيانة المركبات",
-    "loginWithGoogle": "تسجيل الدخول باستخدام جوجل",
-    "loginWithFacebook": "تسجيل الدخول باستخدام فيسبوك",
-    "loginWithTwitter": "تسجيل الدخول باستخدام إكس (تويتر)",
+    "loginWithGoogle": "جوجل",
+    "loginWithFacebook": "فيسبوك",
+    "loginWithTwitter": "إكس (تويتر)",
     "registerPrompt": "ليس لديك حساب؟",
     "demoHint": "للاختبار، أدخل أي بريد إلكتروني وكلمة مرور",
     "or": "أو"

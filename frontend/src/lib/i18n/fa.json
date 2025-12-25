@@ -36,9 +36,9 @@
     "registerError": "خطا در ثبت نام. لطفاً دوباره تلاش کنید.",
     "registerSuccess": "حساب کاربری با موفقیت ایجاد شد.",
     "subtitle": "مدیریت هوشمند نگهداری خودرو",
-    "loginWithGoogle": "ورود با گوگل",
-    "loginWithFacebook": "ورود با فیسبوک",
-    "loginWithTwitter": "ورود با ایکس (توییتر)",
+    "loginWithGoogle": "گوگل",
+    "loginWithFacebook": "فیسبوک",
+    "loginWithTwitter": "ایکس (توییتر)",
     "registerPrompt": "حساب کاربری ندارید؟",
     "demoHint": "برای تست، هر ایمیل و رمز عبوری وارد کنید",
     "or": "یا"
