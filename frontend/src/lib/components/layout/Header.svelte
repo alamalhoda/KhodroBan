@@ -4,6 +4,7 @@
   import { authStore, currentUser, activeReminders } from '../../stores';
   import { APP_NAME } from '../../utils/constants';
   import { navigateTo } from '../../utils/navigation';
+  import { getBasePath } from '../../utils/config';
 
   interface Props {
     showBack?: boolean;
@@ -53,7 +54,7 @@
     {#if title}
       <h1 class="header-title">{title}</h1>
     {:else}
-      <a href="/" onclick={handleLogoClick} class="header-logo">
+      <a href={getBasePath() + '/'} on:click|preventDefault={handleLogoClick} class="header-logo">
         <span class="logo-icon">🚗</span>
         <span class="logo-text">{APP_NAME}</span>
       </a>
@@ -108,113 +109,5 @@
     background: rgba(0, 0, 0, 0.05);
     color: var(--color-text);
     border-radius: 10px;
-    font-size: 1.25rem;
-    cursor: pointer;
-    transition: background 0.2s;
-    text-decoration: none;
-  }
-
-  .header-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-  }
-
-  .header-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-    color: var(--color-text);
-  }
-
-  .logo-icon {
-    font-size: 1.5rem;
-  }
-
-  .logo-text {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: var(--color-primary);
-  }
-
-  .header-title {
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-  }
-
-  .notification-btn {
-    position: relative;
-  }
-
-  .notification-badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 4px;
-    background: var(--color-danger);
-    color: white;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .header-user {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.375rem 0.75rem 0.375rem 0.5rem;
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 9999px;
-    text-decoration: none;
-    color: var(--color-text);
-    transition: background 0.2s;
-  }
-
-  .header-user:hover {
-    background: rgba(0, 0, 0, 0.1);
-  }
-
-  .user-avatar {
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-primary);
-    color: white;
-    border-radius: 50%;
-    font-size: 0.875rem;
-  }
-
-  .user-name {
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  .hide-mobile {
-    display: none;
-  }
-
-  .hide-desktop {
-    display: flex;
-  }
-
-  @media (min-width: 768px) {
-    .header {
-      padding: 0.75rem 1.5rem;
-    }
-
-    .hide-mobile {
-      display: flex;
-    }
-
-    .hide-desktop {
-      display: none;
-    }
   }
 </style>
