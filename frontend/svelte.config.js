@@ -11,6 +11,9 @@ const config = {
     runes: true,
   },
   kit: {
+    paths: {
+      base: process.env.STATIC_PAGES === 'true' ? '/KhodroBan' : ''
+    },
     adapter: (() => {
       // در محیط‌های بدون process (مثل بعضی buildهای قدیمی) ایمن باش
       if (typeof process === 'undefined') {
@@ -27,8 +30,7 @@ const config = {
           pages: 'build',
           assets: 'build',
           fallback: 'index.html',
-          precompress: false,
-          strict: false
+          precompress: false
         });
       }
       // Deno Deploy: از متغیر DEPLOY_PLATFORM برای تشخیص استفاده می‌کنیم
