@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { navigateTo } from '$lib/utils/navigation';
   import { Button, Card, EmptyState } from '$lib/components/ui';
 </script>
 
@@ -10,7 +10,7 @@
       title="صفحه یافت نشد"
       description="صفحه‌ای که به دنبال آن هستید وجود ندارد یا منتقل شده است"
     >
-      <Button variant="primary" onclick={() => goto('/dashboard')}>
+      <Button variant="primary" onclick={() => navigateTo('/dashboard')}>
         بازگشت به داشبورد
       </Button>
     </EmptyState>
