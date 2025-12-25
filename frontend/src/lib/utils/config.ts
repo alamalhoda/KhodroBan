@@ -38,10 +38,12 @@ export const config = {
         // GitHub Pages URL pattern: username.github.io/repository-name
         if (typeof window !== 'undefined') {
           const { hostname, pathname } = window.location;
-          const repoName = pathname.split('/')[1] || 'OilChenger';
+          // pathname might be '/KhodroBan/' so we take the first segment
+          const pathSegments = pathname.split('/').filter(Boolean);
+          const repoName = pathSegments[0] || 'KhodroBan';
           return `https://${hostname}/${repoName}`;
         }
-        return 'https://alamalhoda.github.io/OilChenger'; // fallback
+        return 'https://alamalhoda.github.io/KhodroBan'; // fallback
       case 'development':
       default:
         return 'http://localhost:5173';
