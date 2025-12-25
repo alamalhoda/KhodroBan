@@ -128,13 +128,22 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 - محدودیت build شما مصرف نشود
 - می‌توانید در صورت نیاز، دستی deploy کنید
 
-### مرحله 5: Deploy خودکار
+### مرحله 5: تنظیم GitHub Pages (اختیاری)
+
+اگر می‌خواهید پروژه روی GitHub Pages هم اجرا شود:
+
+1. **به Repository → Settings → Pages بروید**
+2. **Source را روی "GitHub Actions" تنظیم کنید**
+3. **بقیه تنظیمات را به صورت پیش‌فرض بگذارید**
+
+### مرحله ۶: Deploy خودکار
 
 وقتی به برنچ `main` push می‌کنید:
 1. GitHub Actions اجرا می‌شود
-2. پروژه build می‌شود
-3. به Deno Deploy deploy می‌شود
-4. URL شما آماده است!
+2. پروژه روی Deno Deploy build و deploy می‌شود
+3. پروژه روی GitHub Pages build و deploy می‌شود (اگر تنظیم شده)
+4. Netlify به صورت خودکار build می‌کند (تا زمانی که غیرفعال نشده)
+5. URLهای شما آماده هستند!
 
 ---
 
@@ -171,12 +180,15 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 ## 🎯 نتیجه
 
-بعد از تنظیمات بالا:
+بعد از تنظیمات بالا، پروژه شما روی **۳ پلتفرم** اجرا می‌شود:
 
-1. **Netlify** همچنان روی branch اصلی کار می‌کند (برای backup)
-2. **Deno Deploy** از تنظیمات جدید استفاده می‌کند
-3. Build در Deno موفق می‌شود
-4. محدودیت build Netlify تمام نمی‌شود
+| پلتفرم | URL | وضعیت | هزینه |
+|--------|-----|-------|-------|
+| **Deno Deploy** | `https://khodroban.deno.dev` | اصلی | رایگان |
+| **Netlify** | `https://khodroban.netlify.app` | backup | رایگان |
+| **GitHub Pages** | `https://username.github.io/OilChenger` | اضافی | رایگان |
+
+هر پلتفرم به صورت مستقل deploy می‌شود و اگر یکی از آنها مشکل داشته باشد، بقیه همچنان کار می‌کنند.
 
 ---
 
