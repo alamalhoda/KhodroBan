@@ -49,10 +49,16 @@ jobs:
           VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cnpva3l6andpcmNyaHJ0eXlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY1MDg3NTgsImV4cCI6MjA4MjA4NDc1OH0.jZMGsQ2M7J7KxkMV-pdKX0ywr_nqi41qApHVCK7_sQg
           VITE_BACKEND_TYPE: supabase
 
-      - name: Copy 404.html to build directory
+      - name: Create 404.html fallback for GitHub Pages
+        working-directory: ./frontend
         run: |
-          if [ -f ./frontend/public/404.html ]; then
-            cp ./frontend/public/404.html ./frontend/build/404.html
+          # برای GitHub Pages، 404.html باید کپی از index.html باشد
+          # تا SvelteKit بتواند client-side routing را handle کند
+          if [ -f build/index.html ]; then
+            cp build/index.html build/404.html
+            echo "✅ Created 404.html fallback from index.html"
+          else
+            echo "⚠️ Warning: build/index.html not found, skipping 404.html creation"
           fi
 
       - name: List build files
