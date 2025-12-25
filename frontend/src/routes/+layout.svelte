@@ -83,7 +83,16 @@
     const path = $page.url.pathname;
     // Handle base path for GitHub Pages
     const basePath = path.startsWith('/KhodroBan') ? '/KhodroBan' : '';
-    const cleanPath = basePath ? path.slice(basePath.length) || '/' : path;
+    let cleanPath = basePath ? path.slice(basePath.length) || '/' : path;
+    
+    // Handle /index.html - redirect to root
+    if (cleanPath === '/index.html' || cleanPath.endsWith('/index.html')) {
+      cleanPath = cleanPath.replace(/\/index\.html$/, '') || '/';
+      if (cleanPath !== path) {
+        navigateTo(cleanPath);
+        return;
+      }
+    }
     
     const isProtected = protectedRoutes.some(route => 
       cleanPath === route || cleanPath.startsWith(route + '/')
