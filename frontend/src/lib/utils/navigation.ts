@@ -17,13 +17,26 @@ export async function navigateTo(path: string): Promise<void> {
   
   console.log('navigateTo called:', { path, fullPath, platform, base, detectedBasePath });
 
-  // For GitHub Pages (static sites), use direct navigation to ensure base path works
+  // For GitHub Pages (static sites), try goto() first, then fallback to direct navigation
   if (platform === 'github-pages' && typeof window !== 'undefined') {
-    const effectiveBase = detectedBasePath || base;
-    const pathWithBase = `${effectiveBase}${fullPath}`.replace(/\/+/g, '/');
-    console.log('GitHub Pages navigation:', pathWithBase);
-    window.location.href = pathWithBase;
-    return;
+    try {
+      // Try SvelteKit's goto() first - it should handle base path
+      await goto(fullPath, { 
+        noScroll: false,
+        replaceState: false,
+        keepFocus: false,
+        invalidateAll: false
+      });
+      return;
+    } catch (error) {
+      console.warn('goto() failed for GitHub Pages, using direct navigation:', error);
+      // Fallback: use direct navigation with base path
+      const effectiveBase = detectedBasePath || base;
+      const pathWithBase = `${effectiveBase}${fullPath}`.replace(/\/+/g, '/');
+      console.log('GitHub Pages fallback navigation:', pathWithBase);
+      window.location.href = pathWithBase;
+      return;
+    }
   }
 
   // For other platforms, use SvelteKit's goto()

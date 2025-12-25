@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting...</title>
+  <script>
+    // Redirect all 404s to index.html - SvelteKit will handle routing
+    const path = window.location.pathname;
+    const basePath = '/KhodroBan';
+    const cleanPath = path.startsWith(basePath) ? path.slice(basePath.length) : path;
+    // Always redirect to index.html - SvelteKit router will handle the path
+    window.location.replace(basePath + '/index.html');
+  </script>
+</head>
+<body>
+  <p>در حال انتقال...</p>
+</body>
+</html>
+
