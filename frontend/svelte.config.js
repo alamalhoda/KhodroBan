@@ -30,8 +30,8 @@ const config = {
           precompress: false
         });
       }
-      // Deno Deploy: متغیرهای DENO_REGION یا DENO_DEPLOY همیشه وجود دارن
-      if (process.env.DENO_REGION || process.env.DENO_DEPLOY) {
+      // Deno Deploy: از متغیر DEPLOY_PLATFORM برای تشخیص استفاده می‌کنیم
+      if (process.env.DEPLOY_PLATFORM === 'deno') {
         return adapterDeno({
           // SPA fallback for client-side routing
           fallback: 'index.html'
