@@ -291,12 +291,21 @@
 
 <style>
   /* Vehicles page specific styles */
+  /* Using shared page-container from layouts.css */
 
   .page-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 768px) {
+    .page-header {
+      margin-bottom: var(--space-2xl);
+    }
   }
 
   .page-title {
@@ -305,10 +314,31 @@
     font-weight: 600;
   }
 
+  @media (min-width: 1024px) {
+    .page-title {
+      font-size: var(--font-size-2xl);
+    }
+  }
+
   .vehicles-list {
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
+  }
+
+  @media (min-width: 768px) {
+    .vehicles-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .vehicles-list {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-xl);
+    }
   }
 
   :global(.vehicle-card) {
@@ -333,14 +363,30 @@
     font-size: 2.5rem;
   }
 
+  @media (min-width: 768px) {
+    .vehicle-icon {
+      font-size: 3rem;
+    }
+  }
+
   .vehicle-info {
     flex: 1;
+    min-width: 0;
   }
 
   .vehicle-model {
     margin: 0;
     font-size: 1.0625rem;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (min-width: 768px) {
+    .vehicle-model {
+      font-size: var(--font-size-lg);
+    }
   }
 
   .vehicle-meta {
@@ -410,18 +456,6 @@
     color: var(--color-primary);
   }
 
-  /* Form */
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .form-actions {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-end;
-    margin-top: 0.5rem;
-  }
+  /* Form - using shared styles from layouts.css */
 </style>
 

@@ -141,6 +141,7 @@
           name="name"
           label="نام"
           bind:value={profile.name}
+          class="field-full-width"
         />
         <Input
           type="email"
@@ -149,6 +150,7 @@
           value={profile.email}
           disabled
           hint="ایمیل قابل تغییر نیست"
+          class="field-full-width"
         />
         <Button type="submit" variant="primary" loading={isSaving}>
           ذخیره تغییرات
@@ -261,12 +263,320 @@
 </Layout>
 
 <style>
-  /* Custom overrides for settings page */
+  /* Settings page specific styles */
 
-  /* Pro card gradient */
+  /* Page container - using shared styles from layouts.css */
+  .page-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  @media (min-width: 768px) {
+    .page-container {
+      gap: var(--space-xl);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: min-content;
+    }
+  }
+
+  /* Cards full width on mobile, grid on tablet+ */
+  .page-container :global(.card) {
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    /* Profile and Reminder Settings side by side */
+    .page-container :global(.card:first-child),
+    .page-container :global(.card:nth-child(2)) {
+      grid-column: span 1;
+    }
+
+    /* Pro card full width */
+    .page-container :global(.pro-card) {
+      grid-column: 1 / -1;
+    }
+
+    /* App info and Logout side by side */
+    .page-container :global(.card:last-of-type),
+    .page-container :global(button:last-child) {
+      grid-column: span 1;
+    }
+  }
+
+  /* Profile section */
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  @media (min-width: 768px) {
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+  }
+
+  .profile-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--glass-bg-solid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border: 2px solid var(--glass-border);
+  }
+
+  @media (min-width: 768px) {
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      font-size: 2.5rem;
+    }
+  }
+
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+  }
+
+  @media (min-width: 768px) {
+    .profile-info {
+      align-items: center;
+    }
+  }
+
+  .profile-name {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  @media (min-width: 768px) {
+    .profile-name {
+      font-size: var(--font-size-xl);
+    }
+  }
+
+  .profile-email {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+  }
+
+  /* Form container - using shared styles from layouts.css */
+
+  /* Channels section */
+  .channels-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 768px) {
+    .channels-section {
+      grid-column: 1 / -1;
+      gap: var(--space-lg);
+    }
+  }
+
+  .form-label {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+  }
+
+  .channels-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  @media (min-width: 768px) {
+    .channels-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+    }
+  }
+
+  .channel-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--glass-bg-solid);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: right;
+  }
+
+  .channel-item:hover:not(.disabled) {
+    background: rgba(30, 58, 138, 0.05);
+    border-color: var(--color-primary);
+  }
+
+  .channel-item.active {
+    background: rgba(30, 58, 138, 0.1);
+    border-color: var(--color-primary);
+  }
+
+  .channel-item.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .channel-checkbox {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--glass-border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .channel-item.active .channel-checkbox {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+  }
+
+  .channel-label {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  /* Pro card */
   :global(.pro-card) {
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(249, 115, 22, 0.1)) !important;
     border-color: rgba(245, 158, 11, 0.3) !important;
   }
+
+  .pro-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  @media (min-width: 768px) {
+    .pro-header {
+      justify-content: center;
+      margin-bottom: var(--space-xl);
+    }
+  }
+
+  .pro-icon {
+    font-size: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .pro-icon {
+      font-size: 2.5rem;
+    }
+  }
+
+  .pro-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    .pro-title {
+      font-size: var(--font-size-xl);
+    }
+  }
+
+  .pro-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-lg) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  @media (min-width: 768px) {
+    .pro-features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+  }
+
+  .pro-features li {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    padding: var(--space-xs) 0;
+  }
+
+  /* App info */
+  .app-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .app-info {
+      flex-direction: row;
+      justify-content: space-between;
+      text-align: right;
+    }
+  }
+
+  .app-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .app-name {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .app-version {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+  }
+
+  /* Logout button */
+  .page-container :global(button:last-child) {
+    margin-top: var(--space-md);
+  }
+
+  @media (min-width: 768px) {
+    .page-container :global(button:last-child) {
+      margin-top: 0;
+    }
+  }
+
+  /* Form fields spacing - using shared styles from layouts.css */
 </style>
 

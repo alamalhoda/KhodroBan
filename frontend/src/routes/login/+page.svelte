@@ -150,6 +150,18 @@
     max-width: 400px;
   }
 
+  @media (min-width: 768px) {
+    .auth-container {
+      max-width: 450px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .auth-container {
+      max-width: 500px;
+    }
+  }
+
   .auth-header {
     text-align: center;
     margin-bottom: 2rem;

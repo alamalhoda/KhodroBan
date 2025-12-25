@@ -333,35 +333,7 @@
 <style>
   /* Add page specific styles */
 
-  /* Page container */
-  .page-container {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 0 var(--space-lg);
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-  }
-
-  @media (min-width: 768px) {
-    .page-container {
-      max-width: 900px;
-      padding: 0 var(--space-xl);
-      padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .page-container {
-      max-width: 1000px;
-      padding: 0 var(--space-xl);
-      padding-bottom: var(--space-xl);
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .page-container {
-      max-width: 1200px;
-    }
-  }
+  /* Page container - using shared styles from layouts.css */
 
   /* Add content wrapper */
   .add-content {
@@ -377,70 +349,9 @@
   }
 
 
-  /* Form responsive */
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
-  }
+  /* Form - using shared styles from layouts.css */
 
-  @media (min-width: 768px) {
-    .form {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-lg) var(--space-md);
-      column-gap: var(--space-lg);
-    }
-
-    /* Full width fields - note field and form actions */
-    .form :global(.field-full-width),
-    .form :global(.input-group.field-full-width),
-    .form :global(.select-group.field-full-width),
-    .form-actions {
-      grid-column: 1 / -1;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .form {
-      gap: var(--space-xl) var(--space-lg);
-      column-gap: var(--space-xl);
-    }
-  }
-
-  /* Form actions responsive */
-  .form-actions {
-    display: flex;
-    gap: var(--space-md);
-    justify-content: flex-end;
-    margin-top: var(--space-lg);
-    padding-top: var(--space-lg);
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-  }
-
-  @media (min-width: 480px) {
-    .form-actions {
-      flex-direction: row;
-      justify-content: space-between;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .form-actions {
-      gap: var(--space-lg);
-      margin-top: var(--space-xl);
-      padding-top: var(--space-xl);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .form-actions {
-      grid-column: 1 / -1;
-      margin-top: var(--space-2xl);
-      padding-top: var(--space-2xl);
-      gap: var(--space-xl);
-    }
-  }
+  /* Form actions - using shared styles from layouts.css */
 
   /* No vehicles section responsive */
   .no-vehicles {
@@ -466,27 +377,7 @@
     }
   }
 
-  /* Form fields spacing for larger screens */
-  .form :global(.field) {
-    margin-bottom: var(--space-md);
-  }
-
-  @media (min-width: 768px) {
-    .form :global(.field) {
-      margin-bottom: 0;
-    }
-  }
-
-  /* Better spacing for form sections */
-  .form :global(.field-group) {
-    margin-bottom: var(--space-md);
-  }
-
-  @media (min-width: 768px) {
-    .form :global(.field-group) {
-      margin-bottom: var(--space-lg);
-    }
-  }
+  /* Form fields spacing - using shared styles from layouts.css */
 
   /* Card padding responsive */
   :global(.card) {

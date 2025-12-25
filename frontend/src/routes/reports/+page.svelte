@@ -222,9 +222,16 @@
 
 <style>
   /* Reports page specific styles */
+  /* Using shared page-container from layouts.css */
 
   :global(.filters-card) {
     margin-bottom: var(--space-lg);
+  }
+
+  @media (min-width: 768px) {
+    :global(.filters-card) {
+      margin-bottom: var(--space-xl);
+    }
   }
 
   .filters {
@@ -238,16 +245,31 @@
     }
   }
 
+  @media (min-width: 1024px) {
+    .filters {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
   /* Summary Grid */
   .summary-grid {
     display: grid;
-    gap: var(--space-sm);
+    gap: var(--space-md);
     margin-bottom: var(--space-lg);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .summary-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   @media (min-width: 768px) {
     .summary-grid {
       grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
     }
   }
 
@@ -357,12 +379,27 @@
   /* Export Actions */
   .export-actions {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 640px) {
+    .export-actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--space-lg);
+    }
   }
 
   :global(.card) {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-lg);
+  }
+
+  @media (min-width: 768px) {
+    :global(.card) {
+      margin-bottom: var(--space-xl);
+    }
   }
 </style>
+
 

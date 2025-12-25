@@ -215,17 +215,9 @@
 <style>
   /* Dashboard specific styles */
 
-  /* Page container */
+  /* Page container - using shared styles from layouts.css */
   .page-container {
     max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--space-lg);
-  }
-
-  @media (min-width: 1024px) {
-    .page-container {
-      padding: 0 var(--space-xl);
-    }
   }
 
   /* Quick actions */

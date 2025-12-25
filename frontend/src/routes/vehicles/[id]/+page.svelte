@@ -270,31 +270,58 @@
 
 <style>
   /* Vehicle detail page specific styles */
+  /* Using shared page-container from layouts.css */
 
   /* Vehicle Info Card */
   :global(.vehicle-info-card) {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-lg);
+  }
+
+  @media (min-width: 768px) {
+    :global(.vehicle-info-card) {
+      margin-bottom: var(--space-xl);
+    }
   }
 
   .vehicle-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+  }
+
+  @media (min-width: 768px) {
+    .vehicle-header {
+      gap: var(--space-lg);
+      margin-bottom: var(--space-2xl);
+    }
   }
 
   .vehicle-icon {
     font-size: 3rem;
   }
 
+  @media (min-width: 768px) {
+    .vehicle-icon {
+      font-size: 3.5rem;
+    }
+  }
+
   .vehicle-details {
     flex: 1;
+    min-width: 0;
   }
 
   .vehicle-model {
     margin: 0;
     font-size: 1.375rem;
     font-weight: 700;
+  }
+
+  @media (min-width: 768px) {
+    .vehicle-model {
+      font-size: var(--font-size-2xl);
+    }
   }
 
   .vehicle-meta {
@@ -335,8 +362,16 @@
   .stats-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  @media (min-width: 768px) {
+    .stats-row {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
   }
 
   .stat-box {
@@ -378,8 +413,16 @@
   .quick-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+  }
+
+  @media (min-width: 768px) {
+    .quick-actions {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-lg);
+      margin-bottom: var(--space-2xl);
+    }
   }
 
   .quick-btn {
@@ -410,7 +453,22 @@
   .records-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 768px) {
+    .records-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .records-list {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-xl);
+    }
   }
 
   .record-header {
@@ -462,11 +520,26 @@
     color: var(--color-text-light);
   }
 
+  /* Modal actions - using shared styles from layouts.css */
   .modal-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: var(--space-md);
     justify-content: flex-end;
-    margin-top: 1.5rem;
+    margin-top: var(--space-lg);
+  }
+
+  @media (min-width: 480px) {
+    .modal-actions {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .modal-actions {
+      gap: var(--space-lg);
+      margin-top: var(--space-xl);
+    }
   }
 </style>
 
