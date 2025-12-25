@@ -29,7 +29,10 @@
 
   async function handleNavigation(path: string, event: Event) {
     event.preventDefault();
-    await goto(path);
+    // For GitHub Pages, ensure base path is included
+    const basePath = '/KhodroBan';
+    const fullPath = path.startsWith('/') ? `${basePath}${path}` : path;
+    await goto(fullPath);
     close();
   }
 

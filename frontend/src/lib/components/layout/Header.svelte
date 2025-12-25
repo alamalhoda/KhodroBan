@@ -26,7 +26,7 @@
 
   async function handleLogoClick(event: Event) {
     event.preventDefault();
-    await goto('/');
+    await goto('/KhodroBan/');
   }
 
   let reminderCount = $derived($activeReminders?.length || 0);
@@ -47,7 +47,7 @@
     {#if title}
       <h1 class="header-title">{title}</h1>
     {:else}
-      <a href="/" onclick={handleLogoClick} class="header-logo">
+      <a href="/KhodroBan/" onclick={handleLogoClick} class="header-logo">
         <span class="logo-icon">🚗</span>
         <span class="logo-text">{APP_NAME}</span>
       </a>
