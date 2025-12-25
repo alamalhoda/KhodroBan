@@ -27,15 +27,13 @@ const config = {
           pages: 'build',
           assets: 'build',
           fallback: 'index.html',
-          precompress: false
+          precompress: false,
+          strict: false
         });
       }
       // Deno Deploy: از متغیر DEPLOY_PLATFORM برای تشخیص استفاده می‌کنیم
       if (process.env.DEPLOY_PLATFORM === 'deno') {
-        return adapterDeno({
-          // SPA fallback for client-side routing
-          fallback: 'index.html'
-        });
+        return adapterDeno();
       }
 
       // Netlify: متغیر NETLIFY=true همیشه در build و runtime وجود داره

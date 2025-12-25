@@ -3,10 +3,11 @@ import { defineConfig } from 'vite';
 import path from 'path';
 
 const isStaticPages = process.env.STATIC_PAGES === 'true';
+const basePath = process.env.BASE_PATH || (isStaticPages ? '/KhodroBan/' : '/');
 
 export default defineConfig({
   plugins: [sveltekit()],
-  base: isStaticPages ? '/KhodroBan/' : '/',
+  base: basePath,
   resolve: {
     alias: {
       $lib: path.resolve('./src/lib'),
