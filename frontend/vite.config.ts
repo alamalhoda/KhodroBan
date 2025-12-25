@@ -3,7 +3,8 @@ import { defineConfig } from 'vite';
 import path from 'path';
 
 const isStaticPages = process.env.STATIC_PAGES === 'true';
-const basePath = process.env.BASE_PATH || (isStaticPages ? '/KhodroBan/' : '/');
+const repoName = process.env.REPO_NAME || 'KhodroBan';
+const basePath = process.env.BASE_PATH || (isStaticPages ? `/${repoName}/` : '/');
 
 export default defineConfig({
   plugins: [sveltekit()],
