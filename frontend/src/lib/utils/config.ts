@@ -5,29 +5,49 @@
 // نوع محیط deploy
 export type DeployPlatform = 'deno' | 'netlify' | 'github-pages' | 'development';
 
-// تشخیص محیط deploy
+// Cache برای platform detection
+let cachedPlatform: DeployPlatform | null = null;
+
+// تشخیص محیط deploy (memoized)
 export function getDeployPlatform(): DeployPlatform {
+  // Return cached value if available
+  if (cachedPlatform !== null) {
+    return cachedPlatform;
+  }
+
   // بررسی hostname (اولویت بالاتر برای runtime)
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    console.log('Detecting platform from hostname:', hostname);
-    if (hostname.includes('deno.dev')) return 'deno';
-    if (hostname.includes('netlify.app')) return 'netlify';
-    if (hostname.includes('github.io')) return 'github-pages';
+    if (hostname.includes('deno.dev')) {
+      cachedPlatform = 'deno';
+      return cachedPlatform;
+    }
+    if (hostname.includes('netlify.app')) {
+      cachedPlatform = 'netlify';
+      return cachedPlatform;
+    }
+    if (hostname.includes('github.io')) {
+      cachedPlatform = 'github-pages';
+      return cachedPlatform;
+    }
   }
 
   // بررسی متغیر محیطی (برای build time)
-  console.log('Checking env vars:', {
-    DEPLOY_PLATFORM: import.meta.env.DEPLOY_PLATFORM,
-    NETLIFY: import.meta.env.NETLIFY,
-    GITHUB_PAGES: import.meta.env.GITHUB_PAGES
-  });
-  if (import.meta.env.DEPLOY_PLATFORM === 'deno') return 'deno';
-  if (import.meta.env.NETLIFY) return 'netlify';
-  if (import.meta.env.GITHUB_PAGES === 'true') return 'github-pages';
+  if (import.meta.env.DEPLOY_PLATFORM === 'deno') {
+    cachedPlatform = 'deno';
+    return cachedPlatform;
+  }
+  if (import.meta.env.NETLIFY) {
+    cachedPlatform = 'netlify';
+    return cachedPlatform;
+  }
+  if (import.meta.env.GITHUB_PAGES === 'true') {
+    cachedPlatform = 'github-pages';
+    return cachedPlatform;
+  }
 
-  console.log('Returning development as default');
-  return 'development';
+  cachedPlatform = 'development';
+  return cachedPlatform;
 }
 
 // تنظیمات بر اساس محیط

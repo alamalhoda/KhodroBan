@@ -1,4 +1,5 @@
 import { goto } from '$app/navigation';
+import { base } from '$app/paths';
 import { config } from './config';
 import { getDeployPlatform } from './config';
 
@@ -12,7 +13,7 @@ export async function navigateTo(path: string): Promise<void> {
   const fullPath = path.startsWith('/') ? path : `/${path}`;
 
   const platform = getDeployPlatform();
-  console.log('navigateTo called:', { path, fullPath, platform });
+  console.log('navigateTo called:', { path, fullPath, platform, base });
 
   try {
     // Use goto() - SvelteKit handles base path automatically based on kit.paths.base
@@ -24,9 +25,10 @@ export async function navigateTo(path: string): Promise<void> {
     });
   } catch (error) {
     console.error('Navigation error:', error);
-    // Fallback: try direct navigation
+    // Fallback: try direct navigation with base path
     if (typeof window !== 'undefined') {
-      window.location.href = fullPath;
+      const pathWithBase = `${base}${fullPath}`.replace(/\/+/g, '/');
+      window.location.href = pathWithBase;
     }
   }
 }

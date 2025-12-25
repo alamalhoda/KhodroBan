@@ -30,6 +30,11 @@
     await navigateTo('/');
   }
 
+  async function handleSettingsClick(event: Event) {
+    event.preventDefault();
+    await navigateTo('/settings');
+  }
+
   let reminderCount = $derived($activeReminders?.length || 0);
 </script>
 
@@ -56,17 +61,17 @@
   </div>
   
   <div class="header-end">
-    <a href="/settings" class="header-btn notification-btn" aria-label="یادآورها">
+    <button onclick={handleSettingsClick} class="header-btn notification-btn" aria-label="یادآورها" type="button">
       🔔
       {#if reminderCount > 0}
         <span class="notification-badge">{reminderCount > 9 ? '۹+' : reminderCount}</span>
       {/if}
-    </a>
+    </button>
     
-    <a href="/settings" class="header-user hide-mobile">
+    <button onclick={handleSettingsClick} class="header-user hide-mobile" type="button">
       <span class="user-avatar">👤</span>
       <span class="user-name">{$currentUser?.name || 'کاربر'}</span>
-    </a>
+    </button>
   </div>
 </header>
 

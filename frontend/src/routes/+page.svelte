@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { browser } from '$app/environment';
   import { Layout } from '$lib/components/layout';
   import { Card, Button, Badge, Spinner, EmptyState } from '$lib/components/ui';
-  import { vehiclesStore, servicesStore, expensesStore, remindersStore, activeReminders, toastStore } from '$lib/stores';
+  import { vehiclesStore, servicesStore, expensesStore, remindersStore, activeReminders, toastStore, authStore } from '$lib/stores';
   import { vehicleService, serviceService, expenseService, reminderService } from '$lib/services';
   import { formatNumber, formatCurrency, formatKm, formatJalaliDate, getRelativeTime } from '$lib/utils/format';
   import { REMINDER_STATUS, SERVICE_TYPES, POLL_INTERVAL } from '$lib/utils/constants';
@@ -14,16 +15,24 @@
   let reminders = $derived($activeReminders);
 
   onMount(async () => {
-    await loadData();
+    // Wait a bit for auth initialization in layout
+    if (browser) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
     
-    // Set up polling for reminders
-    const pollInterval = setInterval(() => {
-      reminderService.refresh().then(data => {
-        remindersStore.setReminders(data);
-      });
-    }, POLL_INTERVAL);
+    // Only load data if authenticated
+    if (authStore.isAuthenticated()) {
+      await loadData();
+      
+      // Set up polling for reminders
+      const pollInterval = setInterval(() => {
+        reminderService.refresh().then(data => {
+          remindersStore.setReminders(data);
+        });
+      }, POLL_INTERVAL);
 
-    return () => clearInterval(pollInterval);
+      return () => clearInterval(pollInterval);
+    }
   });
 
   async function loadData() {

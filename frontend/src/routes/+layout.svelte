@@ -38,13 +38,17 @@
     }
   });
 
+  // Track if auth initialization is complete
+  let authInitialized = $state(false);
+
   // Initialize auth state from localStorage
   $effect(() => {
-    if (browser) {
+    if (browser && !authInitialized) {
       console.log('Initializing auth state...');
       // Check if we have a token and try to restore user session
       const token = localStorage.getItem('token');
       console.log('Token from localStorage:', token ? 'exists' : 'not found');
+      
       if (token && !authStore.isAuthenticated()) {
         console.log('Attempting to restore user session...');
         // Try to validate token and restore user session
@@ -58,30 +62,39 @@
             console.log('Token invalid, removing...');
             localStorage.removeItem('token');
           }
+          authInitialized = true;
         }).catch((error: unknown) => {
           console.error('Token validation failed:', error);
           // Token validation failed, remove it
           localStorage.removeItem('token');
+          authInitialized = true;
         });
       } else {
         console.log('No token or already authenticated');
+        authInitialized = true;
       }
     }
   });
 
-  // Client-side route guard
+  // Client-side route guard (only after auth initialization)
   $effect(() => {
+    if (!browser || !authInitialized) return;
+    
     const path = $page.url.pathname;
-    const isProtected = protectedRoutes.some(route => path === route || path.startsWith(route + '/'));
+    // Handle base path for GitHub Pages
+    const basePath = path.startsWith('/KhodroBan') ? '/KhodroBan' : '';
+    const cleanPath = basePath ? path.slice(basePath.length) || '/' : path;
+    
+    const isProtected = protectedRoutes.some(route => 
+      cleanPath === route || cleanPath.startsWith(route + '/')
+    );
     const isAuth = authStore.isAuthenticated();
 
     // Redirect to login if accessing protected route without auth
-    if (isProtected && !isAuth && typeof window !== 'undefined') {
+    if (isProtected && !isAuth) {
+      console.log('Redirecting to login - protected route without auth', { path, cleanPath });
       navigateTo('/login');
     }
-
-    // Note: We allow access to login/register pages even when authenticated
-    // Users can access these pages to logout, switch accounts, etc.
   });
 </script>
 
