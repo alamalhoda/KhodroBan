@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { supabase } from '$lib/supabase';
+  import { navigateTo } from '$lib/utils/navigation';
   import { authStore, toastStore } from '$lib/stores';
   import { authService } from '$lib/services';
   import type { User } from '$lib/types';
@@ -72,12 +73,12 @@
       toastStore.success('خوش آمدید!');
       
       // Redirect به dashboard
-      goto('/dashboard');
+      await navigateTo('/dashboard');
     } catch (error: any) {
       console.error('OAuth callback error:', error);
       const message = error?.message || 'خطا در ورود با Google. لطفاً دوباره تلاش کنید.';
       toastStore.error(message);
-      goto('/login');
+      await navigateTo('/login');
     }
   });
 </script>

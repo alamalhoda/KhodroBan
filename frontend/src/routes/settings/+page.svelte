@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { Layout } from '$lib/components/layout';
+  import { navigateTo } from '$lib/utils/navigation';
   import { Card, Button, Input, Badge } from '$lib/components/ui';
   import { authStore, currentUser, isPro, remindersStore, toastStore } from '$lib/stores';
   import { authService, reminderService } from '$lib/services';
@@ -102,10 +103,10 @@
     }
   }
 
-  function handleLogout() {
+  async function handleLogout() {
     if (confirm('آیا می‌خواهید از حساب خود خارج شوید؟')) {
       authStore.logout();
-      goto('/login');
+      await navigateTo('/login');
     }
   }
 </script>

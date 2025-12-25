@@ -5,6 +5,7 @@
   import { fade, fly } from 'svelte/transition';
   import { authStore, currentUser, isPro, reminderStats } from '../../stores';
   import { MENU_ITEMS, APP_NAME } from '../../utils/constants';
+  import { navigateTo } from '../../utils/navigation';
 
   interface Props {
     open?: boolean;
@@ -21,18 +22,15 @@
     dispatch('close');
   }
 
-  function handleLogout() {
+  async function handleLogout() {
     authStore.logout();
-    goto('/login');
+    await navigateTo('/login');
     close();
   }
 
   async function handleNavigation(path: string, event: Event) {
     event.preventDefault();
-    // For GitHub Pages, ensure base path is included
-    const basePath = '/KhodroBan';
-    const fullPath = path.startsWith('/') ? `${basePath}${path}` : path;
-    await goto(fullPath);
+    await navigateTo(path);
     close();
   }
 
@@ -71,7 +69,7 @@
     {#each MENU_ITEMS as item}
       {@const isItemActive = isActive(item.path)}
       <a
-        href={item.path}
+        href="#"
         onclick={(event) => handleNavigation(item.path, event)}
         class="nav-item"
         class:active={isItemActive}

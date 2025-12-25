@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { authStore, currentUser, activeReminders } from '../../stores';
   import { APP_NAME } from '../../utils/constants';
+  import { navigateTo } from '../../utils/navigation';
 
   interface Props {
     showBack?: boolean;
@@ -26,7 +27,7 @@
 
   async function handleLogoClick(event: Event) {
     event.preventDefault();
-    await goto('/KhodroBan/');
+    await navigateTo('/');
   }
 
   let reminderCount = $derived($activeReminders?.length || 0);
@@ -47,7 +48,7 @@
     {#if title}
       <h1 class="header-title">{title}</h1>
     {:else}
-      <a href="/KhodroBan/" onclick={handleLogoClick} class="header-logo">
+      <a href="/" onclick={handleLogoClick} class="header-logo">
         <span class="logo-icon">🚗</span>
         <span class="logo-text">{APP_NAME}</span>
       </a>

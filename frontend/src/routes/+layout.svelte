@@ -3,6 +3,7 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
+  import { navigateTo } from '$lib/utils/navigation';
   import '../styles/global.css';
   import Toast from '$lib/components/ui/Toast.svelte';
   import { toastStore } from '$lib/stores/ui';
@@ -44,7 +45,7 @@
 
     // Redirect to login if accessing protected route without auth
     if (isProtected && !isAuth && typeof window !== 'undefined') {
-      goto('/login');
+      navigateTo('/login');
     }
 
     // Note: We allow access to login/register pages even when authenticated
