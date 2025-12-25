@@ -27,6 +27,12 @@
     close();
   }
 
+  async function handleNavigation(path: string, event: Event) {
+    event.preventDefault();
+    await goto(path);
+    close();
+  }
+
   // Check if current path matches menu item
   function isActive(path: string): boolean {
     const currentPath = $page.url.pathname;
@@ -61,11 +67,11 @@
   <nav class="sidebar-nav">
     {#each MENU_ITEMS as item}
       {@const isItemActive = isActive(item.path)}
-      <a 
-        href={item.path} 
+      <a
+        href={item.path}
+        on:click={(event) => handleNavigation(item.path, event)}
         class="nav-item"
         class:active={isItemActive}
-        onclick={close}
       >
         <span class="nav-icon">{item.icon}</span>
         <span class="nav-label">{item.label}</span>
@@ -78,7 +84,7 @@
 
   <div class="sidebar-footer">
     {#if !$isPro}
-      <a href="/settings" class="upgrade-btn" onclick={close}>
+      <a href="/settings" class="upgrade-btn" on:click={(event) => handleNavigation('/settings', event)}>
         <span>🌟</span>
         <span>ارتقا به Pro</span>
       </a>
