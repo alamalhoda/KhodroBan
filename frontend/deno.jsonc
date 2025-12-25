@@ -1,0 +1,14 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-read --allow-write --allow-env --allow-net npm:vite@^5.4.0 dev",
+    "build": "deno run --allow-read --allow-write --allow-env --allow-net npm:vite@^5.4.0 build",
+    "preview": "deno run --allow-read --allow-write --allow-env --allow-net npm:vite@^5.4.0 preview",
+    "check": "deno run --allow-read --allow-write --allow-env --allow-net npm:svelte-kit@^2.0.0 sync && deno run --allow-read --allow-write --allow-env --allow-net npm:svelte-check@^4.0.0 --tsconfig ./tsconfig.json check"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "importMap": "./import_map.json"
+}

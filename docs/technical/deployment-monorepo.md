@@ -143,6 +143,68 @@ jobs:
    }
    ```
 
+### Deploy Frontend به Deno Deploy
+
+#### راه‌اندازی Deno Deploy
+
+Deno Deploy یک پلتفرم serverless است که از Deno runtime استفاده می‌کند و برای SvelteKit کاملاً مناسب است.
+
+**مراحل تنظیم:**
+
+1. **در Deno Deploy:**
+   - به https://deno.com/deploy بروید
+   - حساب خود را ایجاد کنید
+   - یک پروژه جدید بسازید
+
+2. **اتصال به GitHub:**
+   - روی "Connect to Git" کلیک کنید
+   - Repository خود را انتخاب کنید
+   - Branch مورد نظر را انتخاب کنید (مثلاً `fix-deno-deploy`)
+
+3. **تنظیمات Build:**
+   - **Root Directory:** `frontend/`
+   - **Entry Point:** `index.html` (یا خالی بگذارید)
+   - **Build Command:** `deno task build`
+   - **Serve Directory:** `build/`
+
+4. **Environment Variables:**
+   ```env
+   DENO_REGION=true
+   DENO_DEPLOY=true
+   VITE_BACKEND_TYPE=supabase
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_anon_key
+   ```
+
+**نکته مهم:** مطمئن شوید که فایل‌های `deno.jsonc` و `import_map.json` در پوشه `frontend/` وجود دارند.
+
+#### فایل‌های مورد نیاز برای Deno Deploy
+
+```json
+// frontend/deno.jsonc
+{
+  "tasks": {
+    "build": "deno run --allow-read --allow-write --allow-env --allow-net npm:vite@^5.4.0 build",
+    "dev": "deno run --allow-read --allow-write --allow-env --allow-net npm:vite@^5.4.0 dev"
+  },
+  "importMap": "./import_map.json"
+}
+```
+
+```json
+// frontend/import_map.json
+{
+  "imports": {
+    "svelte": "npm:svelte@^5.0.0",
+    "svelte/": "npm:svelte@^5.0.0/",
+    "@sveltejs/kit": "npm:@sveltejs/kit@^2.0.0",
+    "vite": "npm:vite@^5.4.0",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@^2.89.0"
+    // ... سایر dependencies
+  }
+}
+```
+
 #### روش 2: با Git Subtree (برای repository جداگانه)
 
 ```bash
