@@ -1,5 +1,4 @@
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import adapterAuto from '@sveltejs/adapter-auto';
 import adapterDeno from '@deno/svelte-adapter';
 import adapterNetlify from '@sveltejs/adapter-netlify';
 import adapterStatic from '@sveltejs/adapter-static';
@@ -33,20 +32,22 @@ const config = {
       }
       // Deno Deploy: متغیرهای DENO_REGION یا DENO_DEPLOY همیشه وجود دارن
       if (process.env.DENO_REGION || process.env.DENO_DEPLOY) {
-        return adapterDeno();
+        return adapterDeno({
+          // SPA fallback for client-side routing
+          fallback: 'index.html'
+        });
       }
 
       // Netlify: متغیر NETLIFY=true همیشه در build و runtime وجود داره
       if (process.env.NETLIFY) {
-        return adapterNetlify();
+        return adapterNetlify({
+          // SPA fallback برای client-side routing
+          edge: false,
+          split: false
+        });
       }
 
-      // Development: از SSR استفاده کنیم برای SPA routing
-      if (process.env.NODE_ENV !== 'production') {
-        return adapterAuto();
-      }
-
-      // Production: SPA با adapterStatic
+      // Development & Production: کاملاً SPA با adapterStatic
       return adapterStatic({
         pages: 'build',
         assets: 'build',
