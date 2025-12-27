@@ -96,6 +96,7 @@ const vehicleServiceMock: IVehicleService = {
 
 const vehicleServiceSupabase: IVehicleService = {
   async getAll(): Promise<Vehicle[]> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -123,6 +124,7 @@ const vehicleServiceSupabase: IVehicleService = {
   },
 
   async getById(id: string): Promise<Vehicle> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -151,6 +153,7 @@ const vehicleServiceSupabase: IVehicleService = {
   },
 
   async create(data: VehicleFormData): Promise<Vehicle> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -185,6 +188,7 @@ const vehicleServiceSupabase: IVehicleService = {
   },
 
   async update(id: string, data: Partial<VehicleFormData>): Promise<Vehicle> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -221,6 +225,7 @@ const vehicleServiceSupabase: IVehicleService = {
   },
 
   async delete(id: string): Promise<void> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();

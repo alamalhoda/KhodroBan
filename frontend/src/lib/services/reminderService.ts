@@ -136,8 +136,7 @@ const reminderServiceMock: IReminderService = {
 // جداول: reminder_settings, reminder_logs, vehicles, services
 
 const reminderServiceSupabase: IReminderService = {
-  async getAll(): Promise<Reminder[]> {
-    const {
+  async getAll(): Promise<Reminder[]> {    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');    const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) throw new Error('کاربر لاگین نشده است');
@@ -235,6 +234,7 @@ const reminderServiceSupabase: IReminderService = {
   },
 
   async getSettings(): Promise<ReminderSettings> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -288,6 +288,7 @@ const reminderServiceSupabase: IReminderService = {
   },
 
   async updateSettings(settings: Partial<ReminderSettings>): Promise<ReminderSettings> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();

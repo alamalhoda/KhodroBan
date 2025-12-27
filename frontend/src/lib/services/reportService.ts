@@ -125,8 +125,7 @@ const reportServiceMock: IReportService = {
 // جداول: services, daily_expenses
 
 const reportServiceSupabase: IReportService = {
-  async getSummary(filter?: ReportFilter): Promise<ReportSummary> {
-    const {
+  async getSummary(filter?: ReportFilter): Promise<ReportSummary> {    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');    const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) throw new Error('کاربر لاگین نشده است');
@@ -226,6 +225,7 @@ const reportServiceSupabase: IReportService = {
   },
 
   async exportCSV(filter?: ReportFilter): Promise<Blob> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -295,6 +295,7 @@ const reportServiceSupabase: IReportService = {
     vehicleId?: string,
     months = 6
   ): Promise<{ month: string; amount: number }[]> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();

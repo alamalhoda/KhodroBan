@@ -117,6 +117,7 @@ const serviceServiceMock: IServiceService = {
 
 const serviceServiceSupabase: IServiceService = {
   async getAll(vehicleId?: string): Promise<ServiceRecord[]> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -158,6 +159,7 @@ const serviceServiceSupabase: IServiceService = {
   },
 
   async getById(id: string): Promise<ServiceRecord> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -195,6 +197,7 @@ const serviceServiceSupabase: IServiceService = {
   },
 
   async create(data: ServiceFormData): Promise<ServiceRecord> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -244,6 +247,7 @@ const serviceServiceSupabase: IServiceService = {
   },
 
   async update(id: string, data: Partial<ServiceFormData>): Promise<ServiceRecord> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -303,6 +307,7 @@ const serviceServiceSupabase: IServiceService = {
   },
 
   async delete(id: string): Promise<void> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -323,6 +328,7 @@ const serviceServiceSupabase: IServiceService = {
   },
 
   async getLatestForVehicle(vehicleId: string): Promise<ServiceRecord | null> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();

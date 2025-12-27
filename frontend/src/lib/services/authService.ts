@@ -138,10 +138,16 @@ const authServiceMock: IAuthService = {
 // SUPABASE IMPLEMENTATION
 // ============================================
 
+// Helper to ensure supabase is available
+function ensureSupabase() {
+  if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
+}
+
 const authServiceSupabase: IAuthService = {
   async login(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
+    ensureSupabase();
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase!.auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
       });
@@ -165,12 +171,13 @@ const authServiceSupabase: IAuthService = {
   },
 
   async register(data: RegisterData): Promise<{ user: User; token: string }> {
+    ensureSupabase();
     try {
       const nameParts = data.name.trim().split(' ');
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
 
-      const { data: authData, error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase!.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -209,10 +216,11 @@ const authServiceSupabase: IAuthService = {
   },
 
   async loginWithGoogle(): Promise<void> {
+    ensureSupabase();
     try {
       const redirectBaseUrl = config.redirectBaseUrl;
 
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase!.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${redirectBaseUrl}/auth/callback`,
@@ -230,8 +238,9 @@ const authServiceSupabase: IAuthService = {
   },
 
   async logout(): Promise<void> {
+    ensureSupabase();
     try {
-      await supabase.auth.signOut();
+      await supabase!.auth.signOut();
       localStorage.removeItem('token');
       authStore.logout();
     } catch (error: any) {
@@ -242,11 +251,12 @@ const authServiceSupabase: IAuthService = {
   },
 
   async getProfile(): Promise<User> {
+    ensureSupabase();
     try {
       const {
         data: { user },
         error,
-      } = await supabase.auth.getUser();
+      } = await supabase!.auth.getUser();
 
       if (error || !user) {
         throw new Error('کاربر لاگین نشده است');
@@ -259,10 +269,11 @@ const authServiceSupabase: IAuthService = {
   },
 
   async updateProfile(data: Partial<{ firstName: string; lastName: string }>): Promise<User> {
+    ensureSupabase();
     try {
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } = await supabase!.auth.getUser();
 
       if (!user) {
         throw new Error('کاربر لاگین نشده است');
@@ -272,7 +283,7 @@ const authServiceSupabase: IAuthService = {
       if (data.firstName !== undefined) updates.first_name = data.firstName;
       if (data.lastName !== undefined) updates.last_name = data.lastName;
 
-      const { error } = await supabase
+      const { error } = await supabase!
         .from('user_profiles')
         // @ts-ignore - Supabase type inference issue with dynamic updates
         .update(updates)
@@ -289,10 +300,11 @@ const authServiceSupabase: IAuthService = {
   },
 
   async forgotPassword(email: string): Promise<void> {
+    ensureSupabase();
     try {
       const redirectBaseUrl = config.redirectBaseUrl;
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase!.auth.resetPasswordForEmail(email, {
         redirectTo: `${redirectBaseUrl}/reset-password`,
       });
 
@@ -305,8 +317,9 @@ const authServiceSupabase: IAuthService = {
   },
 
   async resetPassword(_token: string, password: string): Promise<void> {
+    ensureSupabase();
     try {
-      const { error } = await supabase.auth.updateUser({
+      const { error } = await supabase!.auth.updateUser({
         password: password,
       });
 

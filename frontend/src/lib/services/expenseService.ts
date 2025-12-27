@@ -130,6 +130,7 @@ const expenseServiceMock: IExpenseService = {
 
 const expenseServiceSupabase: IExpenseService = {
   async getAll(vehicleId?: string): Promise<Expense[]> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -168,6 +169,7 @@ const expenseServiceSupabase: IExpenseService = {
   },
 
   async getById(id: string): Promise<Expense> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -202,6 +204,7 @@ const expenseServiceSupabase: IExpenseService = {
   },
 
   async create(data: ExpenseFormData): Promise<Expense> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -241,6 +244,7 @@ const expenseServiceSupabase: IExpenseService = {
   },
 
   async update(id: string, data: Partial<ExpenseFormData>): Promise<Expense> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -284,6 +288,7 @@ const expenseServiceSupabase: IExpenseService = {
   },
 
   async delete(id: string): Promise<void> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -304,6 +309,7 @@ const expenseServiceSupabase: IExpenseService = {
   },
 
   async getByCategory(category: string): Promise<Expense[]> {
+    if (!supabase) throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     const {
       data: { user },
     } = await supabase.auth.getUser();
