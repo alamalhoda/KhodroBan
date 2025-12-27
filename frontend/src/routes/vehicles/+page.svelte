@@ -329,6 +329,20 @@
 
   @media (min-width: 1024px) {
     .vehicles-list {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-xl);
+      max-width: 100%;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .vehicles-list {
+      gap: calc(var(--space-xl) * 1.25);
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .vehicles-list {
       grid-template-columns: repeat(3, 1fr);
       gap: var(--space-xl);
     }
@@ -343,6 +357,12 @@
     padding: var(--space-lg);
     text-decoration: none;
     color: inherit;
+  }
+
+  @media (min-width: 1024px) {
+    .vehicle-link {
+      padding: var(--space-xl);
+    }
   }
 
   .vehicle-main {
@@ -382,6 +402,12 @@
     }
   }
 
+  @media (min-width: 1024px) {
+    .vehicle-model {
+      font-size: var(--font-size-xl);
+    }
+  }
+
   .vehicle-meta {
     display: flex;
     align-items: center;
@@ -409,9 +435,21 @@
     font-weight: 600;
   }
 
+  @media (min-width: 1024px) {
+    .stat-value {
+      font-size: 1.25rem;
+    }
+  }
+
   .stat-label {
     font-size: 0.75rem;
     color: var(--color-text-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .stat-label {
+      font-size: 0.875rem;
+    }
   }
 
   .vehicle-actions {

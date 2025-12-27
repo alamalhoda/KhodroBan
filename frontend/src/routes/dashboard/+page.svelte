@@ -265,6 +265,20 @@
 
   @media (min-width: 1024px) {
     .vehicles-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-xl);
+      max-width: 100%;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .vehicles-grid {
+      gap: calc(var(--space-xl) * 1.25);
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .vehicles-grid {
       grid-template-columns: repeat(3, 1fr);
       gap: var(--space-xl);
     }
@@ -388,7 +402,14 @@
 
   @media (min-width: 1024px) {
     .vehicle-card-large {
-      min-height: 220px;
+      min-height: 240px;
+      padding: var(--space-xl);
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .vehicle-card-large {
+      min-height: 260px;
     }
   }
 
@@ -443,6 +464,7 @@
   @media (min-width: 1024px) {
     .vehicle-model {
       font-size: var(--font-size-2xl);
+      margin-bottom: var(--space-sm);
     }
   }
 
@@ -455,6 +477,12 @@
   @media (min-width: 1024px) {
     .vehicle-plate {
       font-size: var(--font-size-lg);
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .vehicle-plate {
+      font-size: var(--font-size-xl);
     }
   }
 
@@ -525,6 +553,12 @@
     }
   }
 
+  @media (min-width: 1440px) {
+    .stat-value {
+      font-size: var(--font-size-2xl);
+    }
+  }
+
   /* Vehicle alert styling */
   .vehicle-alert {
     margin-top: var(--space-md);
@@ -563,7 +597,7 @@
 
   @media (min-width: 1024px) {
     .alert-badge {
-      font-size: var(--font-size-base);
+      font-size: var(--font-size-lg);
     }
   }
 
