@@ -1,0 +1,38 @@
+# Dockerfile برای سرویس تلگرام
+FROM python:3.11-slim
+
+# تنظیمات
+WORKDIR /app
+
+# نصب dependencies
+COPY telegram_requirements.txt .
+RUN pip install --no-cache-dir -r telegram_requirements.txt
+
+# کپی فایل‌های Python
+COPY telegram_main.py .
+COPY telegram_bot_server.py .
+
+# ایجاد پوشه برای لاگ‌ها
+RUN mkdir -p /app/logs
+
+# متغیرهای محیطی (باید از بیرون تنظیم شوند)
+ENV SUPABASE_URL=""
+ENV SUPABASE_SERVICE_ROLE_KEY=""
+ENV TELEGRAM_BOT_TOKEN=""
+ENV CRON_TIME="08:00"
+ENV WEBHOOK_URL=""
+
+# پورت برای Webhook Server
+EXPOSE 5000
+
+# دستور اجرا (بسته به نیاز)
+# برای Cron Job:
+# CMD ["python", "telegram_main.py"]
+
+# برای Webhook Server:
+# CMD ["python", "telegram_bot_server.py"]
+
+# یا استفاده از supervisord برای هر دو (پیشنهادی)
+# COPY supervisord.conf .
+# CMD ["supervisord", "-c", "supervisord.conf"]
+
