@@ -25,4 +25,13 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    include: [
+      '@supabase/supabase-js',
+      'axios',
+      '@google/genai',
+      'openai',
+      'persian-date',
+    ],
+  },
 })

@@ -1,4 +1,47 @@
 <script setup>
+import { ref, computed, watch, nextTick } from 'vue';
+import { useSmartAssistantStore } from '../stores/smartAssistant';
+
+const assistantStore = useSmartAssistantStore();
+
+const userInput = ref('');
+const chatContainer = ref(null);
+
+const messages = computed(() => assistantStore.messages);
+const isLoading = computed(() => assistantStore.isLoading);
+
+const handleSendMessage = async () => {
+  if (userInput.value.trim() === '') return;
+
+  const prompt = userInput.value;
+  userInput.value = ''; // Clear input immediately
+
+  try {
+    await assistantStore.sendMessage(prompt);
+  } catch (error) {
+    // The store handles the error state, but you could add
+    // additional UI feedback here (e.g., a toast notification)
+    console.error("Failed to send message:", error);
+  }
+};
+
+// Auto-scroll to the bottom of the chat container when new messages are added
+watch(messages, () => {
+  nextTick(() => {
+    if (chatContainer.value) {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+    }
+  });
+}, { deep: true });
+
+// Helper to format timestamp
+const formatTime = (date) => {
+  return new Intl.DateTimeFormat('fa-IR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(date);
+};
 </script>
 
 <template>
@@ -90,65 +133,49 @@
           </button>
         </div>
       </header>
+
       <!-- Chat Viewport -->
-      <div class="flex-1 overflow-y-auto px-4 py-6 md:px-10 md:py-8 flex flex-col gap-6" id="chat-container">
+      <div ref="chatContainer" class="flex-1 overflow-y-auto px-4 py-6 md:px-10 md:py-8 flex flex-col gap-6">
         <!-- Date Separator -->
         <div class="flex justify-center">
           <span class="bg-gray-100 text-text-muted text-[10px] px-3 py-1 rounded-full font-medium">امروز</span>
         </div>
-        <!-- AI Message (Welcome) -->
-        <div class="flex gap-4 max-w-[85%] md:max-w-[70%] self-start group">
-          <div class="bg-gradient-to-br from-primary to-blue-600 rounded-2xl size-10 shrink-0 flex items-center justify-center shadow-lg shadow-blue-200">
-            <span class="material-symbols-outlined text-white text-xl">smart_toy</span>
-          </div>
-          <div class="flex flex-col gap-1">
-            <span class="text-text-main text-xs font-bold mr-1">مشاور هوشمند</span>
-            <div class="bg-white p-4 rounded-2xl rounded-tr-none shadow-sm text-sm leading-7 text-gray-700 border border-border">
-              <p>سلام علی عزیز! 👋 <br />من آماده‌ام تا در مورد <span class="font-bold text-primary">پژو ۲۰۶</span> بهت کمک کنم. می‌تونی درباره زمان سرویس‌ها، صداهای غیرعادی موتور یا هزینه‌های احتمالی از من بپرسی.</p>
+
+        <!-- Dynamic Messages -->
+        <template v-for="message in messages" :key="message.id">
+          <!-- AI Message -->
+          <div v-if="message.role === 'ai'" class="flex gap-4 max-w-[85%] md:max-w-[70%] self-start group">
+            <div class="bg-gradient-to-br from-primary to-blue-600 rounded-2xl size-10 shrink-0 flex items-center justify-center shadow-lg shadow-blue-200">
+              <span class="material-symbols-outlined text-white text-xl">smart_toy</span>
             </div>
-          </div>
-        </div>
-        <!-- User Message -->
-        <div class="flex gap-3 max-w-[85%] md:max-w-[70%] self-end flex-row-reverse">
-          <div class="bg-gray-200 rounded-2xl size-10 shrink-0 flex items-center justify-center overflow-hidden" data-alt="User avatar thumbnail" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBLkh4MEzPsZAtHbLEVP5_SzQgSzlEKXtaPVqkxkpx2r877FOQXscAJFDVGCHBk5oHScxpwAMjByVfLhphr0Xq26L7J4T-a029BJMseyXWGl6QjWmvhYpanHpa3q9ZjvdnDzC3VxDG90WUOD08niqE0A-Yh71yfBSYHQWswO4EZdyw7S7kWAsDKatOgPEu5kr1NvzAnDqmzTgq3WFX_bq7kn9oZMUDwMyUgZXh77t1EtdMCt3h07Ffm4QJ7qB1KqsmmyFuA0HzGo-k"); background-size: cover;'>
-          </div>
-          <div class="flex flex-col gap-1 items-end">
-            <div class="bg-primary text-white p-4 rounded-2xl rounded-tl-none shadow-md shadow-blue-100 text-sm leading-relaxed">
-              <p>سلام. ماشینم وقتی ترمز می‌گیرم یه صدای سوت بلند میده. دلیلش چی می‌تونه باشه؟ خطرناکه؟</p>
-            </div>
-            <span class="text-text-muted text-[10px] dir-ltr mr-1">10:42 AM</span>
-          </div>
-        </div>
-        <!-- AI Message (Typing...) -->
-        <div class="flex gap-4 max-w-[85%] md:max-w-[70%] self-start items-end">
-          <div class="bg-gradient-to-br from-primary to-blue-600 rounded-2xl size-10 shrink-0 flex items-center justify-center shadow-lg shadow-blue-200 mb-1">
-            <span class="material-symbols-outlined text-white text-xl">smart_toy</span>
-          </div>
-          <div class="flex flex-col gap-2 w-full">
-            <div class="bg-white p-4 rounded-2xl rounded-tr-none shadow-sm text-sm leading-7 text-gray-700 border border-border">
-              <p class="mb-3">صدای سوت هنگام ترمزگیری در پژو ۲۰۶ معمولاً به چند دلیل رخ می‌دهد:</p>
-              <ul class="list-disc pr-5 space-y-1 mb-3 text-gray-600">
-                <li><strong>تمام شدن لنت ترمز:</strong> محتمل‌ترین دلیل است. شاخص فلزی لنت به دیسک برخورد می‌کند.</li>
-                <li><strong>کیفیت پایین لنت:</strong> لنت‌های بی‌کیفیت ذرات فلزی زیادی دارند که باعث صدا می‌شود.</li>
-                <li><strong>دیسک ترمز:</strong> ممکن است دیسک خط افتاده یا لبه‌دار شده باشد.</li>
-              </ul>
-              <p class="font-medium text-text-main">توصیه من:</p>
-              <p>بهتر است هرچه سریع‌تر لنت‌ها را چک کنید. اگر صدا فلز-روی-فلز است، رانندگی نکنید چون دیسک آسیب می‌بیند.</p>
-              <!-- Embedded Action -->
-              <div class="mt-4 flex flex-wrap gap-2">
-                <button class="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-primary px-3 py-2 rounded-lg text-xs font-bold transition-colors">
-                  <span class="material-symbols-outlined text-base">calendar_month</span>
-                  رزرو نوبت تعمیرگاه
-                </button>
-                <button class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-text-muted px-3 py-2 rounded-lg text-xs font-medium transition-colors">
-                  <span class="material-symbols-outlined text-base">payments</span>
-                  استعلام قیمت لنت
-                </button>
+            <div class="flex flex-col gap-1 w-full">
+              <span class="text-text-main text-xs font-bold mr-1">مشاور هوشمند</span>
+              <div class="bg-white p-4 rounded-2xl rounded-tr-none shadow-sm text-sm leading-7 text-gray-700 border border-border" :class="{'border-red-300 bg-red-50': message.isError}">
+                <p v-if="message.text" class="whitespace-pre-wrap">{{ message.text }}</p>
+                <!-- Typing Indicator -->
+                <div v-if="message.typing" class="flex items-center gap-2">
+                  <span class="size-2 bg-gray-400 rounded-full animate-pulse delay-0"></span>
+                  <span class="size-2 bg-gray-400 rounded-full animate-pulse delay-150"></span>
+                  <span class="size-2 bg-gray-400 rounded-full animate-pulse delay-300"></span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+
+          <!-- User Message -->
+          <div v-if="message.role === 'user'" class="flex gap-3 max-w-[85%] md:max-w-[70%] self-end flex-row-reverse">
+            <div class="bg-gray-200 rounded-2xl size-10 shrink-0 flex items-center justify-center overflow-hidden" data-alt="User avatar thumbnail" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBLkh4MEzPsZAtHbLEVP5_SzQgSzlEKXtaPVqkxkpx2r877FOQXscAJFDVGCHBk5oHScxpwAMjByVfLhphr0Xq26L7J4T-a029BJMseyXWGl6QjWmvhYpanHpa3q9ZjvdnDzC3VxDG90WUOD08niqE0A-Yh71yfBSYHQWswO4EZdyw7S7kWAsDKatOgPEu5kr1NvzAnDqmzTgq3WFX_bq7kn9oZMUDwMyUgZXh77t1EtdMCt3h07Ffm4QJ7qB1KqsmmyFuA0HzGo-k"); background-size: cover;'>
+            </div>
+            <div class="flex flex-col gap-1 items-end">
+              <div class="bg-primary text-white p-4 rounded-2xl rounded-tl-none shadow-md shadow-blue-100 text-sm leading-relaxed">
+                <p>{{ message.text }}</p>
+              </div>
+              <span class="text-text-muted text-[10px] dir-ltr mr-1">{{ formatTime(message.timestamp) }}</span>
+            </div>
+          </div>
+        </template>
       </div>
+
       <!-- Input Area (Sticky Bottom) -->
       <div class="p-4 md:p-6 pb-6 relative z-20">
         <!-- Suggestion Chips (Floating above input) -->
@@ -169,14 +196,31 @@
             <span class="material-symbols-outlined">attach_file</span>
           </button>
           <!-- Text Area -->
-          <textarea class="w-full bg-transparent border-none focus:ring-0 p-3 text-sm text-text-main placeholder:text-gray-400 resize-none max-h-32 min-h-[44px]" placeholder="سوال خود را اینجا بنویسید..." rows="1" style="field-sizing: content;"></textarea>
+          <textarea
+            v-model="userInput"
+            @keydown.enter.prevent="handleSendMessage"
+            :disabled="isLoading"
+            class="w-full bg-transparent border-none focus:ring-0 p-3 text-sm text-text-main placeholder:text-gray-400 resize-none max-h-32 min-h-[44px]"
+            placeholder="سوال خود را اینجا بنویسید..."
+            rows="1"
+            style="field-sizing: content;"
+          ></textarea>
           <!-- Voice Input -->
           <button class="p-3 text-text-muted hover:text-primary hover:bg-blue-50 rounded-xl transition-colors shrink-0" title="ورودی صوتی">
             <span class="material-symbols-outlined">mic</span>
           </button>
           <!-- Send Button -->
-          <button class="bg-primary hover:bg-blue-600 text-white p-3 rounded-xl shadow-lg shadow-blue-200 hover:shadow-blue-300 transition-all active:scale-95 shrink-0 flex items-center justify-center" title="ارسال پیام">
-            <span class="material-symbols-outlined -rotate-180">send</span>
+          <button
+            @click="handleSendMessage"
+            :disabled="isLoading"
+            class="bg-primary hover:bg-blue-600 text-white p-3 rounded-xl shadow-lg shadow-blue-200 hover:shadow-blue-300 transition-all active:scale-95 shrink-0 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+            title="ارسال پیام"
+          >
+            <span v-if="!isLoading" class="material-symbols-outlined -rotate-180">send</span>
+            <svg v-else class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
           </button>
         </div>
         <p class="text-center text-[10px] text-text-muted mt-3">
