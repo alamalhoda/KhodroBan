@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "test": "vitest --run",
     "test:watch": "vitest",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "download-fonts": "node scripts/download-fonts.js",
+    "get-font-urls": "node scripts/get-font-urls.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",

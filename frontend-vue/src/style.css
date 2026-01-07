@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Vazirmatn Font - Ensure it's applied everywhere */
+@layer base {
+  html {
+    font-family: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    font-family: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
+  }
+  
+  * {
+    font-family: inherit;
+  }
+}
+
 /* Material Symbols Icons */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
