@@ -1,5 +1,6 @@
 <script setup>
 import MainLayout from '../components/MainLayout.vue'
+import TelegramSettings from '../components/TelegramSettings.vue'
 </script>
 
 <template>
@@ -158,6 +159,12 @@ import MainLayout from '../components/MainLayout.vue'
               </label>
             </div>
           </section>
+          
+          <!-- Telegram Settings Section -->
+          <section class="bg-white dark:bg-[#1a202e] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+            <TelegramSettings />
+          </section>
+          
           <section class="relative overflow-hidden rounded-2xl shadow-lg border border-primary/20 bg-white dark:bg-[#1a202e]">
             <div class="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 pointer-events-none"></div>
             <div class="absolute -top-24 -left-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>

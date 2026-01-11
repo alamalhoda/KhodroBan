@@ -1,6 +1,17 @@
-# AI Proxy Edge Function
+# Edge Function: ai-proxy
 
-این Edge Function به عنوان proxy برای API های AI عمل می‌کند تا مشکل CORS حل شود.
+این Edge Function به عنوان **proxy برای API های AI** عمل می‌کند تا مشکل CORS حل شود.
+
+## ⚠️ تفکیک مسئولیت‌ها
+
+این function **مستقل** از سایر Edge Function‌ها است:
+- **ai-proxy**: Proxy کردن درخواست‌های AI API (CORS و امنیت)
+- **check-reminders**: بررسی یادآورها
+- **send-notifications**: مدیریت ارسال اعلان‌ها
+- **send-telegram-notification**: ارسال اعلان تلگرام
+- **telegram-bot**: مدیریت Webhook ربات تلگرام
+
+هر function مسئولیت کاملاً جداگانه‌ای دارد.
 
 ## تنظیمات
 

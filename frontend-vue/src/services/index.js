@@ -13,4 +13,5 @@ export { supabase } from '@services/supabase';
 export { dashboardService } from './dashboardService';
 export { serviceTypeService } from './serviceTypeService';
 export { expenseCategoryService } from './expenseCategoryService';
+export { telegramService } from './telegramService';
 
