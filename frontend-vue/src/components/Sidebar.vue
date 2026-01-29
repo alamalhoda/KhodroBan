@@ -44,6 +44,10 @@ const unreadCount = computed(() => notificationStore.unreadCount)
         </div>
         <span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">یادآورها</span>
       </router-link>
+      <router-link to="/smart-assistant" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group">
+        <span class="material-symbols-outlined group-hover:text-primary transition-colors">smart-assistant</span>
+        <span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">smart-assistant</span>
+      </router-link>
       <router-link to="/settings" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group">
         <span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
         <span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">تنظیمات</span>
