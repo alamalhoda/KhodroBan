@@ -9,7 +9,7 @@ import type { AIProvider, AIProviderConfig } from './types';
  * این مقدار می‌تواند از environment variable یا admin settings بیاید
  */
 export function getAIProviderConfig(): AIProviderConfig | null {
-  const provider = (import.meta.env.VITE_AI_PROVIDER || 'gemini') as AIProvider;
+  const provider = (import.meta.env.VITE_AI_PROVIDER || 'openai') as AIProvider;
   const apiKey = import.meta.env.VITE_AI_API_KEY;
 
   if (!apiKey) {

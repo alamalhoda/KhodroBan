@@ -11,6 +11,8 @@ export default defineConfig({
       '@services': path.resolve(__dirname, '../shared/services'),
       '@types': path.resolve(__dirname, '../shared/types'),
       '@utils': path.resolve(__dirname, '../shared/utils'),
+      // اطمینان از resolve شدن صحیح ماژول OpenAI در باندل فرانت‌اند
+      openai: path.resolve(__dirname, 'node_modules/openai/dist/index.mjs'),
     },
   },
   server: {
@@ -29,7 +31,6 @@ export default defineConfig({
     include: [
       '@supabase/supabase-js',
       'axios',
-      '@google/genai',
       'openai',
       'persian-date',
     ],
