@@ -1,0 +1,58 @@
+name: Check TODOs
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '**/*.vue'
+      - '**/*.js'
+      - '**/*.ts'
+      - 'TODO.md'
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  check-todos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check TODO.md exists
+        run: |
+          if [ ! -f "TODO.md" ]; then
+            echo "⚠️ TODO.md file not found in root directory"
+            exit 0  # Don't fail, just warn
+          else
+            echo "✅ TODO.md found"
+          fi
+
+      - name: Count TODOs in code
+        run: |
+          echo "## TODO Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Count TODO comments in code
+          TODO_COUNT=$(grep -r "TODO:" --include="*.vue" --include="*.js" --include="*.ts" src/ 2>/dev/null | wc -l || echo "0")
+          FIXME_COUNT=$(grep -r "FIXME:" --include="*.vue" --include="*.js" --include="*.ts" src/ 2>/dev/null | wc -l || echo "0")
+          NOTE_COUNT=$(grep -r "NOTE:" --include="*.vue" --include="*.js" --include="*.ts" src/ 2>/dev/null | wc -l || echo "0")
+          
+          echo "- **TODO comments:** $TODO_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "- **FIXME comments:** $FIXME_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "- **NOTE comments:** $NOTE_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$TODO_COUNT" -gt 50 ]; then
+            echo "⚠️ High number of TODO comments found. Consider reviewing and addressing them." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: List TODO files
+        run: |
+          echo "## TODO Files Found" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          find . -name "*TODO*.md" -not -path "./node_modules/*" -not -path "./.git/*" | while read file; do
+            echo "- \`$file\`" >> $GITHUB_STEP_SUMMARY
+          done
+

@@ -1,0 +1,266 @@
+<script setup>
+</script>
+
+<template>
+  <div class="bg-slate-50 text-text-main min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-primary/20 selection:text-primary relative">
+    <div class="fixed top-0 left-0 w-full h-screen overflow-hidden -z-10 pointer-events-none">
+      <div class="absolute top-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-blue-200/20 rounded-full blur-3xl opacity-60"></div>
+      <div class="absolute bottom-[-10%] left-[-10%] w-[50rem] h-[50rem] bg-indigo-200/20 rounded-full blur-3xl opacity-60"></div>
+    </div>
+    <header class="sticky top-0 z-50 w-full border-b border-white/50 bg-white/80 backdrop-blur-md shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-3">
+            <div class="size-9 bg-gradient-to-tr from-primary to-indigo-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+              <span class="material-symbols-outlined text-[20px]">directions_car</span>
+            </div>
+            <h2 class="text-slate-800 text-lg font-bold tracking-tight">مدیریت خودرو</h2>
+          </div>
+          <nav class="hidden md:flex items-center gap-8">
+            <a class="text-slate-500 hover:text-primary text-sm font-medium transition-colors" href="#">داشبورد</a>
+            <a class="text-slate-500 hover:text-primary text-sm font-medium transition-colors" href="#">خودروها</a>
+            <a class="text-slate-500 hover:text-primary text-sm font-medium transition-colors" href="#">هزینه‌ها</a>
+            <a class="text-slate-500 hover:text-primary text-sm font-medium transition-colors" href="#">یادآورها</a>
+          </nav>
+          <div class="flex items-center gap-3">
+            <button class="hidden md:flex items-center justify-center h-9 px-4 rounded-lg text-slate-600 text-sm font-medium hover:bg-slate-100 transition-colors">
+              <span class="ml-2">بازگشت</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            </button>
+            <div class="h-6 w-px bg-slate-200 mx-1"></div>
+            <div class="size-9 rounded-full bg-cover bg-center border-2 border-white shadow-sm ring-1 ring-slate-100" data-alt="user avatar profile image" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDKAeQMqrfT4pLVpFFAo8d29SvSj0wH8j-x_pYsSpVOvEYR7QDubG9yKbp9zcBWSHNRylK5tf2OI5IHtx31K6W7BtTv8eRh7ulr8-DoMktihCT9CdjubNwXyjelfl8qx4_oZztfhZ4EhvXkqChUqi2bfPviXXQRrURU5oyxl917q7jOiGWMdyKFc19wiqa8Y8NFVGGAxNvBE3E5nGjfa4OPztPthoq3nd_8p6kh11JIaJdNrcnV9mSTJZvBpRcILbJyvcvpfei8jks");'></div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+      <div class="mb-10 text-center lg:text-right flex flex-col lg:flex-row justify-between items-end gap-6">
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center gap-2 justify-center lg:justify-start">
+            <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold border border-indigo-100 shadow-sm">نسخه حرفه‌ای</span>
+            <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold border border-blue-100 shadow-sm">دسترسی نامحدود</span>
+          </div>
+          <h1 class="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 mt-1">
+            ارتقا به حساب <span class="gradient-text">Pro</span>
+          </h1>
+          <p class="text-slate-500 text-base md:text-lg mt-1 max-w-2xl leading-relaxed">
+            با ارتقا به نسخه حرفه‌ای، کنترل کامل هزینه‌ها و سلامت خودروی خود را در دست بگیرید و از امکانات ویژه لذت ببرید.
+          </p>
+        </div>
+        <div class="flex items-center gap-6 bg-white/50 px-4 py-2 rounded-xl border border-white/50">
+          <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+            <div class="size-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+              <span class="material-symbols-outlined text-[14px]">lock</span>
+            </div>
+            پرداخت امن شاپرک
+          </div>
+          <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+            <div class="size-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+              <span class="material-symbols-outlined text-[14px]">verified_user</span>
+            </div>
+            ضمانت بازگشت وجه
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-7 flex flex-col gap-6 order-2 lg:order-1">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label class="cursor-pointer relative group">
+              <input class="peer sr-only" name="plan" type="radio" />
+              <div class="glass-card rounded-2xl p-6 h-full transition-all duration-300 hover:shadow-md peer-checked:bg-blue-50/80 peer-checked:border-primary peer-checked:shadow-lg peer-checked:shadow-blue-900/5">
+                <div class="flex justify-between items-start mb-4">
+                  <div class="size-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:text-primary group-hover:bg-blue-100 transition-colors">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                  </div>
+                  <div class="size-6 rounded-full border-2 border-slate-200 peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-all">
+                    <span class="material-symbols-outlined text-[14px] text-white opacity-0 peer-checked:opacity-100">check</span>
+                  </div>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-1">طرح ماهانه</h3>
+                <div class="flex items-baseline gap-1 mb-2">
+                  <span class="text-2xl font-black text-slate-900">۴۹,۰۰۰</span>
+                  <span class="text-sm text-slate-500">تومان / ماه</span>
+                </div>
+                <p class="text-sm text-slate-500">مناسب برای شروع و تست امکانات</p>
+              </div>
+            </label>
+            <label class="cursor-pointer relative group">
+              <input checked class="peer sr-only" name="plan" type="radio" />
+              <div class="absolute -top-3 right-6 z-10 px-3 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg shadow-amber-500/30">
+                پیشنهاد ویژه
+              </div>
+              <div class="glass-card rounded-2xl p-6 h-full transition-all duration-300 hover:shadow-md peer-checked:bg-indigo-50/80 peer-checked:border-indigo-500 peer-checked:shadow-lg peer-checked:shadow-indigo-900/5 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 size-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
+                <div class="flex justify-between items-start mb-4">
+                  <div class="size-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+                    <span class="material-symbols-outlined">verified</span>
+                  </div>
+                  <div class="size-6 rounded-full border-2 border-slate-200 peer-checked:border-indigo-500 peer-checked:bg-indigo-500 flex items-center justify-center transition-all">
+                    <span class="material-symbols-outlined text-[14px] text-white opacity-0 peer-checked:opacity-100">check</span>
+                  </div>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-1">طرح سالانه</h3>
+                <div class="flex items-baseline gap-1 mb-2">
+                  <span class="text-2xl font-black text-slate-900">۴۹۰,۰۰۰</span>
+                  <span class="text-sm text-slate-500">تومان / سال</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm text-slate-400 line-through decoration-slate-400/50">۵۸۸,۰۰۰</span>
+                  <span class="text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-md border border-green-200">۲۰٪ تخفیف</span>
+                </div>
+              </div>
+            </label>
+          </div>
+          <div class="glass-card rounded-2xl p-6 md:p-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 opacity-50"></div>
+            <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+              <span class="material-symbols-outlined text-indigo-500">stars</span>
+              آنچه دریافت می‌کنید
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+              <div class="flex gap-3 items-start group">
+                <div class="mt-0.5 size-6 rounded-full bg-green-50 text-green-600 border border-green-100 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[16px]">check</span>
+                </div>
+                <div>
+                  <h4 class="text-slate-800 text-sm font-bold leading-tight mb-1">مدیریت نامحدود خودروها</h4>
+                  <p class="text-slate-500 text-xs leading-relaxed">ثبت و مدیریت همزمان چندین خودرو برای خانواده یا شرکت.</p>
+                </div>
+              </div>
+              <div class="flex gap-3 items-start group">
+                <div class="mt-0.5 size-6 rounded-full bg-green-50 text-green-600 border border-green-100 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                </div>
+                <div>
+                  <h4 class="text-slate-800 text-sm font-bold leading-tight mb-1">خروجی PDF و اکسل</h4>
+                  <p class="text-slate-500 text-xs leading-relaxed">دریافت گزارش‌های دقیق و رسمی برای حسابداری و بایگانی.</p>
+                </div>
+              </div>
+              <div class="flex gap-3 items-start group">
+                <div class="mt-0.5 size-6 rounded-full bg-green-50 text-green-600 border border-green-100 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[16px]">block</span>
+                </div>
+                <div>
+                  <h4 class="text-slate-800 text-sm font-bold leading-tight mb-1">بدون تبلیغات</h4>
+                  <p class="text-slate-500 text-xs leading-relaxed">تجربه کاربری متمرکز، سریع و روان بدون هیچ مزاحمتی.</p>
+                </div>
+              </div>
+              <div class="flex gap-3 items-start group">
+                <div class="mt-0.5 size-6 rounded-full bg-green-50 text-green-600 border border-green-100 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[16px]">sms</span>
+                </div>
+                <div>
+                  <h4 class="text-slate-800 text-sm font-bold leading-tight mb-1">یادآور هوشمند پیامکی</h4>
+                  <p class="text-slate-500 text-xs leading-relaxed">هرگز تمدید بیمه یا تعویض روغن را فراموش نخواهید کرد.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-2xl p-5 flex gap-4 items-start shadow-sm">
+            <div class="text-indigo-400">
+              <span class="material-symbols-outlined text-[32px]">format_quote</span>
+            </div>
+            <div>
+              <p class="text-slate-700 text-sm italic leading-relaxed font-medium">
+                "گزارش‌های خروجی این برنامه حسابداری شرکت ما را متحول کرد. هزینه سالانه در برابر سرویسی که دریافت می‌کنم واقعاً ناچیز است."
+              </p>
+              <div class="mt-3 flex items-center gap-2">
+                <div class="size-8 rounded-full bg-cover ring-2 ring-white shadow-sm" data-alt="User avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBqcIvdoGtTadItElDn_qe7uZ-1TOdkIDSrx-TOcc1Zc1g8K6Nk0q_PsME0bEwk_vEvvwQ84IhLLW9fnLB45mDf05Nss_UYfiuAeBFi3yH9iGsamkyzvbE8HjA5UJFsMYP84mz7tVvCONEzqU0VBAmrYoZbrYUjX_zPYaic5aUgFM7gNK_Bd1ZTneLW34h2F3IDy0FrqpAJxdx1GlZOUSaZZloJOYFBRLXcv74DUwXyyfXNVu79SfDHU6SewgmZES9wLgzR3ZcWabY");'></div>
+                <div>
+                  <span class="block text-xs font-bold text-slate-900">رضا محمدی</span>
+                  <span class="block text-[10px] text-slate-500">مدیر ناوگان پخش</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lg:col-span-5 order-1 lg:order-2">
+          <div class="sticky top-24">
+            <div class="glass-card rounded-3xl p-6 shadow-xl shadow-slate-200/50 relative overflow-hidden">
+              <div class="flex items-center gap-3 mb-6 pb-6 border-b border-slate-100">
+                <div class="size-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                  <span class="material-symbols-outlined">receipt_long</span>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold text-slate-800">فاکتور پرداخت</h3>
+                  <p class="text-slate-500 text-xs">خلاصه سفارش و پرداخت نهایی</p>
+                </div>
+              </div>
+              <div class="space-y-4 mb-6">
+                <div class="flex justify-between items-center text-sm p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-slate-400 text-[18px]">workspace_premium</span>
+                    <span class="text-slate-700 font-medium">اشتراک سالانه Pro</span>
+                  </div>
+                  <span class="text-slate-900 font-bold">۴۹۰,۰۰۰ تومان</span>
+                </div>
+                <div class="px-2 space-y-3">
+                  <div class="flex justify-between items-center text-xs text-slate-500">
+                    <span>مبلغ پایه</span>
+                    <span>۵۸۸,۰۰۰ تومان</span>
+                  </div>
+                  <div class="flex justify-between items-center text-xs text-green-600 font-medium">
+                    <span>تخفیف (۲۰٪)</span>
+                    <span>۹۸,۰۰۰- تومان</span>
+                  </div>
+                  <div class="flex justify-between items-center text-xs text-slate-500">
+                    <span>مالیات بر ارزش افزوده (۹٪)</span>
+                    <span>۴۴,۱۰۰ تومان</span>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-gradient-to-r from-slate-800 to-slate-700 rounded-2xl p-5 text-white shadow-lg shadow-slate-900/10 mb-6 flex justify-between items-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+                <div>
+                  <span class="block text-xs text-slate-300 mb-1">مبلغ قابل پرداخت</span>
+                  <span class="block text-2xl font-black tracking-tight">۵۳۴,۱۰۰ <span class="text-sm font-medium text-slate-300">تومان</span></span>
+                </div>
+                <div class="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                  <span class="material-symbols-outlined text-white">account_balance_wallet</span>
+                </div>
+              </div>
+              <div class="space-y-4">
+                <label class="block text-xs font-bold text-slate-700 mb-2 px-1">روش پرداخت</label>
+                <label class="relative flex items-center p-4 rounded-xl border-2 border-primary bg-primary/5 cursor-pointer transition-all">
+                  <input checked class="size-5 text-primary focus:ring-primary border-slate-300" name="payment_method" type="radio" />
+                  <div class="mr-4 flex-1">
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="block text-sm font-bold text-slate-900">درگاه پرداخت اینترنتی</span>
+                      <div class="flex items-center gap-1 opacity-70">
+                        <span class="material-symbols-outlined text-[18px] text-slate-600">credit_card</span>
+                        <span class="text-[10px] font-bold text-slate-600 bg-slate-200 px-1 rounded">SHAPARAK</span>
+                      </div>
+                    </div>
+                    <span class="block text-xs text-slate-500">هدایت به درگاه امن بانکی (کلیه کارت‌های عضو شتاب)</span>
+                  </div>
+                </label>
+                <div class="flex gap-3 bg-amber-50 text-amber-800 text-xs p-3 rounded-xl border border-amber-100 items-start leading-relaxed">
+                  <span class="material-symbols-outlined text-[18px] shrink-0 text-amber-600">security</span>
+                  <p>اطلاعات پرداخت شما در این سایت ذخیره نمی‌شود. شما برای تکمیل تراکنش به درگاه رسمی و امن پرداخت الکترونیک هدایت خواهید شد.</p>
+                </div>
+              </div>
+              <button class="w-full mt-6 bg-gradient-to-r from-primary to-primary-dark hover:from-blue-600 hover:to-blue-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/25 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 group">
+                <span>پرداخت آنلاین</span>
+                <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform rtl:rotate-180 bg-white/20 rounded-full p-0.5 text-[18px]">arrow_forward</span>
+              </button>
+              <div class="mt-4 text-center">
+                <p class="text-[10px] text-slate-400">با کلیک روی دکمه بالا, <a class="underline hover:text-primary transition-colors" href="#">قوانین و مقررات</a> سرویس Pro را می‌پذیرید.</p>
+              </div>
+            </div>
+            <div class="mt-6 flex justify-center gap-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+              <div class="flex flex-col items-center gap-1">
+                <span class="material-symbols-outlined text-slate-400">lock_clock</span>
+                <span class="text-[9px] text-slate-400">SSL Secured</span>
+              </div>
+              <div class="h-8 w-px bg-slate-300"></div>
+              <div class="flex flex-col items-center gap-1">
+                <span class="material-symbols-outlined text-slate-400">verified</span>
+                <span class="text-[9px] text-slate-400">Enamad</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</template>

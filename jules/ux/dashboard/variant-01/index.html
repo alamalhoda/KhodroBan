@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="fa"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>داشبورد خودروبان</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Vazirmatn:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3b8a",
+                        "primary-light": "#3b5bdb",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121620",
+                        "glass-border": "rgba(255, 255, 255, 0.4)",
+                        "glass-bg": "rgba(255, 255, 255, 0.7)",
+                        "glass-bg-dark": "rgba(18, 22, 32, 0.7)",
+                    },
+                    fontFamily: {
+                        "display": ["Vazirmatn", "Inter", "sans-serif"],
+                        "body": ["Vazirmatn", "Inter", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }.glass-panel {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#121317] dark:text-white h-screen overflow-hidden selection:bg-primary selection:text-white">
+<div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+<div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-[120px]"></div>
+</div>
+<div class="flex h-full w-full">
+<aside class="hidden md:flex w-72 flex-col glass-panel border-l border-white/50 h-full transition-all duration-300 z-20">
+<div class="p-6 flex flex-col gap-1">
+<h1 class="text-primary dark:text-white text-2xl font-black tracking-tight flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl">local_taxi</span>
+                    خودروبان
+                </h1>
+<p class="text-[#666e85] dark:text-gray-400 text-xs font-medium pr-10">مدیریت هوشمند ناوگان</p>
+</div>
+<nav class="flex-1 flex flex-col gap-2 px-4 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium text-sm">داشبورد</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">directions_car</span>
+<span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">گاراژ من</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">credit_card</span>
+<span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">هزینه‌ها</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group" href="#">
+<div class="relative">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#121620]"></span>
+</div>
+<span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">یادآورها</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">تنظیمات</span>
+</a>
+</nav>
+<div class="p-4 mt-auto">
+<div class="glass-panel p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/10">
+<div class="flex items-center gap-3 mb-2">
+<div class="bg-primary/20 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined text-[20px]">diamond</span>
+</div>
+<div>
+<p class="text-sm font-bold text-[#121317] dark:text-white">طرح حرفه‌ای</p>
+<p class="text-xs text-[#666e85]">دریافت تحلیل‌های پیشرفته</p>
+</div>
+</div>
+<button class="w-full mt-2 py-2 text-xs font-bold text-white bg-primary rounded-lg hover:bg-primary-light transition-colors">ارتقا حساب</button>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<header class="h-20 flex items-center justify-between px-8 py-4 z-10 sticky top-0">
+<button class="md:hidden p-2 text-[#666e85]">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden md:flex flex-col">
+<h2 class="text-xl font-bold text-[#121317] dark:text-white">نمای کلی</h2>
+<p class="text-sm text-[#666e85]">چهارشنبه، ۲ آبان</p>
+</div>
+<div class="flex items-center gap-4 mr-auto">
+<button class="flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-[#1e293b] text-[#666e85] hover:text-primary shadow-sm transition-colors border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+<button class="relative flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-[#1e293b] text-[#666e85] hover:text-primary shadow-sm transition-colors border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+</button>
+<div class="h-8 w-[1px] bg-gray-200 dark:bg-gray-700 mx-2"></div>
+<div class="flex items-center gap-3 cursor-pointer p-1 pr-3 rounded-full hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
+<div class="bg-center bg-no-repeat bg-cover rounded-full w-10 h-10 border-2 border-white shadow-sm" data-alt="Portrait of a smiling man with a beard" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDxE5qQ11AHN6uy5UbhV0VvNkPLZvtiXsVyERcl1l3CaG7p0uljzEVLqe8WVuZ2tOTIkdn0URfJqLzIFaSZiCJsfX4xv9-BohQxMvTzp_P4cJTd9HHsx8bMqrjus0lBXeZpienrLnmiJs49uDJ66qYeFfzqueSbB02uZul6Ljfk3HsmXF7KbzTUAzWJGzcDv-GtPUl0FbIicGF9xe5QVGz2q0xhS6raGTHp3BSBS-RWTRlqfvkiurBUDvSZORqKPResescoKN6Ej5k");'></div>
+<div class="hidden lg:block">
+<p class="text-sm font-bold text-[#121317] dark:text-white leading-tight">آرش م.</p>
+<p class="text-xs text-[#666e85]">طرح رایگان</p>
+</div>
+<span class="material-symbols-outlined text-[#666e85] text-sm">expand_more</span>
+</div>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto px-8 pb-8 pt-2">
+<div class="max-w-7xl mx-auto flex flex-col gap-8">
+<section class="flex flex-col lg:flex-row gap-6 justify-between items-start lg:items-end">
+<div class="flex flex-col gap-2">
+<h1 class="text-3xl md:text-4xl font-black text-[#121317] dark:text-white tracking-tight">خوش آمدید، آرش 👋</h1>
+<p class="text-[#666e85] dark:text-gray-400 text-lg">شما <span class="text-primary font-bold">۲ وظیفه در انتظار</span> دارید که نیاز به توجه دارند.</p>
+</div>
+<div class="glass-panel p-2 rounded-2xl flex items-center gap-2 shadow-sm">
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#1e293b] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-[#121317] dark:text-white border border-gray-100 dark:border-gray-700 shadow-sm group">
+<span class="bg-primary/10 p-1.5 rounded-lg text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">build</span>
+</span>
+<span class="text-sm font-bold">افزودن سرویس</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#1e293b] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-[#121317] dark:text-white border border-gray-100 dark:border-gray-700 shadow-sm group">
+<span class="bg-green-500/10 p-1.5 rounded-lg text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">attach_money</span>
+</span>
+<span class="text-sm font-bold">ثبت هزینه</span>
+</button>
+<button class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-white hover:bg-primary-light shadow-lg shadow-primary/20 transition-all">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</section>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+<div class="xl:col-span-2 flex flex-col gap-6">
+<div class="glass-panel p-6 rounded-2xl shadow-sm border border-primary/20 relative overflow-hidden bg-gradient-to-l from-primary/5 to-transparent">
+<div class="absolute top-0 right-0 w-64 h-full bg-gradient-to-l from-white/20 to-transparent pointer-events-none"></div>
+<div class="flex justify-between items-center mb-4 relative z-10">
+<div class="flex items-center gap-3">
+<div class="bg-blue-100 dark:bg-blue-900/30 p-2.5 rounded-xl text-primary">
+<span class="material-symbols-outlined text-[24px]">next_plan</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-[#121317] dark:text-white">سرویس بعدی سررسید</h3>
+<p class="text-xs text-[#666e85]">بر اساس کیلومتر کارکرد تخمینی</p>
+</div>
+</div>
+<span class="bg-blue-50 text-primary px-3 py-1 rounded-full text-xs font-bold border border-blue-100 dark:bg-blue-900/20 dark:border-blue-800">۱۵ روز مانده</span>
+</div>
+<div class="flex flex-col md:flex-row gap-6 relative z-10">
+<div class="flex-1">
+<div class="flex justify-between items-end mb-2">
+<span class="text-sm font-bold text-[#121317] dark:text-white">تعویض تسمه تایم</span>
+<span class="text-xs text-[#666e85]">پژو ۲۰۷ • ۶۰,۰۰۰ کیلومتر</span>
+</div>
+<div class="w-full bg-gray-200 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 85%"></div>
+</div>
+<div class="flex justify-between mt-2 text-xs text-[#666e85]">
+<span>شروع: ۵۰,۰۰۰</span>
+<span>هدف: ۶۰,۰۰۰</span>
+</div>
+</div>
+<div class="md:border-r md:border-gray-200 dark:md:border-gray-700 md:pr-6 flex items-center gap-4">
+<div class="text-center">
+<p class="text-xs text-[#666e85] mb-1">هزینه تخمینی</p>
+<p class="text-lg font-black text-[#121317] dark:text-white">۲,۵۰۰,۰۰۰ <span class="text-xs font-normal text-[#666e85]">تومان</span></p>
+</div>
+<button class="bg-primary hover:bg-primary-light text-white text-sm font-bold py-2 px-4 rounded-lg transition-colors shadow-lg shadow-primary/20">
+                                            رزرو وقت
+                                        </button>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-bold text-[#121317] dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-orange-500">notifications_active</span>
+                                        یادآورهای فعال
+                                    </h3>
+<a class="text-sm font-medium text-primary hover:underline" href="#">مشاهده همه</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="glass-panel p-5 rounded-2xl border-r-4 border-r-red-500 shadow-sm hover:shadow-md transition-all group">
+<div class="flex justify-between items-start mb-3">
+<div class="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined">oil_barrel</span>
+</div>
+<span class="text-xs font-bold text-red-500 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-full">فوری</span>
+</div>
+<h4 class="text-lg font-bold text-[#121317] dark:text-white mb-1">تعویض روغن موتور</h4>
+<p class="text-sm text-[#666e85] dark:text-gray-400 mb-4">پژو ۲۰۷ • ۱۲۵,۴۰۰ کیلومتر</p>
+<div class="flex items-center gap-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span>۴۰۰ کیلومتر گذشته</span>
+</div>
+</div>
+<div class="glass-panel p-5 rounded-2xl border-r-4 border-r-yellow-500 shadow-sm hover:shadow-md transition-all">
+<div class="flex justify-between items-start mb-3">
+<div class="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded-lg text-yellow-600 dark:text-yellow-400">
+<span class="material-symbols-outlined">health_and_safety</span>
+</div>
+<span class="text-xs font-bold text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded-full">بزودی</span>
+</div>
+<h4 class="text-lg font-bold text-[#121317] dark:text-white mb-1">تمدید بیمه شخص ثالث</h4>
+<p class="text-sm text-[#666e85] dark:text-gray-400 mb-4">هیوندای سانتافه • انقضا در ۱۵ روز</p>
+<div class="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+<div class="bg-yellow-500 h-full rounded-full" style="width: 75%"></div>
+</div>
+<p class="text-xs text-left mt-1 text-[#666e85]">۲ هفته باقی‌مانده</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4 mt-2">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-bold text-[#121317] dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">garage_home</span>
+                                        گاراژ من
+                                    </h3>
+<button class="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                                        افزودن خودرو
+                                    </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="glass-panel p-4 rounded-2xl shadow-sm hover:shadow-lg transition-all flex gap-4 items-center">
+<div class="w-24 h-24 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
+<div class="w-full h-full bg-center bg-cover" data-alt="White Peugeot 207 parked on a street" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBnH0eDobq8QxdoQIqIs8Otc-HAXHrDKuszl9PWy3GMvchruv9wYXZM9nrpBxVeGD2rXjro5z-Ya95Camixwia8pZw4aTgbx5sTrAzHi3DmvWhTZhtmhGOI1i5wGUJNAE9b80laE7V0HkYxXS1ymucyhGz-8f7kXbsIrNVryWdh5jgsNT4wpqueteCUnZ3nSygiJDJZ_uNbssMw8pMkaKHSIZ-7sTShSOPd2JBoK0qbzO_EpbMlqloki26F2AYpXqZfdMwQyrGHbP8");'></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-lg font-bold text-[#121317] dark:text-white truncate">پژو ۲۰۷ آی</h4>
+<span class="material-symbols-outlined text-gray-300 hover:text-primary cursor-pointer">more_vert</span>
+</div>
+<p class="text-sm text-[#666e85] dark:text-gray-400 mb-2">دنده‌ای • ۱۴۰۰</p>
+<div class="flex items-center gap-2">
+<div class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 text-xs font-mono font-bold text-[#121317] dark:text-white" dir="ltr">
+                                                    68 L 345 - 10
+                                                </div>
+<span class="w-2 h-2 rounded-full bg-red-500" title="نیازمند توجه"></span>
+</div>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-2xl shadow-sm hover:shadow-lg transition-all flex gap-4 items-center">
+<div class="w-24 h-24 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
+<div class="w-full h-full bg-center bg-cover" data-alt="Silver SUV car side view" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDSFqRFpPt0H2j_ixx3r3MX77cg3jCdrXPMGypK-UKIEXYFOMLTeRextscIPVvuXRPKMFfdpjMtzYlTfZqTfBGSZ0U37HCfhS-H6X-o5bX8-HBTc2QKZCBSUSRlCTcdTpO9VqwWJfTxw5zOPJiQNVrI3n3dI_Qjn3kYCniSLCgOlv-ybX0u4eoxD4rPNEafJwNdujKzy9aqYfqmVsZHrucBdJLz_BN6h5hwQpmqi4ss2WfjqOCostnMPhGVHLTSOZhsfi6rc8xuROI");'></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-lg font-bold text-[#121317] dark:text-white truncate">هیوندای سانتافه</h4>
+<span class="material-symbols-outlined text-gray-300 hover:text-primary cursor-pointer">more_vert</span>
+</div>
+<p class="text-sm text-[#666e85] dark:text-gray-400 mb-2">اتوماتیک • ۱۳۹۷</p>
+<div class="flex items-center gap-2">
+<div class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 text-xs font-mono font-bold text-[#121317] dark:text-white" dir="ltr">
+                                                    12 B 991 - 44
+                                                </div>
+<span class="w-2 h-2 rounded-full bg-green-500" title="سالم"></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="xl:col-span-1 flex flex-col gap-6">
+<div class="glass-panel p-6 rounded-3xl shadow-sm relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-10 -mt-10 blur-2xl pointer-events-none"></div>
+<h3 class="text-lg font-bold text-[#121317] dark:text-white mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-gray-400">monitoring</span>
+                                    هزینه‌ها
+                                </h3>
+<div class="flex flex-col gap-1 mb-6">
+<p class="text-sm text-[#666e85] dark:text-gray-400">مجموع این ماه</p>
+<div class="flex items-baseline gap-1">
+<span class="text-3xl font-black text-[#121317] dark:text-white tracking-tight">۴,۲۵۰,۰۰۰</span>
+<span class="text-xs font-normal text-[#666e85] mr-1">تومان</span>
+<span class="text-sm font-medium text-green-500 flex items-center mr-auto" dir="ltr">
+<span class="material-symbols-outlined text-[16px]">arrow_downward</span>
+                                            12%
+                                        </span>
+</div>
+</div>
+<div class="flex items-end gap-2 h-32 w-full mt-4" dir="ltr">
+<div class="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-full bg-primary/20 rounded-t-lg h-[40%] group-hover:bg-primary/40 transition-all relative">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg transition-opacity">120</div>
+</div>
+<span class="text-xs text-[#666e85]">ش</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-full bg-primary/20 rounded-t-lg h-[65%] group-hover:bg-primary/40 transition-all relative"></div>
+<span class="text-xs text-[#666e85]">ی</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-full bg-primary/20 rounded-t-lg h-[30%] group-hover:bg-primary/40 transition-all relative"></div>
+<span class="text-xs text-[#666e85]">د</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-full bg-primary rounded-t-lg h-[85%] shadow-lg shadow-primary/20 relative"></div>
+<span class="text-xs font-bold text-primary">س</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-full bg-primary/20 rounded-t-lg h-[50%] group-hover:bg-primary/40 transition-all relative"></div>
+<span class="text-xs text-[#666e85]">چ</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-full bg-primary/20 rounded-t-lg h-[20%] group-hover:bg-primary/40 transition-all relative"></div>
+<span class="text-xs text-[#666e85]">پ</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-full bg-primary/20 rounded-t-lg h-[20%] group-hover:bg-primary/40 transition-all relative"></div>
+<span class="text-xs text-[#666e85]">ج</span>
+</div>
+</div>
+</div>
+<div class="glass-panel p-5 rounded-3xl shadow-sm flex-1">
+<h3 class="text-lg font-bold text-[#121317] dark:text-white mb-4">فعالیت‌های اخیر</h3>
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50 last:border-0 last:pb-0">
+<div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined text-[20px]">local_gas_station</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-[#121317] dark:text-white">سوخت‌گیری</p>
+<p class="text-xs text-[#666e85]">پژو ۲۰۷ • ۴۵ لیتر</p>
+</div>
+<p class="text-sm font-bold text-[#121317] dark:text-white text-left" dir="ltr">-۴۵,۰۰۰</p>
+</div>
+<div class="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50 last:border-0 last:pb-0">
+<div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400">
+<span class="material-symbols-outlined text-[20px]">local_car_wash</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-[#121317] dark:text-white">کارواش</p>
+<p class="text-xs text-[#666e85]">سانتافه</p>
+</div>
+<p class="text-sm font-bold text-[#121317] dark:text-white text-left" dir="ltr">-۱۵۰,۰۰۰</p>
+</div>
+<div class="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50 last:border-0 last:pb-0">
+<div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-400">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-[#121317] dark:text-white">سرویس جدید</p>
+<p class="text-xs text-[#666e85]">اضافه شده دستی</p>
+</div>
+<p class="text-xs font-medium text-[#666e85]">دیروز</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-center py-6 text-xs text-[#666e85] opacity-60">
+<p>© ۱۴۰۳ شرکت خودروبان. تمامی حقوق محفوظ است.</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

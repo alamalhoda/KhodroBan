@@ -1,0 +1,21 @@
+{
+  "name": "@khodroban/shared",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./services/index.ts",
+  "types": "./types/index.ts",
+  "exports": {
+    "./services": "./services/index.ts",
+    "./services/api": "./services/api.ts",
+    "./types": "./types/index.ts",
+    "./utils": "./utils/index.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.89.0",
+    "axios": "^1.7.0",
+    "persian-date": "^1.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

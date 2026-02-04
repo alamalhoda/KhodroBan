@@ -1,0 +1,161 @@
+# راهنمای مدیریت TODO
+
+این فایل راهنمای استفاده از سیستم مدیریت TODO در پروژه است.
+
+## 🎯 اهداف
+
+1. جلوگیری از فراموشی TODOها
+2. سازماندهی بهتر کارهای باقی‌مانده
+3. اولویت‌بندی کارها
+4. Tracking پیشرفت کارها
+
+## 📋 سیستم پیشنهادی
+
+### 1. فایل TODO مرکزی
+**مسیر:** `/TODO.md` (در root پروژه)
+
+این فایل شامل:
+- لیست همه TODOها با اولویت‌بندی
+- لینک به فایل‌های TODO جزئی (در صورت وجود)
+- لینک به GitHub Issues
+- وضعیت هر TODO
+
+### 2. GitHub Issues
+برای هر TODO مهم، یک issue در GitHub ایجاد کنید:
+- **Label:** `todo`, `enhancement`, `bug`, `technical-debt`
+- **Milestone:** برای گروه‌بندی TODOها
+- **Assignee:** برای اختصاص کار به افراد
+
+### 3. کامنت‌های TODO در کد
+برای TODOهای کوچک و موقتی:
+```javascript
+// TODO: بعداً باید این را بهبود دهیم
+// FIXME: این یک workaround موقتی است
+// NOTE: این بخش نیاز به refactor دارد
+```
+
+### 4. فایل‌های TODO جزئی
+برای TODOهای پیچیده که نیاز به توضیحات زیاد دارند:
+- `frontend-vue/TODO_GROUP_NAME_MIGRATION.md`
+- `frontend-vue/AUTH_ISSUES_TODO.md`
+- و غیره...
+
+## 🔄 Workflow پیشنهادی
+
+### ایجاد TODO جدید:
+
+1. **تعیین نوع TODO:**
+   - اگر کوچک است → کامنت در کد
+   - اگر متوسط است → اضافه به `/TODO.md`
+   - اگر بزرگ است → فایل TODO جداگانه + issue در GitHub
+
+2. **ثبت در TODO.md:**
+   ```markdown
+   ### X. عنوان TODO
+   **فایل:** `path/to/file`  
+   **وضعیت:** 📝 در انتظار  
+   **اولویت:** 🔴 بالا / 🟡 متوسط / 🟢 پایین  
+   **زمان تخمینی:** X ساعت
+   
+   **توضیحات:**
+   - جزئیات TODO
+   
+   **لینک:** [Issue #X](https://github.com/...)
+   ```
+
+3. **ایجاد GitHub Issue (در صورت نیاز):**
+   - عنوان واضح
+   - توضیحات کامل
+   - Label مناسب
+   - Milestone (در صورت وجود)
+
+### به‌روزرسانی TODO:
+
+1. **هنگام شروع کار:**
+   - وضعیت را به "🔍 در حال انجام" تغییر دهید
+   - Assignee را در issue تنظیم کنید
+
+2. **هنگام اتمام کار:**
+   - وضعیت را به "✅ انجام شد" تغییر دهید
+   - Issue را close کنید
+   - تاریخ را در بخش تاریخچه اضافه کنید
+
+## 🏷️ Labelهای پیشنهادی
+
+- `todo` - کارهای باقی‌مانده
+- `enhancement` - بهبودها
+- `bug` - باگ‌ها
+- `technical-debt` - بدهی فنی
+- `documentation` - مستندات
+- `refactor` - بازنویسی کد
+- `performance` - بهینه‌سازی
+- `security` - امنیت
+
+## 📊 Milestoneهای پیشنهادی
+
+- `v1.0.0` - نسخه اولیه
+- `v1.1.0` - بهبودها
+- `v2.0.0` - نسخه بعدی
+- `Technical Debt` - بدهی‌های فنی
+
+## 🔍 بررسی منظم
+
+**پیشنهاد:** هر هفته یک بار TODO.md را بررسی کنید:
+- TODOهای انجام شده را حذف یا منتقل کنید
+- اولویت‌ها را به‌روزرسانی کنید
+- TODOهای جدید را اضافه کنید
+
+## 🔗 رابطه با IMPLEMENTATION_PLAN.md
+
+**TODO.md** و **IMPLEMENTATION_PLAN.md** مکمل هم هستند:
+- `IMPLEMENTATION_PLAN.md` = نقشه راه (Roadmap) - برنامه‌ریزی بلندمدت
+- `TODO.md` = لیست کارها (Task List) - tracking روزانه
+
+برای جزئیات بیشتر، [رابطه بین این دو فایل](./TODO_VS_IMPLEMENTATION_PLAN.md) را ببینید.
+
+## 🛠️ ابزارهای مفید
+
+1. **Linear:** ابزار مدیریت پروژه پیشرفته با AI
+   - راهنمای کامل: [LINEAR_GUIDE.md](./LINEAR_GUIDE.md)
+   - یکپارچگی با Cursor برای مدیریت issues
+   - AI-assisted features برای پیشنهادات و خودکارسازی
+   - مناسب برای مدیریت روزانه و tracking پیشرفت
+2. **GitHub Projects:** برای Kanban board
+   - راهنمای کامل: [GITHUB_PROJECTS_GUIDE.md](./GITHUB_PROJECTS_GUIDE.md)
+   - برای مدیریت بصری کارها و tracking پیشرفت
+3. **GitHub Milestones:** برای گروه‌بندی TODOها
+4. **GitHub Actions:** برای auto-check TODOها در PRها
+5. **VS Code Extensions:**
+   - TODO Highlight
+   - Todo Tree
+   - Better Comments
+
+## 📝 مثال کامل
+
+```markdown
+### 1. تبدیل group_name به کد انگلیسی
+**فایل:** `frontend-vue/TODO_GROUP_NAME_MIGRATION.md`  
+**Issue:** [#123](https://github.com/your-org/OilChenger/issues/123)  
+**وضعیت:** 📝 در انتظار  
+**اولویت:** 🟡 متوسط  
+**زمان تخمینی:** 2-3 ساعت  
+**Assignee:** @username
+
+**توضیحات:**
+- تبدیل `group_name` در جداول `service_types` و `expense_categories` از فارسی به کد انگلیسی
+- به‌روزرسانی stores و i18n files
+- ایجاد migration جدید
+
+**مراحل:**
+- [ ] ایجاد migration
+- [ ] به‌روزرسانی stores
+- [ ] به‌روزرسانی i18n
+- [ ] تست
+
+**لینک:** [TODO_GROUP_NAME_MIGRATION.md](../frontend-vue/TODO_GROUP_NAME_MIGRATION.md)
+```
+
+---
+
+**نکته:** این سیستم باید ساده و قابل نگهداری باشد. از پیچیده کردن آن خودداری کنید!
+

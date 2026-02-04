@@ -53,7 +53,7 @@
   --space-2xl: 3rem;
 
   /* Typography */
-  --font-family: 'Vazirmatn', 'IRANSans', 'Tahoma', sans-serif;
+  --font-family: 'Vazirmatn','IRANSans', 'Tahoma', sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;

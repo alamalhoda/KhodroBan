@@ -11,6 +11,8 @@ export default defineConfig({
       $stores: path.resolve('./src/lib/stores'),
       $services: path.resolve('./src/lib/services'),
       $utils: path.resolve('./src/lib/utils'),
+      // @shared alias برای آینده (فعلاً استفاده نمی‌شود)
+      // '@shared': path.resolve('../shared'),
     },
   },
   server: {

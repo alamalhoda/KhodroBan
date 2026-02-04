@@ -116,3 +116,5 @@ npm install
 
 - [استراتژی پروژه](./docs/strategy/project-plan.md)
 - [تحلیل رقبا](./docs/research/competitors/list.md)
+- [📋 TODO List](./TODO.md) - کارهای باقی‌مانده
+- [📖 راهنمای مدیریت TODO](./.github/TODO_MANAGEMENT.md)

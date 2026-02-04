@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="fa"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>داشبورد گزارش‌ها - اتومیت</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3b8a",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121620",
+                    },
+                    fontFamily: {
+                        "display": ["Vazirmatn", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #374151;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }.chart-bar {
+            transition: height 0.5s ease-out;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .dark .glass-panel {
+            background: rgba(30, 35, 48, 0.7);
+        }</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#121317] dark:text-white font-display overflow-x-hidden">
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f1f1f4] bg-white/80 backdrop-blur-md dark:bg-[#1e2330]/80 dark:border-[#2a2f3d] px-10 py-3 shadow-sm">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-[#121317] dark:text-white">
+<div class="size-8 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">local_taxi</span>
+</div>
+<h2 class="text-[#121317] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">اتومیت</h2>
+</div>
+<div class="hidden md:flex items-center gap-9">
+<a class="text-[#121317] dark:text-gray-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">داشبورد</a>
+<a class="text-[#121317] dark:text-gray-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">گاراژ من</a>
+<a class="text-primary text-sm font-bold leading-normal" href="#">گزارش‌ها</a>
+<a class="text-[#121317] dark:text-gray-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">تنظیمات</a>
+</div>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full">
+<div class="text-[#666e85] flex border-none bg-[#f1f1f4] dark:bg-[#2a2f3d] items-center justify-center ps-4 rounded-s-xl border-e-0">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#121317] dark:text-white focus:outline-0 focus:ring-0 border-none bg-[#f1f1f4] dark:bg-[#2a2f3d] focus:border-none h-full placeholder:text-[#666e85] px-4 rounded-s-none border-s-0 ps-2 text-sm font-normal leading-normal" placeholder="جستجوی گزارش‌ها..." value=""/>
+</div>
+</label>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-white dark:ring-[#2a2f3d]" data-alt="User profile avatar showing a smiling person" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAA8wY3dAQZ2tlXshnCLYPNCxKCvhsRR1DfgTfFGe1pyAw3SCJ9xLJTzNJNLfcxdayHF6thIvfo5szGwpFDOu5BGlorlg2lbjut6sW2LABR3kCyNp3wOws7SvmoMxUODGpHPVL-9LaX4HT-rdonQ7Wbw318nh9iSoKnb2ZHhBDgBKFEzwZC3W5Pq6dxk93ckryNnW6aNqmlNbhVwnqZFg3tiSvBcN3b_geCFzTqKrYF_AJn7Jcw7S1jItJOs41PTpdHsVPnFdWqKz8");'></div>
+</div>
+</header>
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[1200px] flex-1 gap-6">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-1">
+<div class="flex flex-wrap gap-2">
+<a class="text-[#666e85] dark:text-gray-400 hover:text-primary text-sm font-medium leading-normal" href="#">خانه</a>
+<span class="text-[#666e85] dark:text-gray-600 text-sm font-medium leading-normal">/</span>
+<span class="text-[#121317] dark:text-white text-sm font-medium leading-normal">گزارش‌ها</span>
+</div>
+<div class="flex gap-3">
+<div class="relative">
+<select class="appearance-none bg-white dark:bg-[#1e2330] border border-[#dcdfe4] dark:border-[#2a2f3d] text-[#121317] dark:text-white text-sm rounded-lg pl-3 pr-8 py-2 focus:ring-primary focus:border-primary text-right" dir="rtl">
+<option>همه خودروها</option>
+<option>۲۰۱۹ تویوتا کمری SE</option>
+<option>۲۰۲۲ تسلا مدل ۳</option>
+</select>
+<span class="material-symbols-outlined absolute left-2 top-2.5 text-gray-500 pointer-events-none text-[20px]">expand_more</span>
+</div>
+<div class="relative">
+<select class="appearance-none bg-white dark:bg-[#1e2330] border border-[#dcdfe4] dark:border-[#2a2f3d] text-[#121317] dark:text-white text-sm rounded-lg pl-3 pr-8 py-2 focus:ring-primary focus:border-primary text-right" dir="rtl">
+<option>۳۰ روز گذشته</option>
+<option>امسال (تا امروز)</option>
+<option>سال گذشته</option>
+</select>
+<span class="material-symbols-outlined absolute left-2 top-2.5 text-gray-500 pointer-events-none text-[20px]">calendar_today</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="glass-panel border border-[#dcdfe4] dark:border-[#2a2f3d] rounded-xl p-5 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-primary">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="text-xs font-bold text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">+۱۲٪</span>
+</div>
+<p class="text-[#666e85] dark:text-gray-400 text-sm font-medium">کل هزینه‌ها</p>
+<h3 class="text-[#121317] dark:text-white text-2xl font-bold mt-1">۴,۲۵۰,۰۰۰ تومان</h3>
+</div>
+<div class="glass-panel border border-[#dcdfe4] dark:border-[#2a2f3d] rounded-xl p-5 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-orange-600">
+<span class="material-symbols-outlined">local_gas_station</span>
+</div>
+<span class="text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">میانگین</span>
+</div>
+<p class="text-[#666e85] dark:text-gray-400 text-sm font-medium">هزینه سوخت</p>
+<h3 class="text-[#121317] dark:text-white text-2xl font-bold mt-1">۲,۱۴۵,۰۰۰ تومان</h3>
+</div>
+<div class="glass-panel border border-[#dcdfe4] dark:border-[#2a2f3d] rounded-xl p-5 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600">
+<span class="material-symbols-outlined">build</span>
+</div>
+<span class="text-xs font-bold text-red-600 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-full">+۵٪</span>
+</div>
+<p class="text-[#666e85] dark:text-gray-400 text-sm font-medium">سرویس و نگهداری</p>
+<h3 class="text-[#121317] dark:text-white text-2xl font-bold mt-1">۸۵۰,۰۰۰ تومان</h3>
+</div>
+<div class="glass-panel border border-[#dcdfe4] dark:border-[#2a2f3d] rounded-xl p-5 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-teal-50 dark:bg-teal-900/20 rounded-lg text-teal-600">
+<span class="material-symbols-outlined">speed</span>
+</div>
+</div>
+<p class="text-[#666e85] dark:text-gray-400 text-sm font-medium">هزینه به ازای کیلومتر</p>
+<h3 class="text-[#121317] dark:text-white text-2xl font-bold mt-1">۲۴۰ تومان</h3>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 glass-panel border border-[#dcdfe4] dark:border-[#2a2f3d] rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-[#121317] dark:text-white text-lg font-bold">روندهای ماهانه هزینه‌ها</h3>
+<button class="text-primary text-sm font-medium hover:underline">مشاهده جزئیات</button>
+</div>
+<div class="relative h-64 w-full flex items-end justify-between gap-2 md:gap-4 pt-8">
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none pb-8">
+<div class="w-full h-px bg-gray-100 dark:bg-gray-700 dashed border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+<div class="w-full h-px bg-gray-100 dark:bg-gray-700 dashed border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+<div class="w-full h-px bg-gray-100 dark:bg-gray-700 dashed border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+<div class="w-full h-px bg-gray-100 dark:bg-gray-700 dashed border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+<div class="w-full h-px bg-gray-200 dark:bg-gray-600"></div>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2 z-10 group">
+<div class="w-full max-w-[40px] bg-primary/20 dark:bg-primary/40 rounded-t-md hover:bg-primary/80 transition-colors relative flex items-end justify-center" style="height: 40%">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 bg-black text-white text-xs px-2 py-1 rounded transition-opacity whitespace-nowrap">۴۰۰</div>
+</div>
+<span class="text-xs text-gray-500 dark:text-gray-400">فروردین</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2 z-10 group">
+<div class="w-full max-w-[40px] bg-primary/20 dark:bg-primary/40 rounded-t-md hover:bg-primary/80 transition-colors relative flex items-end justify-center" style="height: 35%">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 bg-black text-white text-xs px-2 py-1 rounded transition-opacity whitespace-nowrap">۳۵۰</div>
+</div>
+<span class="text-xs text-gray-500 dark:text-gray-400">اردیبهشت</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2 z-10 group">
+<div class="w-full max-w-[40px] bg-primary/20 dark:bg-primary/40 rounded-t-md hover:bg-primary/80 transition-colors relative flex items-end justify-center" style="height: 55%">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 bg-black text-white text-xs px-2 py-1 rounded transition-opacity whitespace-nowrap">۵۵۰</div>
+</div>
+<span class="text-xs text-gray-500 dark:text-gray-400">خرداد</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2 z-10 group">
+<div class="w-full max-w-[40px] bg-primary/20 dark:bg-primary/40 rounded-t-md hover:bg-primary/80 transition-colors relative flex items-end justify-center" style="height: 45%">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 bg-black text-white text-xs px-2 py-1 rounded transition-opacity whitespace-nowrap">۴۵۰</div>
+</div>
+<span class="text-xs text-gray-500 dark:text-gray-400">تیر</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2 z-10 group">
+<div class="w-full max-w-[40px] bg-primary rounded-t-md shadow-lg relative flex items-end justify-center" style="height: 80%">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 bg-black text-white text-xs px-2 py-1 rounded transition-opacity whitespace-nowrap">۸۰۰</div>
+</div>
+<span class="text-xs text-gray-800 dark:text-gray-200 font-bold">مرداد</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2 z-10 group">
+<div class="w-full max-w-[40px] bg-primary/20 dark:bg-primary/40 rounded-t-md hover:bg-primary/80 transition-colors relative flex items-end justify-center" style="height: 30%">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 bg-black text-white text-xs px-2 py-1 rounded transition-opacity whitespace-nowrap">۳۰۰</div>
+</div>
+<span class="text-xs text-gray-500 dark:text-gray-400">شهریور</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-1 glass-panel border border-[#dcdfe4] dark:border-[#2a2f3d] rounded-xl p-6 shadow-sm flex flex-col">
+<h3 class="text-[#121317] dark:text-white text-lg font-bold mb-6">تفکیک هزینه‌ها</h3>
+<div class="flex flex-col gap-5 justify-center flex-1">
+<div>
+<div class="flex justify-between text-sm mb-2">
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-orange-500"></div>
+<span class="text-gray-600 dark:text-gray-300">سوخت</span>
+</div>
+<span class="font-bold text-[#121317] dark:text-white">۵۰٪</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-orange-500 h-2 rounded-full" style="width: 50%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-2">
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-blue-500"></div>
+<span class="text-gray-600 dark:text-gray-300">سرویس</span>
+</div>
+<span class="font-bold text-[#121317] dark:text-white">۲۰٪</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-blue-500 h-2 rounded-full" style="width: 20%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-2">
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-purple-500"></div>
+<span class="text-gray-600 dark:text-gray-300">قطعات</span>
+</div>
+<span class="font-bold text-[#121317] dark:text-white">۱۵٪</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-purple-500 h-2 rounded-full" style="width: 15%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-2">
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-green-500"></div>
+<span class="text-gray-600 dark:text-gray-300">بیمه</span>
+</div>
+<span class="font-bold text-[#121317] dark:text-white">۱۰٪</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-green-500 h-2 rounded-full" style="width: 10%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-2">
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-gray-400"></div>
+<span class="text-gray-600 dark:text-gray-300">سایر</span>
+</div>
+<span class="font-bold text-[#121317] dark:text-white">۵٪</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-gray-400 h-2 rounded-full" style="width: 5%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 flex flex-col gap-4">
+<h3 class="text-[#121317] dark:text-white text-lg font-bold">هزینه‌های اخیر</h3>
+<div class="bg-white dark:bg-[#1e2330] rounded-xl border border-[#dcdfe4] dark:border-[#2a2f3d] shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+<thead class="bg-gray-50 dark:bg-[#252a38]">
+<tr>
+<th class="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">تاریخ</th>
+<th class="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">دسته‌بندی</th>
+<th class="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">خودرو</th>
+<th class="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">مبلغ</th>
+<th class="relative px-6 py-3" scope="col"><span class="sr-only">عملیات</span></th>
+</tr>
+</thead>
+<tbody class="bg-white dark:bg-[#1e2330] divide-y divide-gray-200 dark:divide-gray-700">
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-medium text-start">۴ خرداد ۱۴۰۳</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-start">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-orange-500 text-[18px]">local_gas_station</span>
+                                                سوخت‌گیری
+                                            </div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-start">تویوتا کمری</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white text-start">۶۵,۰۰۰ تومان</td>
+<td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+<a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined">more_vert</span></a>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-medium text-start">۲۶ اردیبهشت ۱۴۰۳</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-start">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-500 text-[18px]">water_drop</span>
+                                                تعویض روغن
+                                            </div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-start">تویوتا کمری</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white text-start">۱۲۰,۰۰۰ تومان</td>
+<td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+<a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined">more_vert</span></a>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-medium text-start">۹ اردیبهشت ۱۴۰۳</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-start">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-green-500 text-[18px]">verified_user</span>
+                                                بیمه
+                                            </div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-start">تسلا مدل ۳</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white text-start">۳۵۰,۰۰۰ تومان</td>
+<td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+<a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined">more_vert</span></a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-gray-50 dark:bg-[#252a38] px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+<p class="text-sm text-gray-500 dark:text-gray-400">نمایش ۳ از ۴۸ رکورد</p>
+<button class="text-sm text-primary font-medium hover:underline">مشاهده همه سوابق</button>
+</div>
+</div>
+</div>
+<div class="lg:col-span-1 flex flex-col gap-6">
+<h3 class="text-[#121317] dark:text-white text-lg font-bold">صادرات گزارش‌ها</h3>
+<div class="bg-white dark:bg-[#1e2330] rounded-xl border border-[#dcdfe4] dark:border-[#2a2f3d] shadow-sm p-5">
+<div class="flex items-center gap-3 mb-3">
+<div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg text-green-700 dark:text-green-400">
+<span class="material-symbols-outlined">table_view</span>
+</div>
+<div>
+<h4 class="font-bold text-[#121317] dark:text-white">خروجی CSV</h4>
+<p class="text-xs text-gray-500 dark:text-gray-400">فرمت صفحه گسترده پایه</p>
+</div>
+</div>
+<p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                                دانلود لیست کاملی از هزینه‌های شما سازگار با اکسل و گوگل شیت.
+                            </p>
+<button class="w-full py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-[#121317] dark:text-white text-sm font-medium transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                                دانلود CSV
+                            </button>
+</div>
+<div class="bg-gradient-to-br from-[#121620] to-[#1e3b8a] rounded-xl shadow-lg p-5 text-white relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-700"></div>
+<div class="relative z-10">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2 text-yellow-400">
+<span class="material-symbols-outlined">star</span>
+<span class="text-xs font-bold uppercase tracking-wider">Pro</span>
+</div>
+<span class="material-symbols-outlined text-white/50">lock</span>
+</div>
+<div class="flex items-center gap-3 mb-2">
+<div class="bg-white/10 p-2 rounded-lg text-white">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</div>
+<h4 class="font-bold text-white text-lg">گزارش‌های PDF</h4>
+</div>
+<p class="text-sm text-gray-300 mb-4">ایجاد گزارش‌های حرفه‌ای PDF مناسب برای ادعای بیمه یا فروش خودرو.</p>
+<button class="w-full py-2.5 bg-white text-[#121620] text-sm font-bold rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
+                                    ارتقا برای باز کردن قفل
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

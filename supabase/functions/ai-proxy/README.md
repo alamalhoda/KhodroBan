@@ -1,6 +1,17 @@
-# AI Proxy Edge Function
+# Edge Function: ai-proxy
 
-این Edge Function به عنوان proxy برای API های AI عمل می‌کند تا مشکل CORS حل شود.
+این Edge Function به عنوان **proxy برای API های AI** عمل می‌کند تا مشکل CORS حل شود.
+
+## ⚠️ تفکیک مسئولیت‌ها
+
+این function **مستقل** از سایر Edge Function‌ها است:
+- **ai-proxy**: Proxy کردن درخواست‌های AI API (CORS و امنیت)
+- **check-reminders**: بررسی یادآورها
+- **send-notifications**: مدیریت ارسال اعلان‌ها
+- **send-telegram-notification**: ارسال اعلان تلگرام
+- **telegram-bot**: مدیریت Webhook ربات تلگرام
+
+هر function مسئولیت کاملاً جداگانه‌ای دارد.
 
 ## تنظیمات
 
@@ -84,13 +95,21 @@ supabase secrets set AI_API_URL=https://api.openai.com/v1
 
 در فایل `.env`:
 
+**حالت Mock (بدون اتصال به API واقعی، برای dev/demo):**
+```env
+VITE_AI_USE_MOCK=true
+VITE_AI_PROVIDER=openai
+```
+
+**حالت واقعی با Supabase ai-proxy** (project-ref خود را جایگزین کنید):
+
 برای **OpenRouter**:
 ```env
 VITE_AI_PROVIDER=openrouter
 # URL Supabase Edge Function (project-ref خود را جایگزین کنید)
-VITE_OPENROUTER_API_URL=https://YOUR_PROJECT_REF.supabase.co/functions/v1/ai-proxy
-# این API Key استفاده نمی‌شود (از Supabase secret استفاده می‌شود)
-VITE_AI_API_KEY=dummy
+VITE_AI_PROXY_URL=https://YOUR_PROJECT_REF.supabase.co/functions/v1/ai-proxy
+# در حالت proxy از فرانت ارسال نمی‌شود (در Supabase Secrets است)
+VITE_AI_API_KEY=
 
 # مدل‌های OpenRouter (می‌توانید مدل‌های مختلف را انتخاب کنید)
 VITE_AI_MODEL_EXPERT=anthropic/claude-3.5-sonnet
@@ -101,8 +120,8 @@ VITE_AI_MODEL_MAPS=anthropic/claude-3-haiku
 برای **xiaomimimo**:
 ```env
 VITE_AI_PROVIDER=openai
-VITE_OPENAI_API_URL=https://YOUR_PROJECT_REF.supabase.co/functions/v1/ai-proxy
-VITE_AI_API_KEY=dummy
+VITE_AI_PROXY_URL=https://YOUR_PROJECT_REF.supabase.co/functions/v1/ai-proxy
+VITE_AI_API_KEY=
 VITE_AI_MODEL_EXPERT=mimo-v2-flash
 VITE_AI_MODEL_FAST=mimo-v2-flash
 VITE_AI_MODEL_MAPS=mimo-v2-flash
@@ -111,12 +130,14 @@ VITE_AI_MODEL_MAPS=mimo-v2-flash
 برای **OpenAI استاندارد**:
 ```env
 VITE_AI_PROVIDER=openai
-VITE_OPENAI_API_URL=https://YOUR_PROJECT_REF.supabase.co/functions/v1/ai-proxy
-VITE_AI_API_KEY=dummy
+VITE_AI_PROXY_URL=https://YOUR_PROJECT_REF.supabase.co/functions/v1/ai-proxy
+VITE_AI_API_KEY=
 VITE_AI_MODEL_EXPERT=gpt-4-turbo-preview
 VITE_AI_MODEL_FAST=gpt-3.5-turbo
 VITE_AI_MODEL_MAPS=gpt-4-turbo-preview
 ```
+
+**تعویض سرویس‌دهنده:** برای استفاده از proxy دیگری (غیر از Supabase) فقط `VITE_AI_PROXY_URL` را به آدرس آن سرویس تغییر دهید؛ نیازی به تغییر کد نیست.
 
 ## نحوه کار
 
