@@ -51,6 +51,19 @@ python manage.py runserver
 
 سرور در آدرس `http://127.0.0.1:8000` اجرا می‌شود.
 
+### بارگذاری داده‌های نمونه (تست نمایشی)
+
+برای پر کردن دیتابیس با کاربر نمونه، خودرو، سرویس، هزینه و یادآور:
+
+```bash
+python manage.py load_sample_data
+```
+
+ورود با کاربر نمونه: **sample_user** / **sample123**
+
+برای ایجاد مجدد خودروها و سرویس‌ها (بدون حذف طرح‌ها و انواع سرویس):  
+`python manage.py load_sample_data --force`
+
 ---
 
 ## 📁 ساختار Django (پروژه و اپ)
@@ -120,6 +133,8 @@ python manage.py test khodroban.tests.test_models.ReminderModelTests
 # با pytest (از پوشه backend/django)
 pytest khodroban -v
 ```
+
+**دادهٔ نمونه و تست‌ها:** تست‌های فعلی در `setUp` خودشان داده می‌سازند (ایزوله). اگر بخواهید همان ساختار دادهٔ نمایشی را در تست داشته باشید، از ماژول `khodroban.sample_data` استفاده کنید (مثلاً `make_sample_user_and_vehicle()` یا `ensure_plans()` / `ensure_service_types()`). اجرای تست‌ها به‌صورت پیش‌فرض به دادهٔ بارگذاری‌شده توسط `load_sample_data` وابسته نیست.
 
 ---
 
