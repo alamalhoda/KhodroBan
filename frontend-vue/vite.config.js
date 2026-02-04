@@ -114,15 +114,16 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
       '@shared': path.resolve(__dirname, '../shared'),
       '@services': path.resolve(__dirname, '../shared/services'),
       '@types': path.resolve(__dirname, '../shared/types'),
       '@utils': path.resolve(__dirname, '../shared/utils'),
+      // اطمینان از resolve شدن صحیح ماژول OpenAI در باندل فرانت‌اند
+      openai: path.resolve(__dirname, 'node_modules/openai/dist/index.mjs'),
     },
   },
   server: {
-    port: 5174,
+    port: 5174, // Different port from SvelteKit (5173)
   },
   build: {
     outDir: 'dist',
@@ -206,17 +207,12 @@ export default defineConfig({
     // CSS code splitting
     cssCodeSplit: true,
   },
-  // Optimize dependencies
   optimizeDeps: {
     include: [
-      'vue',
-      'vue-router',
-      'pinia',
-      'vue-i18n',
       '@supabase/supabase-js',
       'axios',
-      'persian-date'
+      'openai',
+      'persian-date',
     ],
-    exclude: [],
   },
 })

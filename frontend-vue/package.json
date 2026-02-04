@@ -1,39 +1,30 @@
 {
-  "name": "khodroban-vue-frontend",
+  "name": "app",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0",
-    "test": "vitest --run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest --coverage",
-    "download-fonts": "node scripts/download-fonts.js",
-    "get-font-urls": "node scripts/get-font-urls.js"
+    "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "^1.34.0",
     "@supabase/supabase-js": "^2.89.0",
     "axios": "^1.13.2",
+    "openai": "^6.15.0",
     "persian-date": "^1.1.0",
     "pinia": "^3.0.4",
     "vue": "^3.5.24",
-    "vue-i18n": "^9.14.5",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.18",
     "@tailwindcss/postcss": "^4.1.18",
     "@vitejs/plugin-vue": "^6.0.1",
-    "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.23",
-    "fast-check": "^3.15.1",
-    "jsdom": "^25.0.1",
     "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.17",
-    "vite": "^7.2.4",
-    "vite-plugin-pwa": "^1.2.0",
-    "vitest": "^2.1.8"
+    "tailwindcss": "^4.1.18",
+    "vite": "^7.2.4"
   }
 }
