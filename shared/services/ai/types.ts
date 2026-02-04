@@ -94,8 +94,9 @@ export interface AIResponse {
  */
 export interface AIProviderConfig {
   provider: AIProvider;
+  /** در حالت proxy (مثلاً Supabase) API Key در سرور است؛ در فرانت خالی یا dummy */
   apiKey: string;
-  /** URL پایه (برای OpenRouter یا custom endpoints) */
+  /** URL پایه: مستقیم (OpenAI/OpenRouter) یا proxy (مثلاً Supabase Edge Function) */
   baseURL?: string;
   /** مدل پیش‌فرض برای هر mode */
   defaultModels?: {
@@ -103,6 +104,8 @@ export interface AIProviderConfig {
     fast?: string;
     maps?: string;
   };
+  /** true = فقط پاسخ Mock بدون فراخوانی واقعی (برای dev/demo) */
+  useMock?: boolean;
 }
 
 /**

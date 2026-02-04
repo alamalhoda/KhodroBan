@@ -1,23 +1,18 @@
 ## TODOهای مربوط به سرویس هوش مصنوعی (AI)
 
-این فایل لیست کارهای باز و موقت‌هایی است که برای ساده‌سازی فرانت‌اند انجام شده تا بعداً بتوانیم پیاده‌سازی نهایی را کامل کنیم.
+این فایل لیست کارهای باز و وضعیت فعلی سرویس AI را شرح می‌دهد.
 
-### 1. وضعیت فعلی (موقت / Mock)
+### 1. وضعیت فعلی (Mock + اتصال واقعی به Proxy)
 
+- **دو حالت پشتیبانی‌شده**
+  1. **Mock**: با `VITE_AI_USE_MOCK=true` فقط پاسخ تستی برمی‌گردد (بدون فراخوانی بیرونی). برای dev/demo.
+  2. **واقعی از طریق Proxy**: با تنظیم `VITE_AI_PROXY_URL` یا `VITE_OPENROUTER_API_URL` / `VITE_OPENAI_API_URL` به آدرس proxy (مثلاً Supabase Edge Function `ai-proxy`)، درخواست واقعی به `/chat/completions` ارسال می‌شود. API Key در سرور (Supabase Secrets) نگهداری می‌شود.
+- **تعویض سرویس‌دهنده**
+  - فرانت به یک **URL پایه** وابسته است، نه به نام سرویس. برای استفاده از سرویس دیگری (غیر از Supabase) کافی است همان URL را در env عوض کنید (مثلاً به یک BFF یا سرویس دیگر).
 - **حذف Gemini از مسیر فرانت‌اند**
-  - در `shared/services/ai/index.ts` دیگر از `GeminiProvider` استفاده نمی‌شود.
-  - در `shared/services/ai/config.ts`، مقدار پیش‌فرض `VITE_AI_PROVIDER` از `gemini` به `openai` تغییر کرده است.
-- **استفاده از نسخه‌ی Mock برای OpenAIProvider**
-  - فایل `shared/services/ai/providers/openai.ts` اکنون یک **پیاده‌سازی Mock** است که:
-    - هیچ ایمپورتی از پکیج `openai` انجام نمی‌دهد.
-    - همیشه خود را `isConfigured = true` گزارش می‌کند.
-    - در متد `analyzeCarIssue` فقط یک پاسخ تستی برمی‌گرداند که شامل:
-      - متن ثابت توضیحی (این‌که نسخه‌ی Mock است).
-      - اضافه‌کردن خلاصه‌ای از `userContext` (در صورت وجود) با `formatUserContextForPrompt`.
-      - اضافه‌کردن متن `prompt` کاربر برای دیباگ/تست.
-    - در `metadata` فیلد `mock: true` و `provider: 'openai-mock'` را ست می‌کند.
+  - در `shared/services/ai/index.ts` فقط `OpenAIProvider` (openai/openrouter) استفاده می‌شود. پشتیبانی Gemini در صورت نیاز در backend/proxy انجام می‌شود.
 - **وضعیت فرانت‌اند Smart Assistant**
-  - ویو `SmartAssistantView.vue` و استور `smartAssistant.js` از `aiService.analyzeCarIssue` استفاده می‌کنند اما در حال حاضر این سرویس صرفاً به نسخه‌ی Mock `OpenAIProvider` متصل است.
+  - ویو و استور از `aiService.analyzeCarIssue` استفاده می‌کنند. با Mock پاسخ تستی، با Proxy پاسخ واقعی از AI دریافت می‌شود.
 
 ### 2. کارهایی که بعداً باید انجام شود
 
@@ -34,24 +29,16 @@
     - اطمینان از این‌که هیچ import مستقیمی از این پکیج در باندل فرانت (`frontend-vue`) انجام نشود.
     - جا‌به‌جا کردن `GeminiProvider` به لایه‌ی backend مناسب، یا ایجاد نسخه‌ی مجزا برای backend.
 
-#### 2.2. پیاده‌سازی واقعی OpenAI / OpenRouter
+#### 2.2. پیاده‌سازی واقعی OpenAI / OpenRouter (انجام‌شده)
 
-- **حذف نسخه‌ی Mock و بازگرداندن نسخه‌ی واقعی**
-  - جایگزین کردن محتوای فعلی `shared/services/ai/providers/openai.ts` با نسخه‌ای که:
-    - از SDK رسمی `openai` (یا فقط `fetch`) استفاده می‌کند.
-    - پیکربندی‌های `baseURL`, `defaultModels` و ... را از `AIProviderConfig` می‌گیرد.
-  - اگر قرار است همچنان از SDK رسمی `openai` در فرانت استفاده شود:
-    - بررسی دقیق داکیومنت رسمی برای استفاده در مرورگر (`dangerouslyAllowBrowser`) و ریسک‌های امنیتی.
-    - **ترجیحاً** به‌جای آن:
-      - یک endpoint backend (مثلاً در SvelteKit یا سرویس Node) بسازیم که درخواست‌های فرانت را به OpenAI/OpenRouter فوروارد کند.
-      - در این صورت:
-        - API Key فقط در backend نگهداری می‌شود.
-        - فرانت فقط به endpoint داخلی (مثلاً `/api/ai/analyze-car-issue`) درخواست می‌فرستد.
+- **Mock حفظ شده؛ مسیر واقعی اضافه شده**
+  - `shared/services/ai/providers/openai.ts`: با `useMock=true` پاسخ Mock؛ با `baseURL` (مثلاً Supabase ai-proxy) فراخوانی واقعی به `/chat/completions` با `fetch`. API Key در حالت proxy از فرانت ارسال نمی‌شود.
 - **همگام‌سازی با `.env`**
-  - تنظیم و مستندسازی متغیرهای زیر (نمونه):
+  - **Mock**: `VITE_AI_USE_MOCK=true` (نیازی به API Key یا URL نیست).
+  - **واقعی با Proxy (مثلاً Supabase)**:
     - `VITE_AI_PROVIDER=openai` یا `openrouter`
-    - `VITE_AI_API_KEY` (اگر قرار است در backend فقط استفاده شود، این را به فضای backend منتقل کنیم و نسخه‌ی VITE-y آن را حذف/تغییر دهیم).
-    - `VITE_OPENAI_API_URL` یا `VITE_OPENROUTER_API_URL` در صورت نیاز.
+    - `VITE_AI_PROXY_URL` یا `VITE_OPENROUTER_API_URL` یا `VITE_OPENAI_API_URL` = آدرس proxy (مثلاً `https://YOUR_PROJECT_REF.supabase.co/functions/v1/ai-proxy`)
+    - `VITE_AI_API_KEY` در حالت proxy لازم نیست (می‌توان خالی یا dummy باشد).
     - `VITE_AI_MODEL_EXPERT`, `VITE_AI_MODEL_FAST`, `VITE_AI_MODEL_MAPS` برای مدل‌های پیش‌فرض.
 
 #### 2.3. تمیزکاری Vite و وابستگی‌ها
@@ -75,9 +62,7 @@
 #### 2.5. تکمیل تجربه‌ی Smart Assistant
 
 - **اتصال مکالمه‌ی واقعی به AI**
-  - زمانی که backend/Proxy واقعی برای AI آماده شد:
-    - `aiService.analyzeCarIssue` را به endpoint واقعی متصل کنیم.
-    - مطمئن شویم ساختار پاسخ (`text`, `groundingChunks`, `metadata`) با چیزی که فرانت انتظار دارد سازگار است.
+  - با تنظیم proxy (مثلاً Supabase ai-proxy)، `aiService.analyzeCarIssue` به همان proxy درخواست می‌فرستد و پاسخ واقعی دریافت می‌کند. ساختار پاسخ (`text`, `groundingChunks`, `metadata`) با فرانت سازگار است.
 - **مدیریت خطا و وضعیت‌ها**
   - طراحی استراتژی نهایی برای:
     - نمایش خطاهای شبکه / rate limit به کاربر.

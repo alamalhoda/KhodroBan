@@ -37,8 +37,13 @@ function getAIProvider(): IAIProvider | null {
     return null;
   }
 
-  // اگر config تغییر کرده یا instance وجود ندارد، instance جدید بساز
-  if (!aiProviderInstance || !currentConfig || currentConfig.provider !== config.provider) {
+  // اگر config تغییر کرده (provider، useMock، baseURL) یا instance وجود ندارد، instance جدید بساز
+  const configChanged =
+    !currentConfig ||
+    currentConfig.provider !== config.provider ||
+    currentConfig.useMock !== config.useMock ||
+    currentConfig.baseURL !== config.baseURL;
+  if (!aiProviderInstance || configChanged) {
     try {
       aiProviderInstance = createAIProvider(config);
       currentConfig = config;
