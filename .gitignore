@@ -30,6 +30,10 @@ dist/
 .env.local
 .env.*.local
 
+# Secrets (tokens, API keys)
+frontend-vue/telegram.bot.secret.txt
+**/*.secret.txt
+
 # Logs
 *.log
 logs/
