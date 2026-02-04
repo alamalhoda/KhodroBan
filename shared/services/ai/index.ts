@@ -2,7 +2,6 @@
 // AI Service - Main Entry Point
 // ========================================
 
-import { GeminiProvider } from './providers/gemini';
 import { OpenAIProvider } from './providers/openai';
 import { getAIProviderConfig, getUserSelectedProvider } from './config';
 import type { IAIProvider } from './base';
@@ -13,13 +12,11 @@ import type { AIRequestParams, AIResponse, AIProvider, AIProviderConfig } from '
  */
 function createAIProvider(config: AIProviderConfig): IAIProvider {
   switch (config.provider) {
-    case 'gemini':
-      return new GeminiProvider(config);
     case 'openai':
     case 'openrouter':
       return new OpenAIProvider(config);
     default:
-      throw new Error(`Unknown AI provider: ${config.provider}`);
+      throw new Error(`Unknown or unsupported AI provider: ${config.provider}`);
   }
 }
 

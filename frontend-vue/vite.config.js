@@ -1,12 +1,19 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
+
+let VitePWA
+try {
+  const pwa = await import('vite-plugin-pwa')
+  VitePWA = pwa.VitePWA
+} catch {
+  VitePWA = null
+}
 
 export default defineConfig({
   plugins: [
     vue(),
-    VitePWA({
+    ...(VitePWA ? [VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
@@ -103,7 +110,7 @@ export default defineConfig({
         enabled: true,
         type: 'module'
       }
-    })
+    })] : []),
   ],
   resolve: {
     alias: {
@@ -118,19 +125,14 @@ export default defineConfig({
     port: 5174,
   },
   build: {
+    outDir: 'dist',
     // Enable minification (esbuild is faster than terser)
     minify: 'esbuild',
-    // Alternative: use terser for better compression (slower)
-    // minify: 'terser',
-    // terserOptions: {
-    //   compress: {
-    //     drop_console: true,
-    //     drop_debugger: true,
-    //     pure_funcs: ['console.log', 'console.info', 'console.debug'],
-    //   },
-    // },
     // Code splitting and chunk optimization
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
       output: {
         manualChunks: (id) => {
           // Vendor chunks
@@ -156,6 +158,9 @@ export default defineConfig({
             // Other large dependencies
             if (id.includes('axios')) {
               return 'vendor-axios'
+            }
+            if (id.includes('openai')) {
+              return 'vendor-openai'
             }
             // All other node_modules
             return 'vendor'
@@ -194,7 +199,7 @@ export default defineConfig({
     },
     // Increase chunk size warning limit
     chunkSizeWarningLimit: 1000, // 1MB
-    // Source maps for production debugging (optional, can disable for smaller builds)
+    // Source maps for production debugging (optional)
     sourcemap: false,
     // Target modern browsers for smaller bundles
     target: 'es2015',
