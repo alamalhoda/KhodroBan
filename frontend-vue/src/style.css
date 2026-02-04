@@ -1,6 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* رنگ‌ها و تم سفارشی (Tailwind v4 از tailwind.config.js برای theme استفاده نمی‌کند؛ اینجا تعریف می‌شوند) */
+@theme {
+  --color-primary: #1e3b8a;
+  --color-primary-light: #3b5bdb;
+  --color-primary-dark: #0d6ebd;
+  --color-background-light: #f6f6f8;
+  --color-background-dark: #121620;
+  --color-surface-dark: #192833;
+  --color-secondary-text: #92b2c9;
+  --color-success: #0bda5b;
+  --color-warning: #ff9f1c;
+  --color-danger: #ff4d4d;
+  --color-text-main: #121317;
+  --color-text-muted: #666e85;
+  --color-border: #e5e7eb;
+}
 
 /* Vazirmatn Font - Ensure it's applied everywhere */
 @layer base {

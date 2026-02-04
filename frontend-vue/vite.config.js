@@ -107,19 +107,18 @@ export default defineConfig({
         ]
       },
       devOptions: {
-        enabled: true,
+        enabled: false, // در dev غیرفعال تا 404 pwa-entry-point و خطای manifest نباشد
         type: 'module'
       }
     })] : []),
   ],
   resolve: {
     alias: {
+      '@': path.resolve(__dirname, 'src'),
       '@shared': path.resolve(__dirname, '../shared'),
       '@services': path.resolve(__dirname, '../shared/services'),
       '@types': path.resolve(__dirname, '../shared/types'),
       '@utils': path.resolve(__dirname, '../shared/utils'),
-      // اطمینان از resolve شدن صحیح ماژول OpenAI در باندل فرانت‌اند
-      openai: path.resolve(__dirname, 'node_modules/openai/dist/index.mjs'),
     },
   },
   server: {

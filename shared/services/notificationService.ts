@@ -1,5 +1,11 @@
 import { supabase } from './supabase';
+import { isMock } from './config';
 import type { Notification } from '../types';
+
+/** در حالت mock یا وقتی user_id شبیه UUID نیست (مثلاً "1") به Supabase درخواست نزن. */
+function shouldSkipSupabase(userId: string): boolean {
+  return isMock() || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+}
 
 export const notificationService = {
   /**
@@ -8,6 +14,7 @@ export const notificationService = {
    * @param onlyUnread - فقط نوتیفیکیشن‌های خوانده نشده
    */
   async getNotifications(userId: string, onlyUnread: boolean = true): Promise<Notification[]> {
+    if (shouldSkipSupabase(userId)) return [];
     if (!supabase) {
       throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     }
@@ -51,6 +58,7 @@ export const notificationService = {
    * @param userId - شناسه کاربر
    */
   async markAllAsRead(userId: string): Promise<void> {
+    if (shouldSkipSupabase(userId)) return;
     if (!supabase) {
       throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     }
@@ -70,6 +78,7 @@ export const notificationService = {
    * @param callback - تابع callback برای نوتیفیکیشن‌های جدید
    */
   subscribeToNotifications(userId: string, callback: (notification: Notification) => void) {
+    if (shouldSkipSupabase(userId)) return null;
     if (!supabase) {
       console.error('Supabase client not available. Realtime subscription will not work.');
       return null;
@@ -99,6 +108,7 @@ export const notificationService = {
    * @param userId - شناسه کاربر
    */
   async getUnreadCount(userId: string): Promise<number> {
+    if (shouldSkipSupabase(userId)) return 0;
     if (!supabase) {
       throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     }
@@ -135,6 +145,7 @@ export const notificationService = {
    * @param userId - شناسه کاربر
    */
   async getAllNotifications(userId: string): Promise<Notification[]> {
+    if (shouldSkipSupabase(userId)) return [];
     if (!supabase) {
       throw new Error('Supabase client not available. Check VITE_BACKEND_TYPE and environment variables.');
     }
