@@ -20,10 +20,13 @@ from .models import (
     Vehicle, Service, DailyExpense, ReminderSetting, Reminder,
     Notification, TelegramSetting, UserProfile
 )
+from rest_framework.exceptions import PermissionDenied
 from .serializers import (
-    VehicleSerializer, ServiceSerializer, DailyExpenseSerializer,
-    ReminderSettingSerializer, ReminderSerializer, NotificationSerializer,
-    TelegramSettingSerializer
+    VehicleSerializer, VehicleApiSerializer,
+    ServiceSerializer, ServiceApiSerializer,
+    DailyExpenseSerializer, DailyExpenseApiSerializer,
+    ReminderSettingSerializer, ReminderSerializer, ReminderApiSerializer,
+    NotificationSerializer, TelegramSettingSerializer
 )
 from .huey_tasks import send_telegram
 
@@ -39,9 +42,49 @@ class IsOwner(permissions.BasePermission):
         return False
 
 
-class VehicleViewSet(viewsets.ModelViewSet):
+def api_response(data, status_code=200, headers=None):
+    """پاسخ یکسان برای فرانت: { success: true, data: ... }"""
+    return Response({'success': True, 'data': data}, status=status_code, headers=headers or {})
+
+
+class ApiResponseMixin:
+    """میکسین برای wrap کردن خروجی ViewSetها مطابق ApiResponse<T> فرانت"""
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return api_response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return api_response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return api_response(serializer.data, status.HTTP_201_CREATED, headers)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+        return api_response(serializer.data)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+
+
+class VehicleViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     queryset = Vehicle.objects.all()
-    serializer_class = VehicleSerializer
+    serializer_class = VehicleApiSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -51,28 +94,44 @@ class VehicleViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user.userprofile)
 
 
-class ServiceViewSet(viewsets.ModelViewSet):
+class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     queryset = Service.objects.all()
-    serializer_class = ServiceSerializer
+    serializer_class = ServiceApiSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Service.objects.filter(vehicle__user_profile=self.request.user.userprofile)
 
     def perform_create(self, serializer):
-        serializer.save()
+        vehicle_id = self.request.data.get('vehicleId')
+        if not vehicle_id:
+            raise PermissionDenied('vehicleId الزامی است.')
+        vehicle = Vehicle.objects.filter(pk=vehicle_id, user_profile=self.request.user.userprofile).first()
+        if not vehicle:
+            raise PermissionDenied('خودرو یافت نشد یا دسترسی ندارید.')
+        total_cost = self.request.data.get('cost', 0)
+        serializer.save(vehicle=vehicle, total_cost=total_cost)
 
 
-class DailyExpenseViewSet(viewsets.ModelViewSet):
+class DailyExpenseViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     queryset = DailyExpense.objects.all()
-    serializer_class = DailyExpenseSerializer
+    serializer_class = DailyExpenseApiSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return DailyExpense.objects.filter(vehicle__user_profile=self.request.user.userprofile)
 
+    def perform_create(self, serializer):
+        vehicle_id = self.request.data.get('vehicleId')
+        if not vehicle_id:
+            raise PermissionDenied('vehicleId الزامی است.')
+        vehicle = Vehicle.objects.filter(pk=vehicle_id, user_profile=self.request.user.userprofile).first()
+        if not vehicle:
+            raise PermissionDenied('خودرو یافت نشد یا دسترسی ندارید.')
+        serializer.save(vehicle=vehicle)
 
-class ReminderSettingViewSet(viewsets.ModelViewSet):
+
+class ReminderSettingViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     queryset = ReminderSetting.objects.all()
     serializer_class = ReminderSettingSerializer
     permission_classes = [IsAuthenticated]
@@ -81,9 +140,9 @@ class ReminderSettingViewSet(viewsets.ModelViewSet):
         return ReminderSetting.objects.filter(vehicle__user_profile=self.request.user.userprofile)
 
 
-class ReminderViewSet(viewsets.ModelViewSet):
+class ReminderViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     queryset = Reminder.objects.all()
-    serializer_class = ReminderSerializer
+    serializer_class = ReminderApiSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -93,7 +152,7 @@ class ReminderViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user.userprofile)
 
 
-class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
+class NotificationViewSet(ApiResponseMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
@@ -109,7 +168,7 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({'status': 'read'})
 
 
-class TelegramSettingViewSet(viewsets.ModelViewSet):
+class TelegramSettingViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     queryset = TelegramSetting.objects.all()
     serializer_class = TelegramSettingSerializer
     permission_classes = [IsAuthenticated]

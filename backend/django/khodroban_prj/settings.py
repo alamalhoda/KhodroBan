@@ -15,6 +15,7 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [
+    'khodroban.apps.KhodrobanConfig',  # قبل از auth تا override قالب read_only_password_hash لود شود
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -26,8 +27,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'huey.contrib.djhuey',
     'rest_framework_simplejwt',
-
-    'khodroban.apps.KhodrobanConfig',
 ]
 
 MIDDLEWARE = [
@@ -47,7 +46,7 @@ WSGI_APPLICATION = 'khodroban_prj.wsgi.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

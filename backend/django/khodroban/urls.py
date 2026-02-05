@@ -1,4 +1,5 @@
 # khodroban/urls.py
+from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -19,6 +20,7 @@ router.register(r'notifications', NotificationViewSet)
 router.register(r'telegram-settings', TelegramSettingViewSet)
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
 
     path('api/me/', MeView.as_view(), name='me'),

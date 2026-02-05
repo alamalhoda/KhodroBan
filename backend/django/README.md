@@ -61,6 +61,10 @@ python manage.py load_sample_data
 
 ورود با کاربر نمونه: **sample_user** / **sample123**
 
+SAMPLE_USERNAME = "sample_user"
+SAMPLE_EMAIL = "sample@khodroban.local"
+SAMPLE_PASSWORD = "abc*1234"
+
 برای ایجاد مجدد خودروها و سرویس‌ها (بدون حذف طرح‌ها و انواع سرویس):  
 `python manage.py load_sample_data --force`
 

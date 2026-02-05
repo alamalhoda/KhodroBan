@@ -52,9 +52,10 @@ def ensure_sample_user():
             "is_active": True,
         },
     )
-    if created:
-        user.set_password(SAMPLE_PASSWORD)
-        user.save()
+    # همیشه رمز را ست کن تا بعد از هر بار اجرای دستور، sample_user/sample123 کار کند
+    user.set_password(SAMPLE_PASSWORD)
+    user.is_active = True
+    user.save(update_fields=["password", "is_active"])
     return user
 
 

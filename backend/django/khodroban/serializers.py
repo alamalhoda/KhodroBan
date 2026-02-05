@@ -1,5 +1,6 @@
 # khodroban/serializers.py
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer as JWTTokenObtainPairSerializer
 from .models import (
     SubscriptionPlan, UserProfile, UserSubscription,
     Vehicle, Service, ServiceItem, ServiceType,
@@ -77,6 +78,37 @@ class VehicleSerializer(serializers.ModelSerializer):
         return value
 
 
+# ---------- خروجی مطابق فرانت (camelCase + نام فیلدهای فرانت) ----------
+
+class VehicleApiSerializer(VehicleSerializer):
+    """خروجی: id, userId, plateNumber, currentKm, note, createdAt, updatedAt"""
+
+    def to_representation(self, instance):
+        return {
+            'id': str(instance.vehicle_id),
+            'userId': str(instance.user_profile_id),
+            'model': instance.model,
+            'year': instance.year,
+            'plateNumber': instance.plate_number,
+            'currentKm': instance.current_km,
+            'note': instance.description or '',
+            'createdAt': instance.created_at.isoformat() if instance.created_at else None,
+            'updatedAt': instance.updated_at.isoformat() if instance.updated_at else None,
+        }
+
+    def to_internal_value(self, data):
+        # فرانت camelCase می‌فرستد؛ فقط فیلدهای مدل را به parent بفرست
+        key_map = [
+            ('model', 'model'), ('year', 'year'),
+            ('plate_number', 'plateNumber'), ('current_km', 'currentKm'), ('description', 'note'),
+        ]
+        internal = {}
+        for snake, camel in key_map:
+            if camel in data or snake in data:
+                internal[snake] = data.get(camel) or data.get(snake)
+        return super().to_internal_value(internal)
+
+
 class ServiceTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceType
@@ -123,6 +155,48 @@ class ServiceSerializer(serializers.ModelSerializer):
         return data
 
 
+class ServiceApiSerializer(ServiceSerializer):
+    """خروجی فرانت: id, vehicleId, date, km, cost, type, types, items, note, createdAt, updatedAt"""
+
+    def to_representation(self, instance):
+        items = list(instance.serviceitem_set.select_related('service_type_code').all())
+        types = [item.service_type_code.code for item in items] if items else []
+        primary_type = types[0] if types else 'other'
+        items_data = [
+            {'type': item.service_type_code.code, 'cost': item.cost, 'description': item.description}
+            for item in items
+        ]
+        return {
+            'id': str(instance.service_id),
+            'vehicleId': str(instance.vehicle_id),
+            'date': instance.service_date.isoformat() if instance.service_date else None,
+            'km': instance.service_km,
+            'cost': instance.total_cost,
+            'type': primary_type,
+            'types': types,
+            'items': items_data,
+            'note': instance.general_note or instance.description or '',
+            'createdAt': instance.created_at.isoformat() if instance.created_at else None,
+            'updatedAt': instance.updated_at.isoformat() if instance.updated_at else None,
+        }
+
+    def to_internal_value(self, data):
+        # vehicle از request در perform_create ست می‌شود
+        key_map = [
+            ('service_date', 'date'), ('service_km', 'km'), ('total_cost', 'cost'),
+            ('general_note', 'note'), ('description', 'note'),
+        ]
+        internal = {}
+        for snake, camel in key_map:
+            if camel in data or snake in data:
+                internal[snake] = data.get(camel) or data.get(snake)
+        if 'date' in data and 'service_date' not in internal:
+            internal['service_date'] = data['date']
+        if 'date' in data:
+            internal['service_date_gregorian'] = data['date']  # همان تاریخ برای گرگوری
+        return super().to_internal_value(internal)
+
+
 class DailyExpenseSerializer(serializers.ModelSerializer):
     vehicle = VehicleMinimalSerializer(read_only=True)
 
@@ -139,6 +213,38 @@ class DailyExpenseSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError("مبلغ باید مثبت باشد")
         return value
+
+
+class DailyExpenseApiSerializer(DailyExpenseSerializer):
+    """خروجی فرانت: id, vehicleId, date, amount, category, km, note, createdAt, updatedAt"""
+
+    def to_representation(self, instance):
+        return {
+            'id': str(instance.expense_id),
+            'vehicleId': str(instance.vehicle_id),
+            'date': instance.expense_date.isoformat() if instance.expense_date else None,
+            'amount': instance.amount,
+            'category': instance.category_code or 'other',
+            'km': getattr(instance, 'km_at_expense', None),
+            'note': instance.description or '',
+            'createdAt': instance.created_at.isoformat() if instance.created_at else None,
+            'updatedAt': instance.updated_at.isoformat() if instance.updated_at else None,
+        }
+
+    def to_internal_value(self, data):
+        key_map = [
+            ('vehicle_id', 'vehicleId'), ('expense_date', 'date'), ('amount', 'amount'),
+            ('category_code', 'category'), ('km_at_expense', 'km'), ('description', 'note'),
+        ]
+        internal = {}
+        for snake, camel in key_map:
+            if camel in data or snake in data:
+                internal[snake] = data.get(camel) or data.get(snake)
+        if 'date' in data and 'expense_date' not in internal:
+            internal['expense_date'] = data['date']
+        if 'date' in data:
+            internal['expense_date_gregorian'] = data['date']
+        return super().to_internal_value(internal)
 
 
 class ReminderSettingSerializer(serializers.ModelSerializer):
@@ -170,6 +276,42 @@ class ReminderSerializer(serializers.ModelSerializer):
             'id', 'user_profile', 'status', 'message',
             'created_at', 'updated_at'
         ]
+
+
+class ReminderApiSerializer(ReminderSerializer):
+    """خروجی فرانت: id, userId, vehicleId, vehicleName, dueDate, dueKm, warningDaysBefore, ..."""
+
+    def to_representation(self, instance):
+        vehicle = instance.vehicle
+        return {
+            'id': str(instance.id),
+            'userId': str(instance.user_profile_id),
+            'vehicleId': str(instance.vehicle_id) if instance.vehicle_id else None,
+            'vehicleName': vehicle.model if vehicle else None,
+            'title': instance.title,
+            'description': instance.description or '',
+            'dueDate': instance.due_date.isoformat() if instance.due_date else None,
+            'dueKm': instance.due_km,
+            'warningDaysBefore': instance.warning_days_before,
+            'status': instance.status or 'ok',
+            'message': instance.message or instance.title,
+            'source': instance.source or 'manual',
+            'dismissed': instance.dismissed,
+            'createdAt': instance.created_at.isoformat() if instance.created_at else None,
+            'updatedAt': instance.updated_at.isoformat() if instance.updated_at else None,
+        }
+
+    def to_internal_value(self, data):
+        key_map = [
+            ('vehicle_id', 'vehicleId'), ('title', 'title'), ('description', 'description'),
+            ('due_date', 'dueDate'), ('due_km', 'dueKm'), ('warning_days_before', 'warningDaysBefore'),
+            ('source', 'source'), ('type', 'type'),
+        ]
+        internal = {}
+        for snake, camel in key_map:
+            if camel in data or snake in data:
+                internal[snake] = data.get(camel) or data.get(snake)
+        return super().to_internal_value(internal)
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -250,32 +392,26 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class MyTokenObtainPairSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(style={'input_type': 'password'}, trim_whitespace=False)
+class MyTokenObtainPairSerializer(JWTTokenObtainPairSerializer):
+    # فرانت‌اند ایمیل یا نام کاربری را در فیلد username می‌فرستد
+    default_error_messages = {
+        'no_active_account': 'نام کاربری/ایمیل یا رمز عبور اشتباه است.',
+    }
 
     def validate(self, attrs):
-        username = attrs.get('username')
-        password = attrs.get('password')
-
-        if username and password:
-            user = authenticate(
-                request=self.context.get('request'),
-                username=username,
-                password=password
-            )
-            if not user:
-                raise serializers.ValidationError(
-                    'نام کاربری یا رمز عبور اشتباه است.',
-                    code='authorization'
-                )
-        else:
+        login_value = (attrs.get('username') or '').strip()
+        if not login_value:
             raise serializers.ValidationError(
-                'نام کاربری و رمز عبور الزامی است.',
+                {'username': 'نام کاربری/ایمیل الزامی است.'},
                 code='authorization'
             )
-        attrs['user'] = user
-        return attrs
+        # اگر مقدار وارد شده ایمیل است، کاربر را با ایمیل پیدا کن و username واقعی را بگذار
+        if '@' in login_value:
+            user_by_email = User.objects.filter(email__iexact=login_value).first()
+            if user_by_email:
+                attrs = dict(attrs)
+                attrs['username'] = user_by_email.username
+        return super().validate(attrs)
 
 
 class TokenObtainPairResponseSerializer(serializers.Serializer):
