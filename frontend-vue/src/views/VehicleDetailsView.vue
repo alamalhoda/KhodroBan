@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import MainLayout from '../components/MainLayout.vue'
 import Modal from '../components/ui/Modal.vue'
+import { formatCurrency, formatDate } from '@/utils/formatters'
 import { useVehicleStore } from '../stores/vehicle'
 import { useServiceStore } from '../stores/service'
 import { useUIStore } from '../stores/ui'
@@ -92,28 +93,6 @@ const handleAddRecord = () => {
   })
 }
 
-const formatDate = (dateString) => {
-  if (!dateString) return '-'
-  const date = new Date(dateString)
-  if (isNaN(date.getTime())) {
-    return dateString // Return original string if invalid date
-  }
-  try {
-    // Simple date format: YYYY-MM-DD or DD/MM/YYYY
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}/${month}/${day}`
-  } catch (error) {
-    // Fallback to ISO string
-    return date.toISOString().split('T')[0]
-  }
-}
-
-const formatCurrency = (amount) => {
-  if (!amount) return '۰'
-  return new Intl.NumberFormat('fa-IR').format(amount)
-}
 </script>
 
 <template>

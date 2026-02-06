@@ -7,6 +7,7 @@ import Card from '../components/ui/Card.vue'
 import Modal from '../components/ui/Modal.vue'
 import Button from '../components/ui/Button.vue'
 import LoadingSpinner from '../components/ui/LoadingSpinner.vue'
+import { formatDate } from '@/utils/formatters'
 import { useReminderStore } from '../stores/reminder'
 import { useVehicleStore } from '../stores/vehicle'
 import { useUIStore } from '../stores/ui'
@@ -109,21 +110,6 @@ const getStatusColor = (status) => {
       return 'blue'
     default:
       return 'gray'
-  }
-}
-
-// Format date for display
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  if (isNaN(date.getTime())) return dateString
-  try {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}/${month}/${day}`
-  } catch {
-    return date.toISOString().split('T')[0]
   }
 }
 

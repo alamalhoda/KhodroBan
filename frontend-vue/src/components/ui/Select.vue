@@ -65,21 +65,34 @@
 </template>
 
 <script setup>
+/**
+ * انتخاب‌گر (dropdown) با options به صورت رشته یا {value, label}
+ *
+ * @component Select
+ * @emits {string|number} update:modelValue - مقدار انتخاب‌شده
+ * @emits {Event} change - هنگام تغییر انتخاب
+ * @emits {FocusEvent} blur - از دست دادن focus
+ * @emits {FocusEvent} focus - دریافت focus
+ */
 import { computed } from 'vue'
 
 const props = defineProps({
+  /** مقدار انتخاب‌شده (v-model) */
   modelValue: {
     type: [String, Number],
     default: ''
   },
+  /** برچسب فیلد */
   label: {
     type: String,
     default: ''
   },
+  /** نام فیلد */
   name: {
     type: String,
     default: ''
   },
+  /** آرایه گزینه‌ها: رشته یا {value, label} */
   options: {
     type: Array,
     required: true,
@@ -93,36 +106,44 @@ const props = defineProps({
       })
     }
   },
+  /** متن placeholder */
   placeholder: {
     type: String,
     default: ''
   },
+  /** پیام خطا */
   error: {
     type: String,
     default: ''
   },
+  /** متن راهنما */
   hint: {
     type: String,
     default: ''
   },
+  /** غیرفعال */
   disabled: {
     type: Boolean,
     default: false
   },
+  /** الزامی */
   required: {
     type: Boolean,
     default: false
   },
+  /** کلاس wrapper */
   wrapperClass: {
     type: String,
     default: ''
   },
+  /** کلاس select */
   selectClass: {
     type: String,
     default: ''
   }
 })
 
+/** @emits update:modelValue | change | blur | focus */
 const emit = defineEmits(['update:modelValue', 'change', 'blur', 'focus'])
 
 const selectId = computed(() => {

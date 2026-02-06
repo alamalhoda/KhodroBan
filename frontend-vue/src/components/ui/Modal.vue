@@ -47,50 +47,67 @@
 </template>
 
 <script setup>
+/**
+ * مودال با focus trap، Escape و کلیک روی overlay برای بستن
+ *
+ * @component Modal
+ * @emits {boolean} update:open - وضعیت باز/بسته (v-model:open)
+ * @emits {} close - هنگام بستن مودال
+ */
 import { computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFocusTrap, useFocus, useKeyboardNavigation } from '@/composables'
 
 const props = defineProps({
+  /** باز بودن مودال (v-model:open) */
   open: {
     type: Boolean,
     default: false
   },
+  /** عنوان مودال */
   title: {
     type: String,
     default: ''
   },
+  /** اندازه: sm | md | lg | xl | full */
   size: {
     type: String,
     default: 'md',
     validator: (value) => ['sm', 'md', 'lg', 'xl', 'full'].includes(value)
   },
+  /** نمایش دکمه بستن */
   showClose: {
     type: Boolean,
     default: true
   },
+  /** بستن با کلیک روی overlay */
   closeOnOverlay: {
     type: Boolean,
     default: true
   },
+  /** بستن با کلید Escape */
   closeOnEscape: {
     type: Boolean,
     default: true
   },
+  /** blur پس‌زمینه */
   blur: {
     type: Boolean,
     default: true
   },
+  /** نقش ARIA: dialog | alertdialog */
   role: {
     type: String,
     default: 'dialog'
   },
+  /** کلاس‌های اضافی */
   className: {
     type: String,
     default: ''
   }
 })
 
+/** @emits update:open - boolean | @emits close */
 const emit = defineEmits(['update:open', 'close'])
 
 const { t } = useI18n()

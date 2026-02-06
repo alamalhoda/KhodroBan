@@ -1,0 +1,5 @@
+export { default as DashboardHeader } from './DashboardHeader.vue'
+export { default as DashboardRightColumn } from './DashboardRightColumn.vue'
+export { default as QuickStatsCard } from './QuickStatsCard.vue'
+export { default as RemindersSection } from './RemindersSection.vue'
+export { default as VehiclesSection } from './VehiclesSection.vue'
