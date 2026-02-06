@@ -4,6 +4,59 @@
 
 ## 🚀 اسکریپت‌های موجود
 
+### `manage-branches.sh`
+
+اسکریپت کمکی برای مدیریت برنچ‌ها در Monorepo.
+
+#### نحوه استفاده
+
+```bash
+# نمایش وضعیت برنچ‌ها
+./scripts/manage-branches.sh status
+
+# ایجاد برنچ develop
+./scripts/manage-branches.sh create-develop
+
+# ایجاد feature branch
+./scripts/manage-branches.sh create-feature user-authentication
+
+# پاکسازی برنچ‌های merge شده
+./scripts/manage-branches.sh cleanup
+
+# همگام‌سازی با remote
+./scripts/manage-branches.sh sync
+
+# نمایش راهنما
+./scripts/manage-branches.sh help
+```
+
+#### دستورات موجود
+
+- `status`: نمایش وضعیت برنچ‌ها (محلی، remote، merge شده، merge نشده)
+- `cleanup`: پاکسازی برنچ‌های merge شده با develop
+- `sync`: همگام‌سازی develop و main با remote
+- `create-develop`: ایجاد برنچ develop از main
+- `create-feature <name>`: ایجاد feature branch از develop
+- `help`: نمایش راهنما
+
+#### مثال
+
+```bash
+# 1. بررسی وضعیت فعلی
+./scripts/manage-branches.sh status
+
+# 2. ایجاد برنچ develop (اگر وجود ندارد)
+./scripts/manage-branches.sh create-develop
+
+# 3. ایجاد feature branch جدید
+./scripts/manage-branches.sh create-feature user-auth
+
+# 4. بعد از merge PR، پاکسازی
+./scripts/manage-branches.sh cleanup
+```
+
+---
+
 ### `create-pr.sh`
 
 اسکریپت کمکی برای ایجاد Pull Request به صورت خودکار.

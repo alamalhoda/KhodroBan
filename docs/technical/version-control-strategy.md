@@ -9,6 +9,7 @@
 پروژه KhodroBan (خودروبان) از **Monorepo** (یک Repository مشترک) برای مدیریت کنترل ورژن استفاده می‌کند. تمام بخش‌های پروژه (Backend، Frontend، و Docs) در یک Git repository قرار دارند.
 
 **نکات کلیدی**:
+
 - هر پروژه می‌تواند `.gitignore` خودش را داشته باشد
 - هر پروژه می‌تواند قوانین Cursor (`.cursor/rules/`) خودش را داشته باشد
 - قوانین به صورت سلسله‌مراتبی اعمال می‌شوند (root → پروژه خاص)
@@ -33,6 +34,7 @@ git commit -m "feat: اضافه کردن endpoint جدید برای ثبت خو�
 ```
 
 این روش باعث می‌شود:
+
 - تغییرات مرتبط با هم commit شوند
 - تاریخچه پروژه واضح‌تر باشد
 - Refactoring آسان‌تر باشد
@@ -65,6 +67,7 @@ KhodroBan/
 #### 4. **مدیریت آسان‌تر برای تیم کوچک**
 
 برای پروژه MVP و تیم کوچک، Monorepo مدیریت ساده‌تری دارد:
+
 - یک repository برای clone کردن
 - یک branch strategy
 - یک تاریخچه Git
@@ -119,6 +122,7 @@ KhodroBan/                    # Root Git Repository
 هر پروژه وابستگی‌ها و فایل‌های تولید شده متفاوتی دارد:
 
 #### Backend (Python/Django)
+
 ```gitignore
 # backend/.gitignore
 __pycache__/
@@ -134,6 +138,7 @@ env/
 ```
 
 #### Frontend (Node.js/Svelte)
+
 ```gitignore
 # frontend/.gitignore
 node_modules/
@@ -154,6 +159,7 @@ Git به صورت سلسله‌مراتبی `.gitignore` ها را بررسی م
 3. قوانین خاص‌تر (در پوشه‌های عمیق‌تر) اولویت دارند
 
 **مثال**:
+
 ```
 KhodroBan/
 ├── .gitignore              # قوانین عمومی
@@ -211,10 +217,10 @@ KhodroBan/                           # Root workspace
 هر فایل قوانین با پسوند `.mdc` شامل:
 
 1. **YAML Frontmatter**: metadata شامل:
+
    - `description`: توضیح کوتاه درباره قوانین
    - `globs`: الگوهای فایل‌ها (مثل `backend/**/*.py` یا `frontend/src/**/*.svelte`)
    - `alwaysApply`: آیا همیشه اعمال شود یا فقط برای فایل‌های matching
-
 2. **Markdown Content**: محتوای قوانین
 
 ### مثال: قوانین Backend
@@ -304,6 +310,7 @@ alwaysApply: true
 ### نحوه اعمال قوانین
 
 Cursor به صورت خودکار:
+
 1. قوانین root (`.cursor/rules/`) را برای همه فایل‌ها اعمال می‌کند
 2. قوانین خاص هر پروژه را برای فایل‌های matching آن پروژه اعمال می‌کند
 3. قوانین `alwaysApply: true` همیشه اعمال می‌شوند
@@ -398,11 +405,14 @@ bugfix/*          # bug fix branches
 hotfix/*          # urgent fixes
 ```
 
+برای راهنمای کامل مدیریت برنچ‌ها در Monorepo، به بخش [مدیریت برنچ‌ها در Monorepo](#-مدیریت-برنچ‌ها-در-monorepo) مراجعه کنید.
+
 ### 3. Pull Requests
 
 برای راهنمای کامل استفاده از Pull Request، به [راهنمای Pull Request](../tutorials/pull-request-guide.md) مراجعه کنید.
 
 **خلاصه**:
+
 - از branch های جداگانه برای هر feature استفاده کنید
 - PR description را کامل و واضح بنویسید
 - از template PR استفاده کنید (`.github/PULL_REQUEST_TEMPLATE.md`)
@@ -433,6 +443,392 @@ hotfix/*          # urgent fixes
 - از Glob patterns برای محدود کردن قوانین به فایل‌های مرتبط استفاده کنید
 - قوانین را در Git commit کنید تا تیم همه قوانین را داشته باشد
 - قوانین عمومی را در root workspace قرار دهید
+
+---
+
+## 🌿 مدیریت برنچ‌ها در Monorepo
+
+این بخش راهنمای عملی برای مدیریت بهینه برنچ‌ها در یک Monorepo است.
+
+### 🎯 اصل کلیدی: Feature-Based Branching
+
+**قانون طلایی**: 
+- ✅ **یک Feature = یک برنچ** (حتی اگر هم Frontend و هم Backend را تغییر دهد)
+- ✅ **چند Commit با Scope مشخص** در یک برنچ (هر بخش یک commit جداگانه)
+- ❌ **نه** یک برنچ برای هر بخش (مثل `develop/frontend` و `develop/backend`)
+
+**مثال درست:**
+```bash
+feature/user-authentication/          # یک برنچ
+├── commit 1: feat(frontend): ...    # Commit با scope frontend
+├── commit 2: feat(backend): ...      # Commit با scope backend
+└── commit 3: docs: ...               # Commit برای مستندات
+```
+
+**مثال نادرست:**
+```bash
+develop/frontend/                     # ❌ برنچ جداگانه برای Frontend
+develop/backend/                      # ❌ برنچ جداگانه برای Backend
+```
+
+### 📊 ساختار پیشنهادی برای Monorepo
+
+برای یک Monorepo با چند بخش (مثل Frontend و Backend)، **توصیه می‌شود** از ساختار زیر استفاده کنید:
+
+```bash
+main                    # Production-ready code
+├── develop             # Integration branch (همه تغییرات اینجا merge می‌شوند)
+│   ├── feature/*      # Feature branches (از develop منشعب می‌شوند)
+│   ├── bugfix/*       # Bug fix branches
+│   └── hotfix/*       # Urgent fixes
+```
+
+**⚠️ مهم**: در Monorepo، **نباید** از ساختار `develop/frontend` و `develop/backend` استفاده کنید!
+
+### ❌ چرا `develop/frontend` و `develop/backend` مناسب نیست؟
+
+ساختار پیشنهادی شما:
+```bash
+main
+├── develop
+│   ├── develop/frontend
+│   └── develop/backend
+```
+
+**مشکلات این ساختار:**
+
+1. **پیچیدگی Merge**: وقتی یک feature هم Frontend و هم Backend را تغییر می‌دهد، باید در دو برنچ جداگانه merge شود
+2. **هماهنگی مشکل**: تغییرات مرتبط با هم در برنچ‌های جداگانه قرار می‌گیرند
+3. **Conflict Management**: مدیریت conflict بین برنچ‌ها پیچیده می‌شود
+4. **CI/CD پیچیده**: باید برای هر برنچ جداگانه CI/CD تنظیم شود
+5. **تاریخچه Git پیچیده**: تاریخچه Git نامرتب و پیچیده می‌شود
+
+### ✅ ساختار پیشنهادی (بهترین روش)
+
+```bash
+main                    # Production-ready
+│
+develop                 # Integration branch (تک برنچ برای همه تغییرات)
+│
+├── feature/user-auth  # Feature: هم Frontend و هم Backend
+├── feature/dashboard  # Feature: فقط Frontend
+├── feature/api-cars   # Feature: فقط Backend
+├── bugfix/login-error # Bug fix
+└── hotfix/security    # Urgent fix
+```
+
+**مزایا:**
+
+- ✅ **هماهنگی**: تغییرات مرتبط در یک برنچ
+- ✅ **سادگی**: یک برنچ develop برای همه
+- ✅ **CI/CD ساده**: یک workflow برای کل پروژه
+- ✅ **تاریخچه واضح**: تاریخچه Git ساده و قابل فهم
+
+### 🎯 استراتژی پیشنهادی: Feature-Based Branching
+
+**اصل کلیدی**: هر **feature** یک برنچ جداگانه دارد، نه هر بخش از پروژه!
+
+#### مثال عملی:
+
+```bash
+# ✅ خوب: یک feature که هم Frontend و هم Backend را تغییر می‌دهد
+feature/user-authentication
+  ├── frontend-vue/src/auth/     # تغییرات Frontend
+  ├── backend/src/auth/          # تغییرات Backend
+  └── docs/technical/auth.md     # مستندات
+
+# ✅ خوب: یک feature فقط Frontend
+feature/dashboard-ui
+  └── frontend-vue/src/dashboard/
+
+# ✅ خوب: یک feature فقط Backend
+feature/api-vehicles
+  └── backend/src/api/vehicles/
+```
+
+### 📝 قوانین نام‌گذاری برنچ‌ها
+
+```bash
+# Feature branches
+feature/user-authentication      # ✅ خوب: کوتاه و واضح
+feature/add-telegram-bot        # ✅ خوب
+feature/frontend-dashboard      # ⚠️ قابل قبول اما بهتر است فقط feature/dashboard
+
+# Bug fix branches
+bugfix/login-error              # ✅ خوب
+bugfix/api-timeout              # ✅ خوب
+
+# Hotfix branches
+hotfix/security-patch           # ✅ خوب
+hotfix/critical-bug             # ✅ خوب
+
+# ❌ بد: از نام‌های مبهم پرهیز کنید
+feature/changes                 # ❌ خیلی کلی
+fix/bug                        # ❌ نامشخص
+test                           # ❌ نامشخص
+```
+
+### 🔄 Workflow پیشنهادی
+
+#### 1. ایجاد برنچ develop (اگر وجود ندارد)
+
+```bash
+# از main یک برنچ develop ایجاد کنید
+git checkout main
+git pull origin main
+git checkout -b develop
+git push -u origin develop
+```
+
+#### 2. کار روی یک Feature
+
+```bash
+# 1. از develop برنچ جدید ایجاد کنید
+git checkout develop
+git pull origin develop
+git checkout -b feature/user-authentication
+
+# 2. تغییرات را انجام دهید (Frontend، Backend، Docs)
+# ...
+
+# 3. Commit کنید (با scope مشخص)
+git add frontend-vue/
+git commit -m "feat(frontend): اضافه کردن صفحه لاگین"
+
+git add backend/
+git commit -m "feat(backend): اضافه کردن API احراز هویت"
+
+git add docs/
+git commit -m "docs: به‌روزرسانی مستندات احراز هویت"
+
+# 4. Push کنید
+git push -u origin feature/user-authentication
+
+# 5. Pull Request به develop ایجاد کنید
+```
+
+#### 3. Merge به develop
+
+```bash
+# بعد از approve شدن PR:
+# 1. PR را merge کنید (از GitHub/GitLab)
+# 2. برنچ محلی را پاک کنید
+git checkout develop
+git pull origin develop
+git branch -d feature/user-authentication
+```
+
+#### 4. Deploy به Production
+
+```bash
+# وقتی develop آماده شد:
+git checkout main
+git pull origin main
+git merge develop
+git push origin main
+
+# یا از GitHub/GitLab Release ایجاد کنید
+```
+
+### 🛠️ دستورات مفید برای مدیریت برنچ‌ها
+
+#### مشاهده وضعیت برنچ‌ها
+
+```bash
+# لیست برنچ‌های محلی
+git branch
+
+# لیست همه برنچ‌ها (محلی + remote)
+git branch -a
+
+# لیست برنچ‌های merge شده
+git branch --merged
+
+# لیست برنچ‌های merge نشده
+git branch --no-merged
+
+# مشاهده آخرین commit هر برنچ
+git branch -v
+```
+
+#### پاکسازی برنچ‌های قدیمی
+
+```bash
+# پاک کردن برنچ‌های merge شده (محلی)
+git branch --merged develop | grep -v "\*\|main\|develop" | xargs -n 1 git branch -d
+
+# پاک کردن برنچ‌های remote که دیگر وجود ندارند
+git remote prune origin
+
+# حذف برنچ remote
+git push origin --delete feature/old-feature
+```
+
+#### همگام‌سازی با Remote
+
+```bash
+# دریافت همه برنچ‌های remote
+git fetch --all --prune
+
+# همگام‌سازی develop با remote
+git checkout develop
+git pull origin develop
+
+# همگام‌سازی main با remote
+git checkout main
+git pull origin main
+```
+
+### 📋 Checklist مدیریت برنچ‌ها
+
+#### هفتگی (Weekly Cleanup)
+
+- [ ] برنچ‌های merge شده را پاک کنید
+- [ ] برنچ‌های remote قدیمی را حذف کنید
+- [ ] develop را با main همگام کنید
+- [ ] برنچ‌های feature قدیمی را بررسی کنید
+
+#### قبل از ایجاد Feature جدید
+
+- [ ] از develop pull کنید: `git checkout develop && git pull origin develop`
+- [ ] برنچ جدید از develop ایجاد کنید
+- [ ] نام برنچ واضح و توصیفی باشد
+
+#### بعد از Merge PR
+
+- [ ] برنچ محلی را پاک کنید: `git branch -d feature/name`
+- [ ] برنچ remote را حذف کنید (از GitHub/GitLab)
+- [ ] develop را pull کنید
+
+### 🎨 سناریوهای خاص
+
+#### سناریو 1: Feature فقط Frontend
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature/dashboard-ui
+
+# فقط تغییرات frontend-vue/
+git add frontend-vue/
+git commit -m "feat(frontend): اضافه کردن داشبورد"
+
+git push -u origin feature/dashboard-ui
+# PR به develop
+```
+
+#### سناریو 2: Feature فقط Backend
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature/api-vehicles
+
+# فقط تغییرات backend/
+git add backend/
+git commit -m "feat(backend): اضافه کردن API مدیریت خودروها"
+
+git push -u origin feature/api-vehicles
+# PR به develop
+```
+
+#### سناریو 3: Feature هم Frontend و هم Backend
+
+**🎯 اصل مهم**: یک Feature = یک برنچ = یک PR، اما **چند Commit با Scope مشخص**
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature/user-authentication
+
+# ✅ خوب: Commit با Scope مشخص برای Frontend
+git add frontend-vue/src/auth/
+git commit -m "feat(frontend): اضافه کردن صفحه لاگین"
+
+# ✅ خوب: Commit با Scope مشخص برای Backend
+git add backend/src/auth/
+git commit -m "feat(backend): اضافه کردن API احراز هویت"
+
+# ✅ خوب: Commit برای مستندات
+git add docs/technical/auth.md
+git commit -m "docs: به‌روزرسانی مستندات احراز هویت"
+
+# ✅ خوب: Commit برای تست‌ها
+git add frontend-vue/tests/auth.test.js backend/tests/test_auth.py
+git commit -m "test: اضافه کردن تست‌های احراز هویت"
+
+git push -u origin feature/user-authentication
+# یک PR به develop (شامل همه تغییرات: Frontend + Backend + Docs + Tests)
+```
+
+**چرا این روش بهتر است؟**
+
+- ✅ **تاریخچه واضح**: می‌توانید ببینید چه بخشی در چه زمانی تغییر کرده
+- ✅ **Review آسان‌تر**: Reviewer می‌تواند تغییرات هر بخش را جداگانه بررسی کند
+- ✅ **Rollback راحت‌تر**: اگر نیاز به revert یک بخش باشد، می‌توانید commit خاص را revert کنید
+- ✅ **Blame دقیق‌تر**: `git blame` می‌تواند دقیق‌تر نشان دهد چه کسی چه بخشی را تغییر داده
+
+### ⚠️ نکات مهم
+
+1. **یک Feature = یک برنچ = یک PR**: حتی اگر هم Frontend و هم Backend را تغییر می‌دهد
+2. **Commit Messages با Scope**: از `feat(frontend):` و `feat(backend):` استفاده کنید
+3. **چند Commit در یک برنچ**: در یک feature branch، می‌توانید چند commit با scope‌های مختلف داشته باشید
+4. **برنچ‌های کوتاه عمر**: بعد از merge، برنچ را حذف کنید
+5. **همگام‌سازی منظم**: develop را مرتباً با main همگام کنید
+6. **Pull قبل از Push**: همیشه قبل از push، از remote pull کنید
+
+### 📝 مثال عملی: Commit Strategy در یک Feature Branch
+
+فرض کنید می‌خواهید یک feature کامل برای "مدیریت خودروها" پیاده‌سازی کنید:
+
+```bash
+# 1. ایجاد برنچ
+git checkout develop
+git pull origin develop
+git checkout -b feature/vehicle-management
+
+# 2. شروع با Backend (API)
+git add backend/src/api/vehicles/
+git commit -m "feat(backend): اضافه کردن API endpoints مدیریت خودروها"
+
+# 3. اضافه کردن تست‌های Backend
+git add backend/tests/test_vehicles.py
+git commit -m "test(backend): اضافه کردن تست‌های API خودروها"
+
+# 4. پیاده‌سازی Frontend
+git add frontend-vue/src/views/vehicles/
+git commit -m "feat(frontend): اضافه کردن صفحه مدیریت خودروها"
+
+# 5. اضافه کردن کامپوننت‌های UI
+git add frontend-vue/src/components/VehicleCard.vue
+git commit -m "feat(frontend): اضافه کردن کامپوننت کارت خودرو"
+
+# 6. اضافه کردن Store برای State Management
+git add frontend-vue/src/stores/vehicles.js
+git commit -m "feat(frontend): اضافه کردن store مدیریت خودروها"
+
+# 7. به‌روزرسانی مستندات
+git add docs/technical/api/vehicles.md
+git commit -m "docs: به‌روزرسانی مستندات API خودروها"
+
+# 8. Push و ایجاد PR
+git push -u origin feature/vehicle-management
+# یک PR شامل همه تغییرات بالا
+```
+
+**نکات مهم این مثال:**
+
+- ✅ هر commit یک scope مشخص دارد (`frontend` یا `backend`)
+- ✅ Commit‌ها منطقی و مرتب هستند (اول Backend، بعد Frontend)
+- ✅ همه commit‌ها در یک برنچ هستند
+- ✅ یک PR شامل همه تغییرات است
+- ✅ تاریخچه Git واضح و قابل دنبال کردن است
+
+### 🔗 منابع بیشتر
+
+- [Git Branching Strategies](https://www.atlassian.com/git/tutorials/comparing-workflows)
+- [Monorepo Best Practices](https://monorepo.tools/)
+- [Conventional Commits](https://www.conventionalcommits.org/)
 
 ---
 
