@@ -66,8 +66,40 @@
   - [x] یکپارچه‌سازی در Modal.vue (Focus Trap, Keyboard Navigation)
   - [x] یکپارچه‌سازی در LoginView.vue (Keyboard Navigation, Auto Focus)
   - [x] تست و رفع باگ‌ها
+- [x] **بهبود انطباق با قوانین و Testing** (۱۴۰۳/۰۹)
+  - [x] افزودن JSDoc به کامپوننت‌های UI (Button, Input, Card, Modal, Select, LoadingSpinner, Toast) برای props و emits
+  - [x] نصب و پیکربندی rollup-plugin-visualizer برای تحلیل Bundle Size؛ گزارش در `dist/stats.html`
+  - [x] ایجاد `src/utils/formatters.js` (formatCurrency, formatNumber, formatDate, getRelativeTime) و به‌روزرسانی DashboardView، VehicleDetailsView، ServiceListView، RemindersView
+  - [x] راه‌اندازی Testing Infrastructure: Vitest، @vue/test-utils، @vitest/ui، jsdom؛ اسکریپت‌های test، test:ui، test:run، test:coverage، test:watch؛ تکمیل vitest.config.js
+  - [x] تست واحد Utilities: `src/utils/formatters.test.js` (formatCurrency، formatNumber، formatDate، getRelativeTime)
+  - [x] تست واحد کامپوننت‌های UI: Button، Input، Card، Modal (`src/components/ui/*.test.js`)
+  - [x] تست واحد Stores: auth، vehicle، ui، dashboard (`src/stores/*.test.js`) با mock کردن سرویس‌ها
+  - [x] تست واحد Views: DashboardView (`src/views/DashboardView.test.js`)
+  - [x] Refactoring DashboardView: تقسیم به DashboardHeader، QuickStatsCard، RemindersSection، VehiclesSection، DashboardRightColumn در `src/components/dashboard/`؛ کاهش از ~۵۹۵ به زیر ۲۰۰ خط
+  - [x] Refactoring ServiceTypeSelector: تقسیم به ServiceTypeCategory، ServiceTypeSelectorFooter؛ کاهش از ~۲۷۲ به زیر ۲۰۰ خط
 
 ### ⚠️ کارهای ناتمام
+
+#### Testing
+- [ ] تست واحد برای Composables
+- [ ] تست Integration برای جریان‌های اصلی کاربر
+- [ ] تست E2E با Playwright یا Cypress
+- [ ] **تست‌های Backend Integration (اولویت بالا)** ⭐
+  - [ ] تست‌های ارتباط با Supabase (دریافت/ارسال اطلاعات، Authentication، Real-time)
+  - [ ] تست‌های ارتباط با Django REST API (دریافت/ارسال اطلاعات، Authentication، Error Handling)
+  - [ ] تست‌های Cross-Backend Compatibility
+  - [ ] پیکربندی Test Infrastructure برای Backend Testing
+
+#### Features
+- [ ] تکمیل ترجمه‌های باقی‌مانده در صفحات Service، Expense، Settings
+- [ ] بهبود UX ایجاد یادآور پس از ثبت سرویس/هزینه
+- [ ] بهبود فرم یادآور - تبدیل فیلد تاریخ محاسبه شده به Date Picker قابل ویرایش
+- [ ] پیاده‌سازی کانال‌های یادآوری چندگانه (SMS، Telegram، Push Notification)
+
+#### PWA
+- [ ] جایگزینی Icons placeholder با Icons واقعی برای PWA
+- [ ] تست PWA در Lighthouse
+- [ ] تست Add to Home Screen روی Android/iOS/Desktop
 
 ---
 
@@ -582,11 +614,11 @@
 **زمان تخمینی:** ۲ روز
 
 ### ۱۳.۲ Unit Tests
-- [ ] تست Store ها (تمام Stores)
-- [ ] تست کامپوننت‌ها (کامپوننت‌های اصلی)
-- [ ] تست Utility Functions
-- [ ] تست Service Wrappers
-- [ ] پیکربندی Coverage Threshold (حداقل 80%)
+- [x] تست Store ها (auth، vehicle، ui با mock سرویس‌ها)
+- [x] تست کامپوننت‌های UI (Button، Input، Card، Modal)
+- [x] تست Utility Functions (`src/utils/formatters.js`)
+- [ ] تست سایر Stores و Service Wrappers
+- [x] پیکربندی Coverage و vitest.config.js
 - [ ] اجرای خودکار Unit Tests در CI/CD
 
 **اولویت:** بالا  
@@ -614,15 +646,79 @@
 **اولویت:** متوسط  
 **زمان تخمینی:** ۴ روز
 
-### ۱۳.۵ CI/CD Integration
+### ۱۳.۶ Backend Integration Tests (تست‌های ارتباط با سرور)
+
+#### ۱۳.۶.۱ تست‌های Supabase Backend
+- [ ] ایجاد تست‌های Integration برای اتصال به Supabase
+- [ ] تست دریافت اطلاعات از Supabase (Vehicles, Services, Expenses, Reminders)
+- [ ] تست ارسال اطلاعات به Supabase (Create, Update, Delete operations)
+- [ ] تست Authentication با Supabase (Login, Register, OAuth)
+- [ ] تست Real-time Subscriptions (Notifications, Updates)
+- [ ] تست Error Handling برای خطاهای Supabase
+- [ ] تست Performance و Latency در ارتباط با Supabase
+- [ ] تست Pagination و Filtering در Supabase queries
+- [ ] تست RLS (Row Level Security) Policies
+- [ ] تست File Upload/Download با Supabase Storage (در صورت نیاز)
+- [ ] پیکربندی Test Environment برای Supabase (Test Database)
+- [ ] ایجاد Mock Data برای تست‌های Supabase
+- [ ] تست Cleanup بعد از هر تست (Database cleanup)
+
+**اولویت:** بالا ⭐  
+**زمان تخمینی:** ۳-۴ روز
+
+#### ۱۳.۶.۲ تست‌های Django REST API Backend
+- [ ] ایجاد تست‌های Integration برای اتصال به Django REST API
+- [ ] تست دریافت اطلاعات از Django API (Vehicles, Services, Expenses, Reminders)
+- [ ] تست ارسال اطلاعات به Django API (Create, Update, Delete operations)
+- [ ] تست Authentication با Django (Token-based, Session-based)
+- [ ] تست API Endpoints مختلف (GET, POST, PUT, PATCH, DELETE)
+- [ ] تست Error Handling برای خطاهای Django API (400, 401, 403, 404, 500)
+- [ ] تست Performance و Latency در ارتباط با Django API
+- [ ] تست Pagination و Filtering در Django API responses
+- [ ] تست CORS و Security Headers
+- [ ] تست Rate Limiting (در صورت پیاده‌سازی)
+- [ ] تست File Upload/Download با Django API (در صورت نیاز)
+- [ ] پیکربندی Test Environment برای Django API (Test Server)
+- [ ] ایجاد Mock Data برای تست‌های Django API
+- [ ] تست Cleanup بعد از هر تست (API cleanup)
+
+**اولویت:** بالا ⭐  
+**زمان تخمینی:** ۳-۴ روز
+
+#### ۱۳.۶.۳ تست‌های Cross-Backend Compatibility
+- [ ] تست سازگاری کد بین Supabase و Django Backend
+- [ ] تست Switch بین Backend Types (mock, supabase, django)
+- [ ] تست یکسان بودن Response Format بین Backends
+- [ ] تست Error Handling یکسان بین Backends
+- [ ] تست Performance مقایسه‌ای بین Backends
+- [ ] مستندسازی تفاوت‌های Backend‌ها
+
+**اولویت:** متوسط  
+**زمان تخمینی:** ۲ روز
+
+#### ۱۳.۶.۴ پیکربندی و Infrastructure
+- [ ] ایجاد Test Utilities برای Backend Testing
+- [ ] پیکربندی Environment Variables برای Test Backends
+- [ ] ایجاد Test Fixtures و Seed Data
+- [ ] پیکربندی CI/CD برای اجرای Backend Integration Tests
+- [ ] ایجاد Test Reports برای Backend Tests
+- [ ] پیکربندی Test Timeout و Retry Logic
+- [ ] مستندسازی نحوه اجرای Backend Integration Tests
+
+**اولویت:** بالا  
+**زمان تخمینی:** ۲ روز
+
+### ۱۳.۷ CI/CD Integration
 - [ ] پیکربندی GitHub Actions یا GitLab CI
 - [ ] اجرای خودکار تست‌ها در هر Commit/Pull Request
 - [ ] اجرای Smoke Tests در هر Push
 - [ ] اجرای Unit Tests در هر Commit
 - [ ] اجرای Integration Tests در Pull Request
+- [ ] اجرای Backend Integration Tests در Pull Request (با Test Backends)
 - [ ] اجرای E2E Tests در Merge به main
 - [ ] گزارش Coverage در Pull Request
 - [ ] Block Merge در صورت Fail شدن تست‌های Critical
+- [ ] پیکربندی Test Matrix برای تست با Backend‌های مختلف (Supabase, Django)
 
 **اولویت:** بالا  
 **زمان تخمینی:** ۲ روز
@@ -630,10 +726,10 @@
 ## 🚀 فاز ۱۴: بهینه‌سازی و Performance
 
 ### ۱۴.۱ Performance Optimization
-- [ ] Lazy Loading برای Route ها
-- [ ] Code Splitting
+- [x] Lazy Loading برای Route ها
+- [x] Code Splitting
 - [ ] Image Optimization
-- [ ] Bundle Size Optimization
+- [x] Bundle Size Optimization (rollup-plugin-visualizer؛ گزارش `npm run build` → `dist/stats.html`)
 
 **اولویت:** متوسط  
 **زمان تخمینی:** ۲ روز
@@ -1007,7 +1103,8 @@
 ## 📝 فاز ۲۲: مستندسازی (Documentation)
 
 ### ۱۶.۱ مستندات کد
-- [ ] JSDoc برای Functions
+- [x] JSDoc برای کامپوننت‌های UI (Button، Input، Card، Modal، Select، LoadingSpinner، Toast) — props و emits
+- [ ] JSDoc برای سایر Functions و composables
 - [ ] کامنت‌های توضیحی
 - [ ] README برای کامپوننت‌ها
 
@@ -1049,6 +1146,7 @@
 
 ### هفته ۹-۱۰: فازهای ۱۳، ۱۴ و ۱۵ (Testing + Optimization + i18n)
 - تست‌ها (Smoke, Unit, Integration, E2E)
+- **Backend Integration Tests** ⭐ (Supabase و Django)
 - CI/CD Integration
 - بهینه‌سازی
 - پیاده‌سازی i18n
@@ -1108,7 +1206,12 @@
     - ✅ چندزبانه کردن صفحه Dashboard
     - ⏳ باقی صفحات (در حال انجام)
 11. Testing Infrastructure (Smoke, Unit, Integration, E2E)
-12. CI/CD Integration
+12. **Backend Integration Tests** ⭐ (اولویت بالا)
+    - تست‌های ارتباط با Supabase (دریافت/ارسال اطلاعات، Authentication، Real-time)
+    - تست‌های ارتباط با Django REST API (دریافت/ارسال اطلاعات، Authentication، Error Handling)
+    - تست‌های Cross-Backend Compatibility
+    - پیکربندی Test Infrastructure برای Backend Testing
+13. CI/CD Integration
 
 ### 🟡 اولویت متوسط
 9. Reports
@@ -1147,6 +1250,7 @@
 - [ ] کانال‌های یادآوری چندگانه کار می‌کنند
 - [ ] تست‌های خودکار در CI/CD اجرا می‌شوند
 - [ ] Coverage حداقل 80% است
+- [ ] **تست‌های Backend Integration برای Supabase و Django اجرا می‌شوند** ⭐
 - [ ] دسترسی‌پذیری WCAG 2.1 AA رعایت شده
 - [ ] **PWA قابل نصب است و آفلاین کار می‌کند** ⭐
 - [ ] **Native App برای Android و iOS آماده است** ⭐
@@ -1272,28 +1376,39 @@
 12. ✅ بهبود Header با نمایش نام کاربر و tier
 13. ✅ ترجمه‌های عربی و انگلیسی برای dashboard
 
+**Refactoring انجام‌شده (انطباق با قوانین <۲۰۰ خط):**
+- [x] تقسیم DashboardView به زیرکامپوننت‌ها در `src/components/dashboard/`: DashboardHeader، QuickStatsCard، RemindersSection، VehiclesSection، DashboardRightColumn
+- [x] DashboardView از ~۵۹۵ خط به زیر ۲۰۰ خط کاهش یافت
+
 **باقی‌مانده (اختیاری):**
 - [ ] تست کامل Dashboard (E2E)
 - [ ] بهبود UX (skeleton loaders به جای spinner)
 
 ---
 
-**آخرین به‌روزرسانی:** ۱۴۰۳/۰۹/۱۵  
-**وضعیت:** Foundation تکمیل شده ✅ - Feature Complete در حال انجام  
+**وضعیت:** Foundation تکمیل شده ✅ - Feature Complete در حال انجام - Testing و Refactoring تکمیل شده ✅  
 **استراتژی:** Foundation First, Feature Complete (Hybrid Approach)  
 **پیشرفت:** ۵ از ۵ مرحله Foundation تکمیل شده ✅  
 - ✅ i18n Infrastructure  
 - ✅ Toast Component  
 - ✅ Semantic HTML Components  
 - ✅ Accessibility Utilities (با یکپارچه‌سازی و تست)  
-- ✅ PWA Foundation (Foundation تکمیل شده) ⭐
+- ✅ PWA Foundation (Foundation تکمیل شده) ⭐  
 
-**پیشرفت Feature Complete:** ۳ از ۵ صفحه اصلی تکمیل شده ✅
+**Testing و کیفیت کد :** ✅
+- ✅ JSDoc برای کامپوننت‌های UI  
+- ✅ Utils: `src/utils/formatters.js` و تست‌های واحد  
+- ✅ Unit Tests: formatters، UI (Button/Input/Card/Modal)، Stores (auth/vehicle/ui/dashboard)، Views (DashboardView)  
+- ✅ Bundle analyzer (rollup-plugin-visualizer)  
+- ✅ Refactoring: DashboardView و ServiceTypeSelector به زیرکامپوننت‌ها (<۲۰۰ خط)
+- ⏳ Unit Tests برای Composables (گام بعدی)  
+
+**پیشرفت Feature Complete:** ۴ از ۵ صفحه اصلی تکمیل شده ✅
 - ✅ Login Page
 - ✅ Dashboard Page
 - ✅ Vehicle Pages (VehicleListView, VehicleDetailsView, VehicleManagementView)
-- ⏳ Service Pages (گام بعدی)
-- ⏳ Reminder Pages
+- ✅ Service Pages (AddServiceView, ServiceListView, SelectServiceTypeView)
+- ✅ Reminder Pages (RemindersView, ReminderManagementView)
 
 **PWA Foundation:** ✅ تکمیل شده
 - ✅ Service Worker با Workbox
@@ -1307,6 +1422,8 @@
 - ✅ Login Page (کامل)
 - ✅ Dashboard Page (کامل)
 - ✅ Vehicle Pages (کامل) ⭐
+- ✅ Service Pages (کامل) ⭐
+- ✅ Reminder Pages (کامل) ⭐
 
 **تکمیل شده در Vehicle Pages:**
 - ✅ Vehicle Store (اتصال کامل به vehicleService)
@@ -1340,12 +1457,27 @@
   - ✅ Loading state هنگام submit
 - ✅ حذف خودرو با Modal تایید (در VehicleListView و VehicleDetailsView)
 
-**گام بعدی:** 🔧 Service Management - تکمیل صفحات Service
-- Service Store (اتصال کامل به serviceService)
-- AddServiceView (اتصال به API، i18n، Toast، Components)
-- SelectServiceTypeView (اتصال به API)
-- SelectServiceDetailsView (اتصال به API)
-- ویرایش و حذف سرویس
+**تکمیل شده در Service Pages:**
+- ✅ Service Store (اتصال کامل به serviceService)
+- ✅ AddServiceView (اتصال به API، i18n، Toast، Components، MainLayout)
+- ✅ ServiceListView (اتصال به API، i18n، Toast، Components، MainLayout)
+- ✅ SelectServiceTypeView (اتصال به API، MainLayout)
+- ✅ ویرایش و حذف سرویس با Modal تایید
 
-**زمان تخمینی:** ۳-۴ روز
+**تکمیل شده در Reminder Pages:**
+- ✅ Reminder Store (اتصال کامل به reminderService)
+- ✅ RemindersView (اتصال به API، i18n، Toast، Components)
+- ✅ ReminderManagementView (اتصال به API، i18n، Toast، Components)
+- ✅ ویرایش و حذف یادآور
+- ✅ علامت‌گذاری به عنوان انجام شده
+- ✅ فیلتر بر اساس وضعیت و خودرو
+
+**گام بعدی:** 🔧 تکمیل باقی Features
+- Expense Management
+- Reports
+- Settings (با کانال‌های یادآوری چندگانه)
+- AI Assistant
+- Upgrade Pro
+
+**زمان تخمینی:** ۵-۷ روز
 

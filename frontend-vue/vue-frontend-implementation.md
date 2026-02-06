@@ -186,14 +186,27 @@ frontend-vue/
 │   ├── components/         # کامپوننت‌های قابل استفاده مجدد
 │   │   ├── ui/             # کامپوننت‌های UI پایه
 │   │   │   ├── Button.vue
+│   │   │   ├── Button.test.js
 │   │   │   ├── Card.vue
+│   │   │   ├── Card.test.js
 │   │   │   ├── Input.vue
+│   │   │   ├── Input.test.js
 │   │   │   ├── Select.vue
 │   │   │   ├── Modal.vue
+│   │   │   ├── Modal.test.js
 │   │   │   ├── Toast.vue
 │   │   │   ├── ToastContainer.vue
 │   │   │   ├── LoadingSpinner.vue
 │   │   │   └── Form.vue
+│   │   ├── dashboard/      # زیرکامپوننت‌های Dashboard
+│   │   │   ├── index.js
+│   │   │   ├── DashboardHeader.vue
+│   │   │   ├── DashboardRightColumn.vue
+│   │   │   ├── QuickStatsCard.vue
+│   │   │   ├── RemindersSection.vue
+│   │   │   └── VehiclesSection.vue
+│   │   ├── ServiceTypeCategory.vue      # زیرکامپوننت انتخاب نوع سرویس
+│   │   ├── ServiceTypeSelectorFooter.vue # Footer برای ServiceTypeSelector
 │   │   ├── layout/         # کامپوننت‌های Layout
 │   │   │   └── index.js
 │   │   ├── features/       # کامپوننت‌های Feature
@@ -213,6 +226,7 @@ frontend-vue/
 │   │   ├── SignUpView.vue
 │   │   ├── AuthCallbackView.vue  # Callback برای OAuth
 │   │   ├── DashboardView.vue
+│   │   ├── DashboardView.test.js
 │   │   ├── DashboardVariant3View.vue
 │   │   ├── DashboardVariant16View.vue
 │   │   ├── VehicleListView.vue
@@ -230,10 +244,17 @@ frontend-vue/
 │   │   ├── SmartAssistantView.vue
 │   │   └── UpgradeProView.vue
 │   │
+│   ├── utils/             # توابع کمکی (جداسازی از views)
+│   │   ├── index.js       # Barrel export
+│   │   ├── formatters.js  # formatCurrency, formatNumber, formatDate, getRelativeTime
+│   │   └── formatters.test.js
+│   │
 │   ├── stores/            # Pinia Stores
 │   │   ├── index.js       # Export مرکزی stores
 │   │   ├── auth.js        # Store برای Authentication
+│   │   ├── auth.test.js
 │   │   ├── vehicle.js     # Store برای Vehicles
+│   │   ├── vehicle.test.js
 │   │   ├── service.js     # Store برای Services
 │   │   ├── serviceType.js # Store برای Service Types
 │   │   ├── expense.js     # Store برای Expenses
@@ -242,11 +263,14 @@ frontend-vue/
 │   │   ├── report.js      # Store برای Reports
 │   │   ├── ai.js          # Store برای AI Assistant
 │   │   ├── dashboard.js   # Store برای Dashboard
+│   │   ├── dashboard.test.js
 │   │   ├── notification.js # Store برای Notifications
 │   │   ├── telegram.js    # Store برای Telegram Integration
 │   │   ├── settings.js    # Store برای Settings
 │   │   ├── upgrade.js     # Store برای Upgrade to Pro
-│   │   └── ui.js          # Store برای UI State (Toast, Modal, etc.)
+│   │   ├── smartAssistant.js # Store برای Smart Assistant (AI)
+│   │   ├── ui.js          # Store برای UI State (Toast, Modal, etc.)
+│   │   └── ui.test.js
 │   │
 │   ├── services/          # Service Wrappers
 │   │   ├── index.js       # Re-export از shared/services
@@ -279,7 +303,7 @@ frontend-vue/
 │   │   └── ar.json        # عربی
 │   │
 │   ├── test/              # تست‌ها
-│   │   ├── setup.js       # Test setup
+│   │   ├── setup.js       # Test setup (Vitest، jsdom، Pinia)
 │   │   └── utils.js       # Test utilities
 │   │
 │   ├── App.vue            # Root Component
@@ -425,7 +449,9 @@ npm run build            # Build برای production
 npm run preview          # Preview build
 
 # Testing
-npm run test             # اجرای تست‌ها
+npm run test             # اجرای تست‌ها (watch)
+npm run test:run         # اجرای یک‌بار تست‌ها
+npm run test:ui          # اجرای Vitest UI
 npm run test:watch       # اجرای تست‌ها با watch mode
 npm run test:coverage    # اجرای تست‌ها با coverage
 
@@ -1337,49 +1363,55 @@ const { checkContrast } = useColorContrast()
 
 ## 🧪 Testing
 
-پروژه از Vitest برای تست واحد استفاده می‌کند.
+پروژه از **Vitest** و **@vue/test-utils** برای تست واحد استفاده می‌کند.
 
 ### پیکربندی
 
 پیکربندی تست در `vitest.config.js`:
 
-```javascript
-{
-  environment: 'jsdom',
-  setupFiles: ['./src/test/setup.js'],
-  coverage: {
-    threshold: {
-      global: {
-        branches: 80,
-        functions: 80,
-        lines: 80,
-        statements: 80
-      }
-    }
-  }
-}
-```
+- `environment: 'jsdom'`
+- `setupFiles: ['./src/test/setup.js']`
+- Path aliasها مطابق با Vite
+- Coverage با thresholdهای قابل تنظیم
 
-### اجرای تست‌ها
+### اسکریپت‌های تست
 
-```bash
-# اجرای تست‌ها
-npm run test
+| اسکریپت | توضیح |
+|--------|--------|
+| `npm run test` | اجرای تست‌ها (حالت watch) |
+| `npm run test:run` | اجرای یک‌بار تست‌ها |
+| `npm run test:ui` | اجرای Vitest UI |
+| `npm run test:watch` | اجرای تست‌ها با watch mode |
+| `npm run test:coverage` | اجرای تست‌ها با گزارش پوشش |
 
-# اجرای تست‌ها با watch mode
-npm run test:watch
+### تست‌های پیاده‌سازی‌شده
 
-# اجرای تست‌ها با coverage
-npm run test:coverage
-```
+- **Utilities:** `src/utils/formatters.test.js` — formatCurrency، formatNumber، formatDate، getRelativeTime
+- **کامپوننت‌های UI:** `src/components/ui/Button.test.js`، `Input.test.js`، `Card.test.js`، `Modal.test.js`
+- **Stores:** `src/stores/auth.test.js`، `vehicle.test.js`، `ui.test.js`، `dashboard.test.js` (با mock کردن سرویس‌ها)
+- **Views:** `src/views/DashboardView.test.js` — تست Dashboard View
 
 ### ساختار تست
 
 ```
 src/
 ├── test/
-│   ├── setup.js      # Setup برای تست‌ها
-│   └── utils.js      # Utilities برای تست‌ها
+│   ├── setup.js         # Setup برای تست‌ها (Pinia، jsdom)
+│   └── utils.js         # Utilities برای تست‌ها
+├── utils/
+│   └── formatters.test.js
+├── components/ui/
+│   ├── Button.test.js
+│   ├── Input.test.js
+│   ├── Card.test.js
+│   └── Modal.test.js
+├── stores/
+│   ├── auth.test.js
+│   ├── vehicle.test.js
+│   ├── ui.test.js
+│   └── dashboard.test.js
+└── views/
+    └── DashboardView.test.js
 ```
 
 ---
@@ -1445,7 +1477,7 @@ setupErrorHandlers()
 
 ## 📦 Stores (Pinia)
 
-پروژه شامل 14 Store مختلف است:
+پروژه شامل 16 Store مختلف است:
 
 ### لیست Stores
 
@@ -1463,7 +1495,16 @@ setupErrorHandlers()
 12. **telegram.js**: مدیریت یکپارچه‌سازی Telegram
 13. **settings.js**: مدیریت تنظیمات
 14. **upgrade.js**: مدیریت ارتقا به Pro
-15. **ui.js**: مدیریت UI State (Toast, Modal, etc.)
+15. **smartAssistant.js**: مدیریت Smart Assistant (AI)
+16. **ui.js**: مدیریت UI State (Toast, Modal, etc.)
+
+### تست‌های Stores
+
+تست‌های واحد برای stores زیر پیاده‌سازی شده‌اند:
+- ✅ `auth.test.js`: تست Authentication Store
+- ✅ `vehicle.test.js`: تست Vehicle Store
+- ✅ `ui.test.js`: تست UI Store
+- ✅ `dashboard.test.js`: تست Dashboard Store
 
 ### Export مرکزی
 
@@ -1683,8 +1724,9 @@ async function loadVehicles() {
 - [x] LanguageSwitcher Component
 - [x] NotificationBell Component
 - [x] ReminderForm Component
-- [x] ServiceTypeSelector Component
+- [x] ServiceTypeSelector Component (با زیرکامپوننت‌های ServiceTypeCategory و ServiceTypeSelectorFooter)
 - [x] TelegramSettings Component
+- [x] Dashboard Components (DashboardHeader, QuickStatsCard, RemindersSection, VehiclesSection, DashboardRightColumn)
 
 ### فاز 5: صفحات اصلی
 - [x] Login/SignUp Pages
@@ -1718,12 +1760,15 @@ async function loadVehicles() {
 - [x] useSkipLink
 
 ### فاز 8: تست و بهینه‌سازی
-- [x] پیکربندی Vitest
-- [x] Test Setup Files
-- [ ] تست واحد برای Stores
+- [x] پیکربندی Vitest و @vue/test-utils
+- [x] Test Setup Files و vitest.config.js
+- [x] تست واحد برای Stores (auth، vehicle، ui، dashboard)
+- [x] تست واحد برای Views (DashboardView)
 - [ ] تست واحد برای Composables
-- [ ] تست واحد برای Components
+- [x] تست واحد برای Components (Button، Input، Card، Modal)
+- [x] تست واحد برای Utils (formatters.js)
 - [x] بهینه‌سازی Performance (Code Splitting, Lazy Loading)
+- [x] Bundle Size تحلیل (rollup-plugin-visualizer)
 - [x] Responsive Design
 - [x] Accessibility (Composables)
 - [x] Dark Mode Support
@@ -1760,13 +1805,13 @@ async function loadVehicles() {
 ### ویژگی‌های پیاده‌سازی شده
 
 - ✅ **Vue 3 + Composition API**: استفاده از آخرین ویژگی‌های Vue 3
-- ✅ **Pinia State Management**: 15 Store مختلف برای مدیریت state
+- ✅ **Pinia State Management**: 16 Store مختلف برای مدیریت state (auth، vehicle، service، serviceType، expense، expenseCategory، reminder، report، ai، dashboard، notification، telegram، settings، upgrade، smartAssistant، ui)
 - ✅ **Vue Router**: Routing با Lazy Loading و Navigation Guards
 - ✅ **Tailwind CSS**: Styling با پشتیبانی از Dark Mode
 - ✅ **Internationalization**: پشتیبانی از فارسی، انگلیسی، و عربی
 - ✅ **Progressive Web App**: پیکربندی کامل PWA با Service Worker
 - ✅ **Accessibility**: Composables مخصوص برای بهبود دسترس‌پذیری
-- ✅ **Testing**: پیکربندی Vitest برای تست واحد
+- ✅ **Testing**: Vitest + @vue/test-utils؛ تست‌های واحد برای utils (formatters)، UI (Button/Input/Card/Modal)، Stores (auth/vehicle/ui/dashboard)، Views (DashboardView)
 - ✅ **Error Handling**: سیستم مرکزی برای مدیریت خطاها
 - ✅ **Telegram Integration**: یکپارچه‌سازی با Telegram Bot
 - ✅ **Font Optimization**: استفاده از فونت‌های محلی (Vazirmatn)
@@ -1785,12 +1830,18 @@ async function loadVehicles() {
 
 6. **Performance**: از Lazy Loading برای views استفاده کنید و از Code Splitting بهره ببرید.
 
-7. **Testing**: تست‌های واحد را برای stores، composables، و components بنویسید.
+7. **Testing**: تست‌های واحد برای stores (auth، vehicle، ui، dashboard)، components (Button، Input، Card، Modal)، views (DashboardView)، و utils (formatters) پیاده‌سازی شده‌اند؛ برای composables و سایر بخش‌ها گسترش دهید.
+
+**تکمیل‌های اخیر (انطباق با قوانین و Testing):**
+- JSDoc برای کامپوننت‌های UI؛ `src/utils/formatters.js` و استفاده در views؛ تحلیل Bundle با rollup-plugin-visualizer
+- Refactoring: DashboardView → زیرکامپوننت‌ها در `components/dashboard/` (DashboardHeader، QuickStatsCard، RemindersSection، VehiclesSection، DashboardRightColumn)؛ ServiceTypeSelector → ServiceTypeCategory، ServiceTypeSelectorFooter (هر کامپوننت <۲۰۰ خط)
+- تست واحد برای Dashboard Store و Dashboard View
+- تکمیل صفحات Service و Reminder با اتصال به API
 
 این رویکرد باعث می‌شود کد شما قابل نگهداری، قابل تست، و قابل استفاده مجدد باشد.
 
 ---
 
-**آخرین به‌روزرسانی**: 2026
-**نسخه**: 1.1.0
+**آخرین به‌روزرسانی**: فوریه 2026
+**نسخه**: 1.3.0
 
