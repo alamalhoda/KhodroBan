@@ -1,0 +1,52 @@
+#!/bin/bash
+# .git/hooks/pre-checkout
+# Git Hook برای جلوگیری از ایجاد feature branches از main
+
+# پارامترهای pre-checkout hook:
+# $1: ref of the previous HEAD
+# $2: ref of the new HEAD (may be null)
+# $3: flag indicating whether checkout is a branch checkout
+
+# اگر در حال checkout کردن یک برنچ جدید هستیم
+if [[ "$3" == "1" ]]; then
+    CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "")
+    TARGET_BRANCH="$2"
+    
+    # بررسی اینکه آیا از main در حال ایجاد برنچ جدید هستیم
+    if [[ "$CURRENT_BRANCH" == "main" ]] && [[ -n "$TARGET_BRANCH" ]]; then
+        # بررسی اینکه آیا برنچ جدید feature/bugfix/hotfix است
+        if [[ "$TARGET_BRANCH" =~ ^(feature|bugfix)/ ]] && [[ "$TARGET_BRANCH" != "hotfix/"* ]]; then
+            echo ""
+            echo "================================================"
+            echo "⚠️  هشدار: در حال ایجاد برنچ جدید از main هستید!"
+            echo "================================================"
+            echo ""
+            echo "🔧 در Git Flow استاندارد، باید:"
+            echo "   1. از develop برای features/bugfixes استفاده کنید"
+            echo "   2. فقط برای hotfix از main استفاده کنید"
+            echo ""
+            echo "📋 برنچ هدف: $TARGET_BRANCH"
+            echo ""
+            read -p "آیا مطمئن هستید که می‌خواهید ادامه دهید؟ (y/N): " -n 1 -r
+            echo ""
+            
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                echo ""
+                echo "❌ ایجاد برنچ لغو شد."
+                echo ""
+                echo "💡 دستورات پیشنهادی:"
+                echo "   git checkout develop"
+                echo "   git pull origin develop"
+                echo "   git checkout -b $TARGET_BRANCH"
+                echo ""
+                exit 1
+            else
+                echo ""
+                echo "✅ ادامه با ایجاد برنچ از main..."
+                echo ""
+            fi
+        fi
+    fi
+fi
+
+exit 0

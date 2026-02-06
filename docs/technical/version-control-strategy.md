@@ -976,6 +976,99 @@ git push origin :feature/old-name feature/new-name
 git push origin -u feature/new-name
 ```
 
+### 🔒 Git Hooks برای جلوگیری از خطاها
+
+برای جلوگیری از ایجاد feature branches از `main` به صورت تصادفی، می‌توانید از Git hooks استفاده کنید.
+
+#### نصب Git Hook
+
+یک hook به نام `pre-checkout` در `.git/hooks/` ایجاد کنید:
+
+```bash
+# ایجاد فایل hook
+touch .git/hooks/pre-checkout
+chmod +x .git/hooks/pre-checkout
+```
+
+**محتوای Hook:**
+
+```bash
+#!/bin/bash
+# .git/hooks/pre-checkout
+# Git Hook برای جلوگیری از ایجاد feature branches از main
+
+# اگر در حال checkout کردن یک برنچ جدید هستیم
+if [[ "$3" == "1" ]]; then
+    CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "")
+    TARGET_BRANCH="$2"
+    
+    # بررسی اینکه آیا از main در حال ایجاد برنچ جدید هستیم
+    if [[ "$CURRENT_BRANCH" == "main" ]] && [[ -n "$TARGET_BRANCH" ]]; then
+        # بررسی اینکه آیا برنچ جدید feature/bugfix است (نه hotfix)
+        if [[ "$TARGET_BRANCH" =~ ^(feature|bugfix)/ ]] && [[ "$TARGET_BRANCH" != "hotfix/"* ]]; then
+            echo ""
+            echo "================================================"
+            echo "⚠️  هشدار: در حال ایجاد برنچ جدید از main هستید!"
+            echo "================================================"
+            echo ""
+            echo "🔧 در Git Flow استاندارد، باید:"
+            echo "   1. از develop برای features/bugfixes استفاده کنید"
+            echo "   2. فقط برای hotfix از main استفاده کنید"
+            echo ""
+            echo "📋 برنچ هدف: $TARGET_BRANCH"
+            echo ""
+            read -p "آیا مطمئن هستید که می‌خواهید ادامه دهید؟ (y/N): " -n 1 -r
+            echo ""
+            
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                echo ""
+                echo "❌ ایجاد برنچ لغو شد."
+                echo ""
+                echo "💡 دستورات پیشنهادی:"
+                echo "   git checkout develop"
+                echo "   git pull origin develop"
+                echo "   git checkout -b $TARGET_BRANCH"
+                echo ""
+                exit 1
+            fi
+        fi
+    fi
+fi
+
+exit 0
+```
+
+**نکات مهم:**
+
+- ⚠️ Git hooks در `.git/hooks/` به صورت پیش‌فرض در Git commit نمی‌شوند
+- ✅ می‌توانید hook را در یک پوشه جداگانه نگه دارید و به تیم share کنید
+- ✅ Hook فقط هشدار می‌دهد و می‌توانید با `y` ادامه دهید (برای موارد خاص)
+- ✅ Hook فقط برای `feature/` و `bugfix/` فعال است، `hotfix/` از main مجاز است
+
+**نصب Hook برای تیم:**
+
+اگر می‌خواهید hook را با تیم share کنید:
+
+```bash
+# ایجاد پوشه برای hooks
+mkdir -p scripts/git-hooks
+
+# کپی hook
+cp .git/hooks/pre-checkout scripts/git-hooks/pre-checkout
+
+# اضافه کردن به Git
+git add scripts/git-hooks/pre-checkout
+git commit -m "chore: اضافه کردن Git hook برای جلوگیری از ایجاد feature branches از main"
+```
+
+**نصب Hook توسط سایر اعضای تیم:**
+
+```bash
+# کپی hook به .git/hooks/
+cp scripts/git-hooks/pre-checkout .git/hooks/pre-checkout
+chmod +x .git/hooks/pre-checkout
+```
+
 ### ⚠️ نکات مهم
 
 #### 1. همیشه از develop برای ایجاد feature branches استفاده کنید
