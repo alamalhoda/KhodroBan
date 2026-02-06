@@ -7,6 +7,7 @@ import { useVehicleStore } from '../stores/vehicle'
 import { useToast } from '../composables/useToast'
 import MainLayout from '../components/MainLayout.vue'
 import { Button, Select, Card, LoadingSpinner, Modal } from '../components/ui'
+import { formatCurrency, formatDate } from '@/utils/formatters'
 
 const router = useRouter()
 const route = useRoute()
@@ -201,16 +202,6 @@ const handleRefresh = async () => {
     console.error('Error refreshing data:', error)
     toast.error(t('common.error'))
   }
-}
-
-const formatDate = (date) => {
-  if (!date) return ''
-  return date
-}
-
-const formatCurrency = (amount) => {
-  if (!amount) return '0'
-  return new Intl.NumberFormat('fa-IR').format(amount)
 }
 
 // Methods for vehicle selection

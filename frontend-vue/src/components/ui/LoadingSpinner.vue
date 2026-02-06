@@ -11,30 +11,41 @@
 </template>
 
 <script setup>
+/**
+ * اسپینر بارگذاری با اندازه و متن اختیاری
+ *
+ * @component LoadingSpinner
+ */
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
+  /** اندازه: sm | md | lg */
   size: {
     type: String,
     default: 'md',
     validator: (value) => ['sm', 'md', 'lg'].includes(value)
   },
+  /** متن نمایشی (یا از i18n common.loading) */
   text: {
     type: String,
     default: ''
   },
+  /** نمایش متن کنار اسپینر */
   showText: {
     type: Boolean,
     default: false
   },
+  /** نقش ARIA (پیش‌فرض: status) */
   role: {
     type: String,
     default: 'status'
   },
+  /** برچسب دسترسی‌پذیری */
   ariaLabel: {
     type: String,
     default: ''
   },
+  /** کلاس‌های اضافی */
   className: {
     type: String,
     default: ''

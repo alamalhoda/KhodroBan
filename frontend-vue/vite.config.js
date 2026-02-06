@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 let VitePWA
 try {
@@ -111,6 +112,13 @@ export default defineConfig({
         type: 'module'
       }
     })] : []),
+    // Bundle analysis: generates dist/stats.html after build (npm run build)
+    visualizer({
+      filename: './dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
   resolve: {
     alias: {

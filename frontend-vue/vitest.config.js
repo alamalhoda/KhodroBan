@@ -7,7 +7,10 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.js'],
+    include: ['src/**/*.{test,spec}.{js,ts}'],
     coverage: {
+      include: ['src/**/*.js'],
+      exclude: ['src/test/**', 'src/**/*.test.js', 'src/**/*.spec.js', 'src/main.js'],
       reporter: ['text', 'html'],
       threshold: {
         global: {
