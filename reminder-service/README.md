@@ -1,164 +1,164 @@
-# سرویس یادآوری سرویس دوره‌ای خودروها
+# سرویس یادآوری خودروها
 
-## 📋 اطلاعات کلی
+## 📋 خلاصه
 
-**هدف:** بررسی روزانه خودروها و ایجاد نوتیفیکیشن برای یادآوری سرویس دوره‌ای  
-**نوع:** Python Cron Job  
-**تاریخ ایجاد:** ۲۷ دی ۱۴۰۴
+این سرویس یادآوری سرویس دوره‌ای خودروها را از طریق **تلگرام** ارسال می‌کند.
 
 ---
 
-## 🎯 ویژگی‌ها
+## 🎯 ساختار پوشه
 
-- ✅ بررسی روزانه خودروهای نیازمند سرویس
-- ✅ پشتیبانی از `interval_days` متفاوت برای هر خودرو
-- ✅ ایجاد نوتیفیکیشن در Supabase
-- ✅ جلوگیری از تکرار نوتیفیکیشن
-- ✅ لاگ‌گیری کامل
-- ✅ Error handling کامل
+```
+reminder-service/
+├── README.md                      # این فایل
+├── QUICK_START.md                 # راهنمای سریع
+├── TELEGRAM_README.md             # راهنمای تلگرام
+├── main.py                        # سرویس اصلی (SMS/Email)
+├── telegram_main.py               # Cron Job تلگرام
+├── telegram_bot_server.py         # Webhook تلگرام
+├── telegram_requirements.txt      # Dependencies تلگرام
+├── telegram_env.example           # الگوی env
+├── telegram_Dockerfile            # Dockerfile
+├── telegram_supervisord.conf      # Supervisord
+├── telegram_test_data.sql         # داده‌های تست
+├── test_run.py                    # تست سریع
+└── requirements.txt               # Dependencies اصلی
+```
 
 ---
 
-## 📦 نصب و راه‌اندازی
+## 🚀 شروع سریع
 
-### ۱. نصب dependencies
+### گزینه ۱: تلگرام (پیشنهادی)
 
 ```bash
-cd reminder-service
+# ۱. نصب
+pip install -r telegram_requirements.txt
+
+# ۲. تنظیم .env
+cp telegram_env.example .env
+# سپس .env را ویرایش کنید
+
+# ۳. اجرا
+python telegram_main.py          # Cron Job
+python telegram_bot_server.py    # Webhook
+```
+
+**راهنمای کامل:** [TELEGRAM_README.md](./TELEGRAM_README.md)
+
+### گزینه ۲: سرویس اصلی (SMS/Email)
+
+```bash
 pip install -r requirements.txt
-```
-
-### ۲. پیکربندی متغیرهای محیطی
-
-```bash
 cp .env.example .env
-```
-
-سپس فایل `.env` را ویرایش کنید:
-
-```env
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
-CRON_TIME=08:00
-```
-
-**نکته مهم:** برای `SUPABASE_SERVICE_ROLE_KEY` از کلید Service Role استفاده کنید (نه anon key).
-
-### ۳. اجرای تست اولیه
-
-```bash
 python main.py
 ```
 
-برای تست سریع، می‌توانید `CRON_TIME` را به زمان فعلی تنظیم کنید (مثلاً 2 دقیقه دیگر).
+---
+
+## 📚 مستندات
+
+| سرویس | مستندات |
+|-------|---------|
+| **تلگرام** | [TELEGRAM_README.md](./TELEGRAM_README.md) |
+| **سریع** | [QUICK_START.md](./QUICK_START.md) |
+| **اصلی** | [../docs/technical/reminder-system-python.md](../docs/technical/reminder-system-python.md) |
 
 ---
 
-## ⚙️ نحوه کار
+## 🧪 تست
 
-### منطق یادآوری:
-
-1. **خواندن خودروها:** از تابع `get_vehicles_for_reminder()` در Supabase
-2. **خواندن آخرین سرویس:** از جدول `services` برای هر خودرو
-3. **محاسبه:** 
-   - `days_since_last` = امروز - آخرین سرویس
-   - `days_until_due` = `interval_days` - `days_since_last`
-4. **بررسی بازه هشدار:** اگر `0 < days_until_due <= warning_days`
-5. **ایجاد نوتیفیکیشن:** در جدول `notifications`
-
-### جلوگیری از تکرار:
-
-- بررسی می‌کند که آیا نوتیفیکیشن با `days_until_due` مشابه قبلاً ارسال شده
-- اگر بله، از ارسال مجدد جلوگیری می‌کند
-
----
-
-## 🐳 استقرار با Docker
-
-### ساخت تصویر:
-
+### تست سریع
 ```bash
-docker build -t reminder-service:latest .
+python test_run.py
 ```
 
-### اجرا:
+### تست تلگرام
+```bash
+python -c "
+from telegram_main import check_reminders_and_send_telegram
+check_reminders_and_send_telegram()
+"
+```
 
+---
+
+## 🐳 Docker
+
+### ساخت تصویر
+```bash
+docker build -f telegram_Dockerfile -t reminder-telegram .
+```
+
+### اجرا
 ```bash
 docker run -d \
-  --name reminder-service \
   --env-file .env \
-  reminder-service:latest
+  -p 5000:5000 \
+  reminder-telegram
 ```
 
 ---
 
-## 🚀 استقرار در چابکان
+## 🚀 استقرار
 
-### ۱. ایجاد سرویس:
+### چابکان
 
-1. وارد پنل چابکان شوید
-2. بخش **هاست ابری (PaaS)**
-3. **ایجاد سرویس جدید** → **Python**
-4. تنظیمات:
-   - نام: `reminder-service`
-   - منبع: آپلود فایل‌های پوشه `reminder-service`
-   - متغیرهای محیطی: از `.env`
+**سرویس ۱: Cron Job**
+- نام: `reminder-telegram`
+- فایل‌ها: `telegram_main.py`, `telegram_requirements.txt`, `.env`
+- Cron: `0 8 * * *`
+- دستور: `python telegram_main.py`
 
-### ۲. تنظیم Cron Job:
-
-در بخش **Cron Jobs** پنل چابکان:
-
-- **زمان:** `0 8 * * *` (هر روز ساعت ۸ صبح)
-- **دستور:** `python main.py`
-- **مسیر:** `/app` (پوشه سرویس)
+**سرویس ۲: Webhook**
+- نام: `telegram-bot`
+- فایل‌ها: `telegram_bot_server.py`, `telegram_requirements.txt`, `.env`
+- دامنه: `https://telegram.yourdomain.com`
+- پس از استقرار: `/set_webhook`
 
 ---
 
-## 📊 لاگ‌ها
+## 📊 مقایسه سرویس‌ها
 
-لاگ‌ها به صورت استاندارد خروجی داده می‌شوند:
-
-```
-2025-01-16 08:00:00 - INFO - شروع بررسی یادآورهای زمانی...
-2025-01-16 08:00:01 - INFO - تعداد 3 خودرو برای بررسی پیدا شد
-2025-01-16 08:00:02 - INFO - ✅ نوتیفیکیشن ایجاد شد: پراید - 7 روز مانده
-```
-
-برای مشاهده لاگ‌ها در چابکان، به بخش **Logs** بروید.
+| ویژگی | تلگرام | اصلی (SMS/Email) |
+|-------|--------|------------------|
+| هزینه | رایگان | پولی (SMS) |
+| سرعت | ⚡ فوری | ⚡ فوری |
+| تعامل | ✅ دکمه‌ها | ❌ محدود |
+| پیچیدگی | ⭐⭐ | ⭐⭐⭐ |
 
 ---
 
-## 🔧 عیب‌یابی
+## ⚠️ نکات مهم
 
-### مشکل: خطا در اتصال به Supabase
-**راه‌حل:** بررسی `SUPABASE_URL` و `SUPABASE_SERVICE_ROLE_KEY` در `.env`
+### امنیت
+- ❌ توکن‌ها را در کد نگذارید
+- ✅ فقط در `.env` نگه دارید
+- ✅ از Service Role Key فقط در Python استفاده کنید
 
-### مشکل: هیچ خودرویی پیدا نمی‌شود
-**راه‌حل:** 
-- بررسی فعال بودن `is_enabled` در `reminder_settings`
-- بررسی `reminder_mode` (باید 'time' یا 'both' باشد)
-
-### مشکل: نوتیفیکیشن تکراری ارسال می‌شود
-**راه‌حل:** بررسی منطق جلوگیری از تکرار در کد Python
-
----
-
-## ⚠️ نکات امنیتی
-
-1. **هرگز** `SUPABASE_SERVICE_ROLE_KEY` را در فرانت‌اند استفاده نکنید
-2. **فقط** در backend/Python استفاده شود
-3. برای production از متغیرهای محیطی امن استفاده کنید
+### محدودیت‌ها
+- تلگرام: ۱۰۰۰ پیام/روز (برای ربات جدید)
+- Supabase: ۵۰۰MB دیتابیس
 
 ---
 
 ## 📞 پشتیبانی
 
-در صورت بروز مشکل:
-1. لاگ‌های Python را بررسی کنید
-2. جدول `notifications` در Supabase Dashboard را ببینید
-3. بررسی کنید که `get_vehicles_for_reminder()` داده برمی‌گرداند
+**مستندات کامل:** `../docs/technical/telegram-notification-system.md`
+
+**چک‌لیست:** `../docs/technical/telegram-checklist.md`
 
 ---
 
-**وضعیت:** ✅ آماده استقرار  
-**آخرین بروزرسانی:** ۲۷ دی ۱۴۰۴
+## 🎯 نتیجه
+
+**وقتی اجرا شود:**
+- ✅ هر روز ساعت ۸ صبح
+- ✅ خودروهای نیازمند سرویس
+- ✅ یادآوری در تلگرام
+- ✅ بدون هزینه
+
+---
+
+**تاریخ:** ۲۸ دی ۱۴۰۴  
+**وضعیت:** ✅ آماده استقرار
