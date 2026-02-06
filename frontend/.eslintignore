@@ -1,6 +1,0 @@
-node_modules/
-dist/
-build/
-.svelte-kit/
-*.d.ts
-vite.config.ts
