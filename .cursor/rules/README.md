@@ -5,7 +5,7 @@
 ## تفکیک فیزیکی
 
 - **frontend/** — همه قوانین مخصوص واسط کاربری (frontend-vue: Vue 3، Vite، Pinia).
-- **backend/** — قوانین backend در آینده اینجا اضافه می‌شوند (Django، API، دیتابیس و …).
+- **backend/** — قوانین backend (Django، DRF، API، دیتابیس، امنیت، تست و …).
 - **\_archive/** — قوانین قدیمی فقط برای مرجع (مثلاً Svelte).
 
 با این ساختار قوانین UI و backend قاطی نمی‌شوند.
@@ -23,8 +23,20 @@
 │   ├── ui-ux/          # Accessibility، responsive، styling، user-feedback، interaction-patterns
 │   ├── testing/        # Strategy، unit (Vitest + Vue)، e2e
 │   └── tools/          # Vue 3، Vite
-├── backend/            # قوانین backend (آینده)
-│   └── README.md
+├── backend/            # قوانین backend (Django/DRF)
+│   ├── README.md
+│   ├── core/           # AI guardrails، design principles، git، quick-ref
+│   ├── architecture/   # Django architecture
+│   ├── api/            # REST rules
+│   ├── python/         # Python best practices
+│   ├── database/       # Models، migrations
+│   ├── security/       # Permissions، secrets
+│   ├── performance/    # N+1، caching
+│   ├── logging/        # Monitoring
+│   ├── configuration/  # Settings
+│   ├── testing/        # APITestCase، coverage
+│   ├── patterns/       # Progressive dev، anti-patterns
+│   └── documentation/  # File header
 ├── _archive/           # قوانین قدیمی (مرجع)
 │   └── svelte/
 └── README.md
@@ -33,10 +45,10 @@
 ## Globها
 
 - قوانین داخل **frontend/** از globهای `frontend-vue/**` (یا الگوی دقیق‌تر مثل `frontend-vue/src/**/*.vue`) استفاده می‌کنند.
-- قوانین داخل **backend/** (بعداً) از globهای `backend/**/*.py` یا مشابه استفاده خواهند کرد.
+- قوانین داخل **backend/** از globهای `backend/django/**/*.py` و الگوهای تخصصی‌تر (مثلاً `**/models.py`, `**/test*.py`) استفاده می‌کنند. جزئیات در `backend/README.md`.
 
 ## نحوه استفاده
 
 1. workspace را روی ریشه مونورپو (OilChenger) باز کن.
 2. هنگام کار روی فایل‌های داخل `frontend-vue/`، Cursor قوانین داخل `frontend/` را بر اساس glob اعمال می‌کند.
-3. هنگام کار روی `backend/`، بعد از اضافه شدن قوانین، فقط قوانین داخل `backend/` اعمال می‌شوند.
+3. هنگام کار روی `backend/django/`، قوانین داخل `backend/` بر اساس glob اعمال می‌شوند.
