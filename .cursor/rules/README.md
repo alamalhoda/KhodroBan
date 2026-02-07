@@ -4,7 +4,7 @@
 
 ## تفکیک فیزیکی
 
-- **frontend/** — همه قوانین مخصوص واسط کاربری (frontend-vue: Vue 3، Vite، Pinia).
+- **frontend/** — همه قوانین مخصوص واسط کاربری (frontend-vue: Vue 3، Vite، Pinia). راهنما: `frontend/FRONTEND-RULES-GUIDE.md`.
 - **backend/** — قوانین backend (Django، DRF، API، دیتابیس، امنیت، تست و …).
 - **\_archive/** — قوانین قدیمی فقط برای مرجع (مثلاً Svelte).
 
@@ -15,6 +15,7 @@
 ```
 .cursor/rules/
 ├── frontend/           # همه قوانین واسط کاربری
+│   ├── FRONTEND-RULES-GUIDE.md  # راهنما و مستند دسته‌بندی‌شده
 │   ├── core/           # AI behavior، meta-principles، git، code quality
 │   ├── architecture/   # ساختار پروژه، Atomic Design، SOLID، component design
 │   ├── patterns/       # props-emits، reactivity، component-patterns، api، anti-patterns

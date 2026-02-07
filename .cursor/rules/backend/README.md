@@ -1,13 +1,15 @@
 # Backend Rules — Django/DRF
 
-قوانین backend برای پروژه Django (`backend/django/`). منبع: `ai-rules-4.4.md`.
+قوانین backend برای پروژه Django (`backend/django/`).
+
+**راهنما:** `BACKEND-RULES-GUIDE.md` — مستند دسته‌بندی‌شدهٔ تمام قوانین و نقشهٔ فایل‌های `.mdc` (فایل راهنما، نه قانون).
 
 ## ساختار
 
 ```
 backend/
 ├── README.md                    # این فایل
-├── ai-rules-4.4.md              # سند منبع یگانه (مرجع کامل)
+├── BACKEND-RULES-GUIDE.md       # راهنما و مستند (مرجع دسته‌بندی‌شده)
 │
 ├── core/                        # قوانین پایه
 │   ├── ai-guardrails.mdc        # AI محدودیت‌ها (alwaysApply: true)
