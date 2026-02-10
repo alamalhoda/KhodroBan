@@ -3,6 +3,8 @@
 قوانین backend برای پروژه Django (`backend/django/`).
 
 **راهنما:** `BACKEND-RULES-GUIDE.md` — مستند دسته‌بندی‌شدهٔ تمام قوانین و نقشهٔ فایل‌های `.mdc` (فایل راهنما، نه قانون).
+  
+**نسخه تجمیعی کامل:** `BACKEND-RULES-FULL.md` — تجمیع کامل محتوای همه Ruleهای `.mdc` بدون خلاصه‌سازی.
 
 ## Shared Rules (سراسری)
 
@@ -18,6 +20,7 @@
 backend/
 ├── README.md                    # این فایل
 ├── BACKEND-RULES-GUIDE.md       # راهنما و مستند (مرجع دسته‌بندی‌شده)
+├── BACKEND-RULES-FULL.md        # محتوای کامل همه قوانین backend
 │
 ├── core/                        # قوانین پایه
 │   ├── ai-guardrails.mdc        # AI محدودیت‌ها (alwaysApply: true)

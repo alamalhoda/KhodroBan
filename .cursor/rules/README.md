@@ -17,6 +17,8 @@
 .cursor/rules/
 ├── share/              # قوانین مشترک پروژه (global)
 │   ├── README.md
+│   ├── SHARE-RULES-GUIDE.md     # راهنمای دسته‌بندی‌شده قوانین share
+│   ├── SHARE-RULES-FULL.md      # تجمیع کامل محتوای تمام قوانین share
 │   ├── gitflow-branch-policy.mdc
 │   ├── engineering-principles.mdc
 │   ├── code-quality-baseline.mdc
@@ -25,6 +27,7 @@
 │   └── rules-audit-checklist.mdc
 ├── frontend/           # همه قوانین واسط کاربری
 │   ├── FRONTEND-RULES-GUIDE.md  # راهنما و مستند دسته‌بندی‌شده
+│   ├── FRONTEND-RULES-FULL.md   # تجمیع کامل محتوای تمام قوانین frontend
 │   ├── core/           # AI behavior، meta-principles، git، code quality
 │   ├── architecture/   # ساختار پروژه، Atomic Design، SOLID، component design
 │   ├── patterns/       # props-emits، reactivity، component-patterns، api، anti-patterns
@@ -35,6 +38,7 @@
 │   └── tools/          # Vue 3، Vite
 ├── backend/            # قوانین backend (Django/DRF)
 │   ├── README.md
+│   ├── BACKEND-RULES-FULL.md    # تجمیع کامل محتوای تمام قوانین backend
 │   ├── core/           # AI guardrails، design principles، git، quick-ref
 │   ├── architecture/   # Django architecture
 │   ├── api/            # REST rules

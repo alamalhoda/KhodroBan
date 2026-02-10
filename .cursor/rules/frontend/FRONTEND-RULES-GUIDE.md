@@ -3,6 +3,8 @@
 > این سند **راهنما و مستند** قوانین frontend است، نه فایل قانون. قوانین قابل اعمال در Cursor در فایل‌های `.mdc` قرار دارند.
 >
 > **English:** This document is a **guide and reference** for frontend rules, not a rule file. Enforceable rules are in `.mdc` files.
+>
+> **نسخه تجمیعی کامل:** `FRONTEND-RULES-FULL.md` — محتوای کامل همه Ruleهای `.mdc` بدون خلاصه‌سازی.
 
 ---
 
