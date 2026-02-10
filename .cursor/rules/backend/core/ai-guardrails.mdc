@@ -2,7 +2,7 @@
 description: AI Guardrails — محدودیت‌ها و رفتار اجباری AI برای backend Django
 globs:
   - "backend/django/**/*.py"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # AI Guardrails (Cursor-Specific)

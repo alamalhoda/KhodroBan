@@ -10,12 +10,20 @@
 
 هر بخش زیر به فایل `.mdc` مربوط اشاره می‌کند:
 
+### قوانین مشترک (Share)
+
+این قوانین برای کل پروژه در پوشه `share/` تعریف شده‌اند و backend را هم پوشش می‌دهند:
+
+- `share/gitflow-branch-policy.mdc`
+- `share/engineering-principles.mdc`
+- `share/code-quality-baseline.mdc`
+
 | بخش | فایل قانون | Globs |
 |-----|------------|-------|
-| ۱. AI Guardrails | `core/ai-guardrails.mdc` | `backend/django/**/*.py` (alwaysApply) |
+| ۱. AI Guardrails | `core/ai-guardrails.mdc` | `backend/django/**/*.py` |
 | ۲. Design Principles | `core/design-principles.mdc` | `backend/django/**/*.py` |
 | ۳. Git & Version Control | `core/git-workflow.mdc` | `backend/django/**/*`, `.github/**/*` |
-| ۴. Quick Reference | `core/quick-reference.mdc` | `backend/django/**/*.py` (alwaysApply) |
+| ۴. Quick Reference | `core/quick-reference.mdc` | `backend/django/**/*.py` |
 | ۵. Django Architecture | `architecture/django-architecture.mdc` | `**/views.py`, `**/serializers.py`, `**/urls.py` |
 | ۶. API & REST | `api/rest.mdc` | `**/views.py`, `**/serializers.py`, `**/urls.py` |
 | ۷. Python Best Practices | `python/best-practices.mdc` | `backend/django/**/*.py` |

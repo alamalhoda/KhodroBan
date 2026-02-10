@@ -4,6 +4,14 @@
 
 **راهنما:** `BACKEND-RULES-GUIDE.md` — مستند دسته‌بندی‌شدهٔ تمام قوانین و نقشهٔ فایل‌های `.mdc` (فایل راهنما، نه قانون).
 
+## Shared Rules (سراسری)
+
+قوانین مشترک پروژه در پوشه `../share/` قرار دارند و برای backend نیز اعمال می‌شوند:
+
+- `share/gitflow-branch-policy.mdc`
+- `share/engineering-principles.mdc`
+- `share/code-quality-baseline.mdc`
+
 ## ساختار
 
 ```
@@ -56,8 +64,8 @@ backend/
 
 | فایل | Globs | alwaysApply |
 |------|-------|-------------|
-| ai-guardrails.mdc | `backend/django/**/*.py` | ✅ true |
-| quick-reference.mdc | `backend/django/**/*.py` | ✅ true |
+| ai-guardrails.mdc | `backend/django/**/*.py` | false |
+| quick-reference.mdc | `backend/django/**/*.py` | false |
 | design-principles.mdc | `backend/django/**/*.py` | false |
 | git-workflow.mdc | `backend/django/**/*`, `.github/**/*` | false |
 | django-architecture.mdc | `**/views.py`, `**/serializers.py`, `**/urls.py` | false |
@@ -76,5 +84,5 @@ backend/
 ## نحوه کار
 
 * هنگام ویرایش فایل در `backend/django/`، Cursor بر اساس globها، فایل‌های rule مربوط را بارگذاری می‌کند.
-* `ai-guardrails.mdc` و `quick-reference.mdc` همیشه اعمال می‌شوند (برای هر فایل Python در backend).
-* بقیه قوانین فقط وقتی اعمال می‌شوند که glob با فایل باز مطابقت کند.
+* همه قوانین backend با globهای مرتبط اعمال می‌شوند (file-scoped).
+* baselineهای سراسری از پوشه `share/` مستقل از دامنه اعمال می‌شوند.

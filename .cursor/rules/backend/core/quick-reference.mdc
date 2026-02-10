@@ -2,7 +2,7 @@
 description: Quick Reference — AI Checklist برای backend Django
 globs:
   - "backend/django/**/*.py"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Quick Reference (AI Checklist)

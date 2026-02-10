@@ -3,7 +3,7 @@ description: SOLID principles applied to frontend component design and architect
 globs:
   - "frontend-vue/src/**/*.vue"
   - "frontend-vue/src/**/*.js"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # SOLID Principles

@@ -1,5 +1,5 @@
 ---
-description: Design Principles — SOLID, DRY, KISS, YAGNI, SoC, LoD, SSOT برای backend Django
+description: Backend design principles and examples aligned with shared engineering principles
 globs:
   - "backend/django/**/*.py"
 alwaysApply: false
@@ -7,23 +7,17 @@ alwaysApply: false
 
 # Design Principles (اصول طراحی)
 
-اصول طراحی نرم‌افزار برای backend Django. رعایت این اصول خوانایی، تست‌پذیری و نگهداری کد را افزایش می‌دهد.
+راهنمای طراحی backend Django با مثال‌های عملی.
 
-**English:** Software design principles for Django backend. Following these principles improves code readability, testability, and maintainability.
+**English:** Backend-focused design guidance for Django with practical examples.
 
 ---
 
-## الزامات / Requirements
+## Shared Source of Truth
 
-| اصل | فارسی | English |
-|-----|-------|---------|
-| SRP | مسئولیت واحد — هر کلاس یک دلیل برای تغییر | Single Responsibility — each class has one reason to change |
-| DRY | تکرار نکن — منطق را کپی نکن | Don't Repeat Yourself — don't duplicate logic |
-| KISS | ساده نگه دار — سادگی بر abstraction | Keep It Simple — simplicity over abstraction |
-| YAGNI | طراحی برای امروز — نه برای حدس آینده | You Ain't Gonna Need It — design for now |
-| SoC | جداسازی دغدغه‌ها — View / Service / Serializer جدا | Separation of Concerns — View / Service / Serializer separate |
-| LoD | قانون دمتر — با غریبه‌ها صحبت نکن | Law of Demeter — don't talk to strangers |
-| SSOT | منبع یگانه حقیقت — هر منطق یک جا | Single Source of Truth — each logic in one place |
+- اصول عمومی (SSOT/SoC/DRY/KISS/YAGNI/Explicitness) در
+  `.cursor/rules/share/engineering-principles.mdc` تعریف شده‌اند.
+- اگر اختلافی وجود داشت، rule تخصصی backend در این فایل اولویت دارد.
 
 ---
 

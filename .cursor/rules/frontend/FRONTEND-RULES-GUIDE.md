@@ -10,15 +10,23 @@
 
 هر بخش زیر به فایل `.mdc` مربوط اشاره می‌کند:
 
+### قوانین مشترک (Share)
+
+این قوانین برای کل پروژه در پوشه `share/` تعریف شده‌اند و frontend را هم پوشش می‌دهند:
+
+- `share/gitflow-branch-policy.mdc`
+- `share/engineering-principles.mdc`
+- `share/code-quality-baseline.mdc`
+
 | بخش | فایل قانون | Globs | alwaysApply |
 |-----|------------|-------|-------------|
-| ۱. AI Behavior | `core/ai-behavior.mdc` | `frontend-vue/src/**/*.{vue,js,css}` | ✅ true |
-| ۲. Meta Principles | `core/meta-principles.mdc` | `frontend-vue/src/**/*.{vue,js,css}` | ✅ true |
-| ۳. Code Quality | `core/code-quality.mdc` | `frontend-vue/src/**/*.{vue,js,css}` | ✅ true |
+| ۱. AI Behavior | `core/ai-behavior.mdc` | `frontend-vue/src/**/*.{vue,js,css}` | false |
+| ۲. Meta Principles | `core/meta-principles.mdc` | `frontend-vue/src/**/*.{vue,js,css}` | false |
+| ۳. Code Quality | `core/code-quality.mdc` | `frontend-vue/src/**/*.{vue,js,css}` | false |
 | ۴. Git Workflow | `core/git-workflow.mdc` | `frontend-vue/**/*` | false |
-| ۵. SOLID | `architecture/solid.mdc` | `frontend-vue/src/**/*.{vue,js}` | ✅ true |
-| ۶. Separation of Concerns | `architecture/separation-of-concerns.mdc` | `frontend-vue/src/**/*.{vue,js}` | ✅ true |
-| ۷. Component Design | `architecture/component-design.mdc` | `frontend-vue/src/**/*.{vue,js}` | ✅ true |
+| ۵. SOLID | `architecture/solid.mdc` | `frontend-vue/src/**/*.{vue,js}` | false |
+| ۶. Separation of Concerns | `architecture/separation-of-concerns.mdc` | `frontend-vue/src/**/*.{vue,js}` | false |
+| ۷. Component Design | `architecture/component-design.mdc` | `frontend-vue/src/**/*.{vue,js}` | false |
 | ۸. Atomic Design | `architecture/atomic-design.mdc` | `frontend-vue/src/**/*.{vue,js}` | false |
 | ۹. Project Structure | `architecture/project-structure.mdc` | `frontend-vue/**/*` | false |
 | ۱۰. Props & Events | `patterns/props-events.mdc` | `frontend-vue/src/**/*.{vue,js}` | false |
@@ -33,8 +41,8 @@
 | ۱۹. Optimization | `performance/optimization.mdc` | `frontend-vue/src/**/*.{vue,js}` | false |
 | ۲۰. Runtime | `performance/runtime.mdc` | `frontend-vue/src/**/*.{vue,js}` | false |
 | ۲۱. Asset Management | `performance/asset-management.mdc` | `frontend-vue/src/**/*.{vue,js,css}` | false |
-| ۲۲. Accessibility | `ui-ux/accessibility.mdc` | `frontend-vue/src/**/*.{vue,js,css}` | ✅ true |
-| ۲۳. Responsive Design | `ui-ux/responsive-design.mdc` | `frontend-vue/src/**/*.{vue,css}` | ✅ true |
+| ۲۲. Accessibility | `ui-ux/accessibility.mdc` | `frontend-vue/src/**/*.{vue,js,css}` | false |
+| ۲۳. Responsive Design | `ui-ux/responsive-design.mdc` | `frontend-vue/src/**/*.{vue,css}` | false |
 | ۲۴. Styling | `ui-ux/styling.mdc` | `frontend-vue/src/**/*.{vue,css}` | false |
 | ۲۵. Interaction Patterns | `ui-ux/interaction-patterns.mdc` | `frontend-vue/src/**/*.{vue,js}` | false |
 | ۲۶. User Feedback | `ui-ux/user-feedback.mdc` | `frontend-vue/src/**/*.{vue,js}` | false |

@@ -4,17 +4,16 @@ globs:
   - "frontend-vue/src/**/*.vue"
   - "frontend-vue/src/**/*.js"
   - "frontend-vue/src/**/*.css"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Code Quality Standards
 
-## اصول کلی
+## Shared Baseline
 
-- کد باید خوانا و قابل درک باشد
-- از نام‌های توصیفی استفاده کن
-- از کامنت‌های غیرضروری پرهیز کن - کد باید خود-توضیح‌دهنده باشد
-- از magic numbers و magic strings پرهیز کن
+- baseline عمومی کیفیت کد در:
+  `.cursor/rules/share/code-quality-baseline.mdc`
+- این فایل فقط جزئیات اختصاصی frontend-vue را تعریف می‌کند.
 
 ## Component Quality Checklist
 

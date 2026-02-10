@@ -4,6 +4,7 @@
 
 ## تفکیک فیزیکی
 
+- **share/** — قوانین مشترک و جهان‌شمول (global baseline). راهنما: `share/README.md`.
 - **frontend/** — همه قوانین مخصوص واسط کاربری (frontend-vue: Vue 3، Vite، Pinia). راهنما: `frontend/FRONTEND-RULES-GUIDE.md`.
 - **backend/** — قوانین backend (Django، DRF، API، دیتابیس، امنیت، تست و …).
 - **\_archive/** — قوانین قدیمی فقط برای مرجع (مثلاً Svelte).
@@ -14,6 +15,14 @@
 
 ```
 .cursor/rules/
+├── share/              # قوانین مشترک پروژه (global)
+│   ├── README.md
+│   ├── gitflow-branch-policy.mdc
+│   ├── engineering-principles.mdc
+│   ├── code-quality-baseline.mdc
+│   ├── rule-precedence.mdc
+│   ├── rule-authoring-standard.mdc
+│   └── rules-audit-checklist.mdc
 ├── frontend/           # همه قوانین واسط کاربری
 │   ├── FRONTEND-RULES-GUIDE.md  # راهنما و مستند دسته‌بندی‌شده
 │   ├── core/           # AI behavior، meta-principles، git، code quality
@@ -45,8 +54,21 @@
 
 ## Globها
 
+- در **share/** برخی Ruleها baseline سراسری (`alwaysApply: true`) هستند و برخی Ruleها فقط هنگام تغییر خود قوانین (`.cursor/rules/**`) فعال می‌شوند.
 - قوانین داخل **frontend/** از globهای `frontend-vue/**` (یا الگوی دقیق‌تر مثل `frontend-vue/src/**/*.vue`) استفاده می‌کنند.
 - قوانین داخل **backend/** از globهای `backend/django/**/*.py` و الگوهای تخصصی‌تر (مثلاً `**/models.py`, `**/test*.py`) استفاده می‌کنند. جزئیات در `backend/README.md`.
+
+## اولویت قواعد
+
+1. `share/` (قواعد عمومی)
+2. `frontend/` یا `backend/` (قواعد تخصصی دامنه)
+3. هنگام تعارض، rule تخصصی دامنه اولویت دارد.
+
+## AlwaysApply Budget
+
+- بودجه هدف: حداکثر `5` Rule با `alwaysApply: true`
+- وضعیت فعلی: `4/5` (فقط در `share/`)
+- Ruleهای domain باید file-scoped باشند (`alwaysApply: false` + `globs`)
 
 ## نحوه استفاده
 

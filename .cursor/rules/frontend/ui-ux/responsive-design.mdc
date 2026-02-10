@@ -3,7 +3,7 @@ description: Mobile-first responsive design principles, breakpoints, touch targe
 globs:
   - "frontend-vue/src/**/*.vue"
   - "frontend-vue/src/**/*.css"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Responsive Design
