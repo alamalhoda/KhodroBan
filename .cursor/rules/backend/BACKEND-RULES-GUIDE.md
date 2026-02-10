@@ -65,11 +65,12 @@
 
 ## ۳. Git & Version Control — `core/git-workflow.mdc`
 
-**محتوا:** Branch strategy، commit convention، تعریف تغییر پرخطر.
+**محتوا:** Branch strategy، commit convention، تعریف تغییر پرخطر؛
+همسو با مرجع اصلی `share/gitflow-branch-policy.mdc`.
 
 | موضوع | توضیح |
 |-------|-------|
-| Branch | main، develop، feature/*، fix/* |
+| Branch | main، develop، feature/*، bugfix/*، release/*، hotfix/* |
 | Commit | feat، fix، refactor، test، docs، chore |
 | High-Risk | تغییر DB schema، API contract، auth، refactor >۱۰۰ خط، dependency جدید، حذف field/endpoint |
 

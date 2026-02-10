@@ -1,5 +1,5 @@
 ---
-description: Git workflow, branching strategy, and commit message conventions for frontend development
+description: Frontend git workflow notes aligned with share/gitflow-unified
 globs:
   - "frontend-vue/**/*"
 alwaysApply: false
@@ -7,12 +7,17 @@ alwaysApply: false
 
 # Git Workflow Rules
 
+## Source of Truth
+
+- مرجع اصلی و الزامی Git Flow در پروژه:
+  - `.cursor/rules/share/gitflow-branch-policy.mdc`
+- اگر اختلافی وجود داشت، همیشه `gitflow-branch-policy.mdc` اولویت دارد.
+
 ## استراتژی شاخه‌بندی برای توسعه UI
 
 - ایجاد شاخه ویژگی جدید: `feature/ui-component-name`
-- ایجاد شاخه برای رفع باگ: `fix/ui-bug-description`
-- ایجاد شاخه برای بهبود عملکرد: `perf/ui-optimization`
-- ایجاد شاخه برای بازبینی طراحی: `refactor/ui-redesign`
+- ایجاد شاخه برای رفع باگ: `bugfix/ui-bug-description`
+- برای بهبود عملکرد و refactor نیز از `feature/*` استفاده کن
 - ایجاد شاخه برای نسخه جدید: `release/v1.0.0`
 - ایجاد شاخه برای رفع فوری: `hotfix/ui-critical-fix`
 

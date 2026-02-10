@@ -92,11 +92,12 @@
 
 ## ۴. Git Workflow — `core/git-workflow.mdc`
 
-**محتوا:** Branch strategy، commit convention برای frontend.
+**محتوا:** Branch strategy و commit convention برای frontend، همسو با مرجع اصلی:
+`share/gitflow-branch-policy.mdc`.
 
 | موضوع | توضیح |
 |-------|-------|
-| Branch | feature/*، fix/* |
+| Branch | feature/*، bugfix/*، release/*، hotfix/* |
 | Commit | feat، fix، refactor، style، docs، chore |
 
 ---

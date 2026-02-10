@@ -1,5 +1,5 @@
 ---
-description: Git & Version Control — Branch strategy، commit convention، high-risk changes
+description: Backend git workflow notes aligned with share/gitflow-unified
 globs:
   - "backend/django/**/*"
   - ".github/**/*"
@@ -8,23 +8,31 @@ alwaysApply: false
 
 # Git & Version Control
 
-## Branch Strategy
+## Source of Truth
+
+- مرجع اصلی و الزامی Git Flow در پروژه:
+  - `.cursor/rules/share/gitflow-branch-policy.mdc`
+- اگر هر اختلافی وجود داشت، همیشه `gitflow-branch-policy.mdc` اولویت دارد.
+
+## Branch Strategy (Aligned)
 
 * `main`: production
-* `develop`: integration (اختیاری)
+* `develop`: integration
 * `feature/*`: feature جدید
-* `fix/*`: رفع باگ
+* `bugfix/*`: رفع باگ محیط توسعه
+* `release/*`: آماده‌سازی release
+* `hotfix/*`: رفع فوری production
 
 ```bash
-git checkout main
-git pull origin main
-git checkout -b feature/add-payment
+git checkout develop
+git pull origin develop
+git checkout -b feature/add-payment develop
 ```
 
 ## Commit Convention
 
 ```
-<type>: <subject>
+type(scope): description
 
 # انواع:
 feat:   feature جدید
@@ -38,10 +46,7 @@ chore:  نگهداری
 مثال:
 
 ```
-feat: add JWT authentication to user login
-
-- Implemented token generation
-- Updated User model with last_login field
+feat(auth): add JWT authentication to user login
 ```
 
 ## High-Risk Change (تغییر پرخطر)

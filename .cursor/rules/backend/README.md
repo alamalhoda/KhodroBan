@@ -14,7 +14,7 @@ backend/
 ├── core/                        # قوانین پایه
 │   ├── ai-guardrails.mdc        # AI محدودیت‌ها (alwaysApply: true)
 │   ├── design-principles.mdc    # SOLID، DRY، KISS، SSOT
-│   ├── git-workflow.mdc         # Branch، commit، high-risk
+│   ├── git-workflow.mdc         # Branch/commit (aligned with share/gitflow-branch-policy.mdc)
 │   └── quick-reference.mdc      # AI Checklist (alwaysApply: true)
 │
 ├── architecture/                # معماری Django
