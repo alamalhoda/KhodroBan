@@ -6,6 +6,9 @@ from django.contrib.auth.models import User
 
 from khodroban.models import Vehicle, UserProfile, Service, DailyExpense, ServiceType
 
+# Plain password for test users only (Django create_user); not a real credential.
+_REPORT_TEST_PASSWORD = "pass"
+
 
 class ReportSummaryTests(APITestCase):
     def setUp(self):
@@ -13,7 +16,7 @@ class ReportSummaryTests(APITestCase):
         self.user = User.objects.create_user(
             username="reportuser",
             email="report@test.com",
-            password="ReportPass123!",
+            password=_REPORT_TEST_PASSWORD,
         )
         self.profile = UserProfile.objects.get(user=self.user)
         self.vehicle = Vehicle.objects.create(
@@ -48,7 +51,7 @@ class ReportSummaryTests(APITestCase):
         other_user = User.objects.create_user(
             username="otherreport",
             email="other@test.com",
-            password="Other123!",
+            password=_REPORT_TEST_PASSWORD,
         )
         other_profile = UserProfile.objects.get(user=other_user)
         other_vehicle = Vehicle.objects.create(
