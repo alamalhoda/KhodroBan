@@ -45,7 +45,7 @@
 | POST create | POST `/api/services/` | دارد |
 | PATCH update | PATCH `/api/services/<id>/` | دارد |
 | DELETE | DELETE `/api/services/<id>/` | دارد |
-| GET latest for vehicle | GET `/api/services/latest/<vehicleId>/` | ندارد |
+| GET latest for vehicle | GET `/api/services/latest/<vehicleId>/` | دارد |
 
 ---
 
@@ -70,10 +70,10 @@
 | POST create | POST `/api/reminders/` | دارد |
 | PATCH update | PATCH `/api/reminders/<id>/` | دارد |
 | DELETE | DELETE `/api/reminders/<id>/` | دارد |
-| POST dismiss | POST `/api/reminders/<id>/dismiss/` | ندارد |
-| GET by vehicle | GET `/api/reminders/vehicle/<vehicleId>/` | ندارد |
+| POST dismiss | POST `/api/reminders/<id>/dismiss/` | دارد |
+| GET by vehicle | GET `/api/reminders/vehicle/<vehicleId>/` | دارد |
 | GET/PATCH settings | `/api/reminder-settings/` (per-vehicle) | دارد (ساختار متفاوت) |
-| GET user reminders | GET `/api/reminders/user/` | ندارد |
+| GET user reminders | GET `/api/reminders/user/` | دارد |
 
 ---
 

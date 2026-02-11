@@ -113,3 +113,67 @@
 - **۹. قرارداد API:** ثبت شده
 - **وضعیت flow:** بدون باگ بحرانی
 - **اقدامات بعدی:** —
+
+---
+
+## Add Service
+
+- **۱. ساختار:** مطابق (AddServiceView + service, vehicle, serviceType, expenseCategory stores)
+- **۲. تست frontend:** ناقص
+- **۳. ارتباط با backend:** فقط Django (سرویس/هزینه از shared؛ نوع سرویس/دسته‌بندی فعلاً Supabase)
+- **۴. زیرساخت Django:** ServiceViewSet, DailyExpenseViewSet, latest — کافی
+- **۵. تست backend:** ناقص (تست API سرویس/هزینه در PR بعدی)
+- **۶. مدیریت خطا:** یکپارچه
+- **۷. i18n:** ناقص
+- **۸. a11y:** نیاز به بهبود
+- **۹. قرارداد API:** ثبت شده
+- **وضعیت flow:** بدون باگ بحرانی (با django-only-categories تکمیل می‌شود)
+- **اقدامات بعدی:** اتصال service-types/expense-categories به Django
+
+---
+
+## Service List
+
+- **۱. ساختار:** مطابق (ServiceListView + service store)
+- **۲. تست frontend:** ناقص
+- **۳. ارتباط با backend:** فقط Django — GET /api/services/
+- **۴. زیرساخت Django:** ServiceViewSet — کافی
+- **۵. تست backend:** ناقص
+- **۶. مدیریت خطا:** یکپارچه
+- **۷. i18n:** ناقص
+- **۸. a11y:** نیاز به بهبود
+- **۹. قرارداد API:** ثبت شده
+- **وضعیت flow:** بدون باگ بحرانی
+- **اقدامات بعدی:** —
+
+---
+
+## Reminders
+
+- **۱. ساختار:** مطابق (RemindersView + reminder store)
+- **۲. تست frontend:** ناقص
+- **۳. ارتباط با backend:** فقط Django — GET /api/reminders/، GET /api/reminders/user/
+- **۴. زیرساخت Django:** ReminderViewSet + dismiss, by_vehicle, user — کافی
+- **۵. تست backend:** ناقص
+- **۶. مدیریت خطا:** یکپارچه
+- **۷. i18n:** ناقص
+- **۸. a11y:** نیاز به بهبود
+- **۹. قرارداد API:** ثبت شده
+- **وضعیت flow:** بدون باگ بحرانی
+- **اقدامات بعدی:** —
+
+---
+
+## Reminder Management
+
+- **۱. ساختار:** مطابق (ReminderManagementView + reminder store)
+- **۲. تست frontend:** ناقص
+- **۳. ارتباط با backend:** فقط Django — POST/PATCH/DELETE /api/reminders/، POST dismiss
+- **۴. زیرساخت Django:** ReminderViewSet — کافی
+- **۵. تست backend:** ناقص
+- **۶. مدیریت خطا:** یکپارچه
+- **۷. i18n:** ناقص
+- **۸. a11y:** نیاز به بهبود
+- **۹. قرارداد API:** ثبت شده
+- **وضعیت flow:** بدون باگ بحرانی
+- **اقدامات بعدی:** —

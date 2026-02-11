@@ -199,6 +199,27 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
         total_cost = self.request.data.get('cost', 0)
         serializer.save(vehicle=vehicle, total_cost=total_cost)
 
+    @action(detail=False, methods=['get'], url_path='latest/(?P<vehicle_id>[^/.]+)')
+    def latest(self, request, vehicle_id=None):
+        vehicle = Vehicle.objects.filter(
+            vehicle_id=vehicle_id,
+            user_profile=request.user.userprofile
+        ).first()
+        if not vehicle:
+            return Response(
+                {'success': False, 'errors': ['خودرو یافت نشد.']},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        service = (
+            Service.objects.filter(vehicle=vehicle)
+            .order_by('-service_date_gregorian')
+            .first()
+        )
+        if not service:
+            return api_response(None)
+        serializer = self.get_serializer(service)
+        return api_response(serializer.data)
+
 
 class DailyExpenseViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     queryset = DailyExpense.objects.all()
@@ -237,6 +258,34 @@ class ReminderViewSet(ApiResponseMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user_profile=self.request.user.userprofile)
+
+    @action(detail=True, methods=['post'], url_path='dismiss')
+    def dismiss(self, request, pk=None):
+        reminder = self.get_object()
+        reminder.dismissed = True
+        reminder.save(update_fields=['dismissed', 'updated_at'])
+        return api_response({'status': 'dismissed'})
+
+    @action(detail=False, methods=['get'], url_path='vehicle/(?P<vehicle_id>[^/.]+)')
+    def by_vehicle(self, request, vehicle_id=None):
+        vehicle = Vehicle.objects.filter(
+            vehicle_id=vehicle_id,
+            user_profile=request.user.userprofile
+        ).first()
+        if not vehicle:
+            return api_response([])
+        reminders = Reminder.objects.filter(
+            user_profile=request.user.userprofile,
+            vehicle=vehicle
+        ).order_by('-created_at')
+        serializer = self.get_serializer(reminders, many=True)
+        return api_response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='user')
+    def user_list(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return api_response(serializer.data)
 
 
 class NotificationViewSet(ApiResponseMixin, viewsets.ReadOnlyModelViewSet):
