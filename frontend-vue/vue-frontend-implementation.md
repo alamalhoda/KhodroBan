@@ -131,8 +131,10 @@ OilChenger/
 - تنظیمات یادآوری
 
 #### 6. **reportService** (`shared/services/reportService.ts`)
-- گزارش‌های آماری
-- تحلیل هزینه‌ها
+- گزارش‌های آماری و تحلیل هزینه‌ها
+- **Django:** `getSummary(vehicleId?, date_from?, date_to?)` → خلاصه با totalCost، totalKm، costByCategory، costByMonth
+- **exportCSV:** ساخته‌شده سمت کلاینت از لیست سرویس و هزینه (GET services/expenses)
+- **getMonthlyTrend:** از costByMonth پاسخ getSummary
 
 #### 7. **upgradeService** (`shared/services/upgradeService.ts`)
 - مدیریت ارتقا به نسخه Pro
@@ -1488,7 +1490,7 @@ setupErrorHandlers()
 5. **expense.js**: مدیریت هزینه‌ها
 6. **expenseCategory.js**: مدیریت دسته‌بندی هزینه‌ها
 7. **reminder.js**: مدیریت یادآوری‌ها
-8. **report.js**: مدیریت گزارش‌ها
+8. **report.js**: مدیریت گزارش‌ها (فیلتر بازه/خودرو، fetchReportData، exportReport؛ اتصال به reportService و API خلاصه)
 9. **ai.js**: مدیریت AI Assistant
 10. **dashboard.js**: مدیریت Dashboard
 11. **notification.js**: مدیریت نوتیفیکیشن‌ها
@@ -1597,7 +1599,7 @@ import { useToast, useFocus } from '@/composables'
 3. **serviceService**: مدیریت سرویس‌های خودرو
 4. **expenseService**: مدیریت هزینه‌ها
 5. **reminderService**: مدیریت یادآوری‌ها
-6. **reportService**: گزارش‌ها و آمار
+6. **reportService**: گزارش‌ها و آمار (Django: getSummary با فیلتر، exportCSV سمت کلاینت، getMonthlyTrend از خلاصه)
 7. **upgradeService**: ارتقا به نسخه Pro
 8. **notificationService**: نوتیفیکیشن‌ها
 9. **AI Service**: تحلیل مشکلات خودرو با AI
@@ -1735,7 +1737,7 @@ async function loadVehicles() {
 - [x] Vehicle List/Details/Management
 - [x] Service Management (Add, Select Type, List)
 - [x] Reminders (با Management)
-- [x] Reports
+- [x] Reports (اتصال به API با داده واقعی: فیلتر خودرو/بازه، کارت‌های خلاصه، نمودار ماهانه، تفکیک هزینه، جدول هزینه‌های اخیر، دانلود CSV)
 - [x] Settings
 - [x] Smart Assistant
 - [x] Upgrade Pro
@@ -1806,6 +1808,7 @@ async function loadVehicles() {
 
 - ✅ **Vue 3 + Composition API**: استفاده از آخرین ویژگی‌های Vue 3
 - ✅ **Pinia State Management**: 16 Store مختلف برای مدیریت state (auth، vehicle، service، serviceType، expense، expenseCategory، reminder، report، ai، dashboard، notification، telegram، settings، upgrade، smartAssistant، ui)
+- ✅ **صفحه گزارش‌ها (Reports)**: اتصال به API با داده واقعی (Django ReportSummary)، فیلتر خودرو و بازه، کارت‌های خلاصه، نمودار ماهانه، تفکیک هزینه، جدول هزینه‌های اخیر، دانلود CSV
 - ✅ **Vue Router**: Routing با Lazy Loading و Navigation Guards
 - ✅ **Tailwind CSS**: Styling با پشتیبانی از Dark Mode
 - ✅ **Internationalization**: پشتیبانی از فارسی، انگلیسی، و عربی

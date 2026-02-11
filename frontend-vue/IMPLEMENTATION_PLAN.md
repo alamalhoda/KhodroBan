@@ -77,6 +77,12 @@
   - [x] تست واحد Views: DashboardView (`src/views/DashboardView.test.js`)
   - [x] Refactoring DashboardView: تقسیم به DashboardHeader، QuickStatsCard، RemindersSection، VehiclesSection، DashboardRightColumn در `src/components/dashboard/`؛ کاهش از ~۵۹۵ به زیر ۲۰۰ خط
   - [x] Refactoring ServiceTypeSelector: تقسیم به ServiceTypeCategory، ServiceTypeSelectorFooter؛ کاهش از ~۲۷۲ به زیر ۲۰۰ خط
+- [x] **صفحه گزارش‌ها (Reports) با داده واقعی** (۱۴۰۳/۱۱)
+  - [x] Backend: ReportSummaryView با فیلتر `date_from`/`date_to` و `vehicle_id`، خروجی `totalKm` و `costByMonth` فیلترشده؛ تست در `test_reports.py`
+  - [x] Shared: reportService پیاده Django (getSummary، exportCSV سمت کلاینت، getMonthlyTrend از خلاصه)
+  - [x] report store: فیلتر بازه (۳۰ روز/امسال/سال گذشته) و خودرو، fetchReportData، exportReport('csv')
+  - [x] ReportsView: دراپ‌دان خودرو و بازه، چهار کارت خلاصه، نمودار روند ماهانه، تفکیک هزینه، جدول هزینه‌های اخیر، دکمه دانلود CSV، حالت بارگذاری و خطا
+  - [x] مستندات: API_CONTRACT_REGISTRY، PAGE_REVIEW_LOG، DEMO_SCENARIO به‌روز شده؛ PR به develop ادغام شده
 
 ### ⚠️ کارهای ناتمام
 
@@ -201,7 +207,7 @@
 ```
 □ Reminders
 □ Expenses
-□ Reports
+✅ Reports (اتصال به API، فیلتر، نمودار، CSV)
 □ Settings
 ```
 
@@ -377,7 +383,7 @@
 - [ ] فرم افزودن هزینه
 - [ ] لیست هزینه‌ها
 - [ ] ویرایش و حذف هزینه
-- [ ] نمودارهای هزینه در Reports
+- [x] نمودارهای هزینه در Reports (تکمیل شده در ReportsView)
 
 **اولویت:** متوسط  
 **زمان تخمینی:** ۲ روز
@@ -444,25 +450,27 @@
 **اولویت:** بالا  
 **وضعیت:** ✅ تکمیل شده (به جز فرم افزودن یادآور و بهبود UX)
 
-## 📊 فاز ۷: گزارش‌ها و آمار (Reports & Analytics)
+## 📊 فاز ۷: گزارش‌ها و آمار (Reports & Analytics) ✅ تکمیل شده
 
 ### ۷.۱ Report Store
-- [ ] اتصال کامل `reportStore` به `reportService`
-- [ ] محاسبه آمار و نمودارها
-- [ ] فیلتر بر اساس بازه زمانی
+- [x] اتصال کامل `reportStore` به `reportService` (Django: getSummary با فیلتر)
+- [x] محاسبه آمار و نمودارها از پاسخ API (costByMonth، costByCategory، totalKm)
+- [x] فیلتر بر اساس بازه زمانی (۳۰ روز / امسال / سال گذشته) و خودرو
 
 **اولویت:** متوسط  
-**زمان تخمینی:** ۱ روز
+**وضعیت:** ✅ تکمیل شده
 
 ### ۷.۲ صفحات گزارش
-- [ ] **ReportsView.vue** - اتصال کامل به API
-- [ ] نمودارهای هزینه‌ها
-- [ ] نمودارهای سرویس‌ها
-- [ ] گزارش‌های PDF (Pro-only)
-- [ ] خروجی CSV
+- [x] **ReportsView.vue** - اتصال کامل به API
+- [x] نمودار روند ماهانه هزینه‌ها (costByMonth)
+- [x] تفکیک هزینه‌ها (costByCategory) با درصد
+- [x] چهار کارت خلاصه (کل هزینه، سوخت، سرویس، هزینه به کیلومتر)
+- [x] جدول هزینه‌های اخیر (ادغام سرویس و هزینه، ۲۰ رکورد)
+- [x] خروجی CSV (ساخته‌شده سمت کلاینت از لیست سرویس/هزینه)
+- [ ] گزارش‌های PDF (Pro-only، backlog)
 
 **اولویت:** متوسط  
-**زمان تخمینی:** ۳ روز
+**وضعیت:** ✅ تکمیل شده (به جز PDF)
 
 ## 🤖 فاز ۸: مشاور هوشمند (AI Assistant)
 
@@ -1137,7 +1145,7 @@
 - یادآورها و نوتیفیکیشن‌ها
 
 ### هفته ۷: فازهای ۷ و ۹ (Reports + Settings)
-- گزارش‌ها
+- گزارش‌ها ✅ (تکمیل شده: داده واقعی، فیلتر، نمودار، CSV)
 - تنظیمات
 
 ### هفته ۸: فازهای ۱۱ و ۱۲ (UX + Mobile)
@@ -1214,7 +1222,7 @@
 13. CI/CD Integration
 
 ### 🟡 اولویت متوسط
-9. Reports
+9. Reports ✅ (تکمیل شده)
 10. Settings
 11. Loading States
 12. Toast Notifications
@@ -1474,7 +1482,7 @@
 
 **گام بعدی:** 🔧 تکمیل باقی Features
 - Expense Management
-- Reports
+- ~~Reports~~ ✅ (اتصال به API با داده واقعی، فیلتر، نمودار، CSV)
 - Settings (با کانال‌های یادآوری چندگانه)
 - AI Assistant
 - Upgrade Pro
