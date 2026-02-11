@@ -42,8 +42,8 @@
 |-----------|-------------|--------|
 | GET list | GET `/api/services/` | دارد |
 | GET one | GET `/api/services/<id>/` | دارد |
-| POST create | POST `/api/services/` | دارد |
-| PATCH update | PATCH `/api/services/<id>/` | دارد |
+| POST create | POST `/api/services/` | دارد (پشتیبانی از `types` و `items`) |
+| PATCH update | PATCH `/api/services/<id>/` | دارد (پشتیبانی از `types` و `items`) |
 | DELETE | DELETE `/api/services/<id>/` | دارد |
 | GET latest for vehicle | GET `/api/services/latest/<vehicleId>/` | دارد |
 

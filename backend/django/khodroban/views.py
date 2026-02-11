@@ -19,12 +19,13 @@ from django.db.models.functions import TruncMonth
 from collections import defaultdict
 from .serializers import RegisterSerializer, MyTokenObtainPairSerializer
 
+from django.db import transaction
 from .models import (
-    Vehicle, Service, DailyExpense, ReminderSetting, Reminder,
+    Vehicle, Service, ServiceItem, DailyExpense, ReminderSetting, Reminder,
     Notification, TelegramSetting, UserProfile, VehicleKmHistory,
     ServiceType, ExpenseCategory
 )
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from .serializers import (
     VehicleSerializer, VehicleApiSerializer,
     ServiceSerializer, ServiceApiSerializer,
@@ -192,7 +193,9 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Service.objects.filter(vehicle__user_profile=self.request.user.userprofile)
+        return Service.objects.filter(vehicle__user_profile=self.request.user.userprofile).prefetch_related(
+            'serviceitem_set__service_type_code'
+        )
 
     def perform_create(self, serializer):
         vehicle_id = self.request.data.get('vehicleId')
@@ -201,8 +204,146 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
         vehicle = Vehicle.objects.filter(pk=vehicle_id, user_profile=self.request.user.userprofile).first()
         if not vehicle:
             raise PermissionDenied('خودرو یافت نشد یا دسترسی ندارید.')
-        total_cost = self.request.data.get('cost', 0)
-        serializer.save(vehicle=vehicle, total_cost=total_cost)
+
+        types = self.request.data.get('types') or []
+        items = self.request.data.get('items') or []
+        cost = self.request.data.get('cost') or 0
+        if items:
+            total_cost = sum(int(i.get('cost', 0)) for i in items)
+        else:
+            total_cost = int(cost) if cost else 0
+            if types and total_cost:
+                # تقسیم مساوی بین انواع در صورت نبود items
+                pass  # بعد از save، هر type یک ServiceItem با cost = total_cost // len(types)
+
+        with transaction.atomic():
+            serializer.save(vehicle=vehicle, total_cost=total_cost)
+            service = serializer.instance
+
+            type_codes = []
+            if items:
+                type_codes = [i.get('type') for i in items if i.get('type')]
+            elif types:
+                type_codes = list(types) if isinstance(types, (list, tuple)) else [types]
+
+            if not type_codes:
+                return
+
+            # اعتبارسنجی: همه کدها در ServiceType وجود داشته باشند
+            existing = set(
+                ServiceType.objects.filter(code__in=type_codes, is_active=True).values_list('code', flat=True)
+            )
+            missing = set(type_codes) - existing
+            if missing:
+                raise ValidationError(
+                    {'types': f'نوع سرویس نامعتبر: {", ".join(sorted(missing))}'}
+                )
+
+            type_objs = {c: ServiceType.objects.get(code=c) for c in type_codes}
+            if items:
+                # یک رکورد به ازای هر type (unique_together service, service_type_code)
+                by_type = defaultdict(lambda: {'cost': 0, 'descriptions': []})
+                for item in items:
+                    code = item.get('type')
+                    if not code or code not in existing:
+                        continue
+                    by_type[code]['cost'] += int(item.get('cost', 0))
+                    desc = (item.get('description') or '').strip()
+                    if desc:
+                        by_type[code]['descriptions'].append(desc)
+                for code, data in by_type.items():
+                    desc = '؛ '.join(data['descriptions']) if data['descriptions'] else None
+                    ServiceItem.objects.get_or_create(
+                        service=service,
+                        service_type_code=type_objs[code],
+                        defaults={'cost': data['cost'], 'description': desc or None}
+                    )
+            else:
+                per_cost = total_cost // len(type_codes) if type_codes else 0
+                for code in type_codes:
+                    ServiceItem.objects.get_or_create(
+                        service=service,
+                        service_type_code=type_objs[code],
+                        defaults={'cost': per_cost, 'description': None}
+                    )
+
+            # ثبت کیلومتر در تاریخچه (هم‌تراز با Supabase)
+            km = self.request.data.get('km')
+            if km is not None:
+                try:
+                    km_int = int(km)
+                    if km_int >= 0:
+                        types_text = ', '.join(type_codes) if type_codes else 'سرویس'
+                        VehicleKmHistory.objects.create(
+                            vehicle=vehicle,
+                            km=km_int,
+                            source_type='service',
+                            source_id=service.service_id,
+                            note=f'سرویس: {types_text}'
+                        )
+                        vehicle.current_km = km_int
+                        vehicle.save(update_fields=['current_km', 'updated_at'])
+                except (TypeError, ValueError):
+                    pass
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        service = serializer.instance
+        types = self.request.data.get('types')
+        items = self.request.data.get('items')
+        if types is None and items is None:
+            return
+        type_codes = []
+        if items:
+            type_codes = [i.get('type') for i in items if i.get('type')]
+        elif types:
+            type_codes = list(types) if isinstance(types, (list, tuple)) else [types]
+        with transaction.atomic():
+            service.serviceitem_set.all().delete()
+            if not type_codes:
+                return
+            existing = set(
+                ServiceType.objects.filter(code__in=type_codes, is_active=True).values_list('code', flat=True)
+            )
+            missing = set(type_codes) - existing
+            if missing:
+                raise ValidationError(
+                    {'types': f'نوع سرویس نامعتبر: {", ".join(sorted(missing))}'}
+                )
+            type_objs = {c: ServiceType.objects.get(code=c) for c in type_codes}
+            total_cost = 0
+            if items:
+                by_type = defaultdict(lambda: {'cost': 0, 'descriptions': []})
+                for item in items:
+                    code = item.get('type')
+                    if not code or code not in existing:
+                        continue
+                    by_type[code]['cost'] += int(item.get('cost', 0))
+                    desc = (item.get('description') or '').strip()
+                    if desc:
+                        by_type[code]['descriptions'].append(desc)
+                for code, data in by_type.items():
+                    total_cost += data['cost']
+                    desc = '؛ '.join(data['descriptions']) if data['descriptions'] else None
+                    ServiceItem.objects.create(
+                        service=service,
+                        service_type_code=type_objs[code],
+                        cost=data['cost'],
+                        description=desc or None
+                    )
+            else:
+                cost_from_request = self.request.data.get('cost')
+                total_cost = int(cost_from_request or 0)
+                per_cost = total_cost // len(type_codes) if type_codes else 0
+                for code in type_codes:
+                    ServiceItem.objects.create(
+                        service=service,
+                        service_type_code=type_objs[code],
+                        cost=per_cost,
+                        description=None
+                    )
+            service.total_cost = total_cost
+            service.save(update_fields=['total_cost', 'updated_at'])
 
     @action(detail=False, methods=['get'], url_path='latest/(?P<vehicle_id>[^/.]+)')
     def latest(self, request, vehicle_id=None):
