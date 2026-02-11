@@ -33,17 +33,19 @@ git rebase origin/develop
 git push --force-with-lease origin feature/add-service-history
 ```
 
-## سناریو ۴: قانون Merge (مقصد/منبع)
+## سناریو ۴: ادغام feature به develop فقط با PR
 
-مدل ذهنی درست:
-- branch فعلی (checked-out) = مقصد merge
-- branchی که بعد از `git merge <branch>` می‌آید = منبع merge
+مسیر درست ادغام:
+- از branch کاری (`feature/*` یا `bugfix/*`) PR بساز
+- مقصد PR باید `develop` باشد
+- merge مستقیم محلی روی `develop` برای جریان عادی انجام نده
 
-نمونه صحیح برای بردن feature به develop:
+نمونه صحیح:
 
 ```bash
-git checkout develop
-git pull origin develop
-git merge feature/add-service-history
-git push origin develop
+git checkout feature/add-service-history
+git fetch origin
+git merge origin/develop
+git push -u origin feature/add-service-history
+gh pr create --base develop --head feature/add-service-history --title "feat(service): add service history" --body "## Summary\n- add service history flow"
 ```
