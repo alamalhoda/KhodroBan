@@ -4,7 +4,7 @@ globs:
   - "frontend-vue/src/**/*.vue"
   - "frontend-vue/src/**/*.js"
   - "frontend-vue/src/**/*.css"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Accessibility (WCAG 2.1 AA)

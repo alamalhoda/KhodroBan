@@ -3,7 +3,7 @@ description: Vue component design principles, props, emits, slots, and compositi
 globs:
   - "frontend-vue/src/**/*.vue"
   - "frontend-vue/src/**/*.js"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Component Design Principles (Vue 3)

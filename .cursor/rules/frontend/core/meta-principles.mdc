@@ -4,148 +4,42 @@ globs:
   - "frontend-vue/src/**/*.vue"
   - "frontend-vue/src/**/*.js"
   - "frontend-vue/src/**/*.css"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Meta-Principles
 
-اصول پایه‌ای که زیربنای همه قوانین طراحی Frontend هستند.
+اصول پایه frontend. اصول جهان‌شمول در فایل اشتراکی تعریف شده‌اند:
+`.cursor/rules/share/engineering-principles.mdc`
 
-## Single Source of Truth (برای State)
+اگر اختلافی وجود داشت، rule تخصصی frontend در این فایل اولویت دارد.
 
-هر piece از application state باید دقیقاً **یک** مالک و منبع معتبر داشته باشد.
+## Frontend-Specific Principles
 
-**رفتار AI:**
-- برای shared state از Pinia store استفاده کن
-- از prop drilling عمیق پرهیز کن (>3 سطح = استفاده از store)
-- State را در نزدیک‌ترین common ancestor نگه دار
+### Single Source of Truth در UI
+- برای تصمیم‌های طراحی از design tokens و CSS variables استفاده کن.
+- منبع مقادیر design باید مرکزی و قابل ردیابی باشد.
 
-## Single Source of Truth در طراحی UI
+### Component Reusability
+- کامپوننت‌ها isolated و self-contained باشند.
+- از props/slots برای customization استفاده کن.
+- وابستگی مستقیم به context خاص parent ایجاد نکن.
 
-هر تصمیم طراحی باید یک مرجع معتبر داشته باشد.
+### Progressive Enhancement
+- HTML/CSS پایه باید بدون JavaScript نیز قابل استفاده باشد.
+- فرم‌ها باید با HTML5 validation کار کنند.
 
-**چرا مهم است؟**
-تضمین ثبات در طراحی و کاهش تصمیم‌گیری‌های تکراری.
+### Mobile-First Design
+- base styles بدون media query (موبایل) باشند.
+- media queryها فقط `min-width` باشند.
+- touch targets حداقل `44x44px` رعایت شوند.
 
-**قوانین:**
-- از design tokens برای مقادیر طراحی استفاده کن
-- از CSS variables برای تم‌ها استفاده کن
-- از یک فایل مرکزی برای configuration استفاده کن
+### Accessibility First
+- semantic HTML همیشه اولویت دارد.
+- ARIA فقط وقتی semantic کافی نیست استفاده شود.
+- همه عناصر تعاملی باید keyboard-accessible باشند.
 
-## Component Reusability
-
-کامپوننت‌ها باید isolated، self-contained و قابل استفاده مجدد در contexts مختلف باشند.
-
-**رفتار AI:**
-- هر کامپوننت باید بدون وابستگی به parent/context خاص کار کند
-- از props برای customization استفاده کن، نه از global state
-- هر کامپوننت باید documentable و testable باشد
-
-## Separation of Concerns (UI/Logic/Data)
-
-منطق UI، منطق تجاری (business logic)، و دسترسی به داده باید کاملاً جدا باشند.
-
-**رفتار AI:**
-- **Presentational Components:** فقط UI، بدون logic
-- **Container Components:** مدیریت state و logic
-- **Services:** API calls و data fetching
-- **Stores (Pinia):** Global state management
-
-## Minimize Change Impact
-
-تغییر در یک بخش سیستم باید کمترین اثر موجی روی سایر بخش‌ها داشته باشد.
-
-**چرا مهم است؟**
-کاهش ریسک تغییرات و افزایش سرعت توسعه.
-
-**قوانین:**
-- از loose coupling استفاده کن
-- از dependency injection استفاده کن
-- از state management متمرکز (Pinia) استفاده کن
-
-## Progressive Enhancement
-
-برنامه باید با basic HTML/CSS کار کند و JavaScript فقط تجربه را بهبود دهد.
-
-**رفتار AI:**
-- از semantic HTML استفاده کن که بدون JS معنادار باشد
-- فرم‌ها باید با HTML5 validation کار کنند
-- Core content باید بدون JS قابل دسترسی باشد (اگر ممکن است)
-
-## Mobile-First Design
-
-طراحی از کوچک‌ترین صفحه (موبایل) شروع شود و به صفحات بزرگتر گسترش یابد.
-
-**رفتار AI:**
-- Base styles بدون media query (موبایل)
-- Media queries فقط برای min-width (scale up)
-- Touch targets حداقل 44×44px
-- Thumb-friendly UI (دکمه‌های مهم در دسترس انگشت شست)
-
-## Accessibility First
-
-دسترسی‌پذیری یک ویژگی نیست، یک الزام است.
-
-**رفتار AI:**
-- همیشه semantic HTML استفاده کن
-- ARIA attributes فقط زمانی که semantic HTML کافی نیست
-- همه interactive elements باید keyboard-accessible باشند
-- Focus states واضح و قابل مشاهده
-
-## Performance First
-
-عملکرد یک ویژگی است که بر تجربه کاربر تأثیر مستقیم دارد.
-
-**رفتار AI:**
-- Lazy load همه چیز که off-screen است
-- Code splitting برای routes
-- Image optimization (WebP, lazy loading, srcset)
-- CSS/JS minification و compression
-
-## Local Reasoning
-
-توسعه‌دهنده باید بتواند رفتار یک کامپوننت را با خواندن همان کامپوننت درک کند.
-
-**چرا مهم است؟**
-افزایش خوانایی و قابلیت نگهداری کد.
-
-**قوانین:**
-- منطق را در همان کامپوننت نگه دار
-- از side effects غیرضروری پرهیز کن
-- از نام‌های واضح و توصیفی استفاده کن
-
-## Explicitness over Implicitness
-
-رفتار و قراردادهای کامپوننت باید شفاف و قابل مشاهده باشند.
-
-**چرا مهم است؟**
-کاهش ابهام و افزایش قابلیت پیش‌بینی رفتار کامپوننت.
-
-**قوانین:**
-- از props صریح استفاده کن
-- از default values واضح استفاده کن
-- از emit برای communication استفاده کن
-
-## Human First, Machine Second
-
-کد برای خوانده‌شدن توسط انسان نوشته می‌شود، نه فقط برای اجرا.
-
-**چرا مهم است؟**
-افزایش خوانایی، قابلیت نگهداری و همکاری تیمی.
-
-**قوانین:**
-- از نام‌های واضح و توصیفی استفاده کن
-- از ساختار منطقی استفاده کن
-- از کامنت‌های مفید استفاده کن (فقط در صورت نیاز)
-
-## Optimize for Change, Not for Now
-
-کد را برای تغییرات آینده بهینه کن، نه فقط برای نیاز فعلی.
-
-**چرا مهم است؟**
-افزایش انعطاف‌پذیری و کاهش هزینه تغییرات.
-
-**قوانین:**
-- از abstractions مناسب استفاده کن
-- از configuration به جای hard-coding استفاده کن
-- از patterns قابل گسترش استفاده کن
+### Performance First (Frontend)
+- lazy loading برای محتوای off-screen.
+- code splitting برای routeها.
+- بهینه‌سازی image/font پیش‌فرض باشد.

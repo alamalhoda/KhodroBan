@@ -8,6 +8,10 @@ alwaysApply: false
 
 # Anti-Patterns
 
+قاعده‌های عمومی anti-pattern در
+`.cursor/rules/share/code-quality-baseline.mdc`
+تعریف شده‌اند. این فایل فقط anti-patternهای اختصاصی frontend را پوشش می‌دهد.
+
 ## Prop Drilling
 
 ❌ **Bad:** Prop drilling عمیق (>3 سطح)
