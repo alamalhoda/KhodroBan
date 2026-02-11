@@ -134,6 +134,25 @@ class ServiceType(models.Model):
         return self.name
 
 
+class ExpenseCategory(models.Model):
+    """دسته‌بندی هزینه (مثل سوخت، کارواش) — فقط خواندنی برای فرانت."""
+    id = models.AutoField(primary_key=True)
+    code = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=100)
+    group_name = models.CharField(max_length=50)
+    icon = models.CharField(max_length=10)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = _("Expense Category")
+        verbose_name_plural = _("Expense Categories")
+
+    def __str__(self):
+        return self.name
+
+
 class Service(models.Model):
     service_id = models.BigAutoField(primary_key=True)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)

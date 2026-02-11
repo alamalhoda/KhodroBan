@@ -18,7 +18,8 @@ from .serializers import RegisterSerializer, MyTokenObtainPairSerializer
 
 from .models import (
     Vehicle, Service, DailyExpense, ReminderSetting, Reminder,
-    Notification, TelegramSetting, UserProfile, VehicleKmHistory
+    Notification, TelegramSetting, UserProfile, VehicleKmHistory,
+    ServiceType, ExpenseCategory
 )
 from rest_framework.exceptions import PermissionDenied
 from .serializers import (
@@ -27,7 +28,8 @@ from .serializers import (
     DailyExpenseSerializer, DailyExpenseApiSerializer,
     ReminderSettingSerializer, ReminderSerializer, ReminderApiSerializer,
     NotificationSerializer, TelegramSettingSerializer,
-    VehicleKmHistorySerializer
+    VehicleKmHistorySerializer,
+    ServiceTypeSerializer, ExpenseCategorySerializer
 )
 from .huey_tasks import send_telegram
 
@@ -237,6 +239,20 @@ class DailyExpenseViewSet(ApiResponseMixin, viewsets.ModelViewSet):
         if not vehicle:
             raise PermissionDenied('خودرو یافت نشد یا دسترسی ندارید.')
         serializer.save(vehicle=vehicle)
+
+
+class ServiceTypeViewSet(ApiResponseMixin, viewsets.ReadOnlyModelViewSet):
+    """انواع سرویس (فقط خواندنی) برای فرانت در حالت Django."""
+    queryset = ServiceType.objects.filter(is_active=True).order_by('group_name', 'code')
+    serializer_class = ServiceTypeSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class ExpenseCategoryViewSet(ApiResponseMixin, viewsets.ReadOnlyModelViewSet):
+    """دسته‌بندی هزینه (فقط خواندنی) برای فرانت در حالت Django."""
+    queryset = ExpenseCategory.objects.filter(is_active=True).order_by('group_name', 'code')
+    serializer_class = ExpenseCategorySerializer
+    permission_classes = [IsAuthenticated]
 
 
 class ReminderSettingViewSet(ApiResponseMixin, viewsets.ModelViewSet):

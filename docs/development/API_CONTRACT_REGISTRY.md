@@ -107,12 +107,12 @@
 
 ---
 
-## Service Types / Expense Categories (فعلاً Supabase-only در FE)
+## Service Types / Expense Categories
 
 | انتظار FE | مسیر Django | وضعیت |
 |-----------|-------------|--------|
-| service_types list | — | ندارد (مدل ServiceType در Django وجود دارد؛ endpoint خواندنی لازم است) |
-| expense_categories list | — | ندارد (مدل در Django ممکن است نباشد؛ نیاز به تعریف) |
+| service_types list | GET `/api/service-types/` | دارد |
+| expense_categories list | GET `/api/expense-categories/` | دارد |
 
 ---
 
