@@ -10,7 +10,9 @@ class VehicleAPITests(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username="apiuser", password="apipass")
-        self.profile = UserProfile.objects.create(user=self.user, email="api@test.com")
+        self.profile, _ = UserProfile.objects.get_or_create(
+            user=self.user, defaults={"email": "api@test.com"}
+        )
         self.client.force_authenticate(user=self.user)
 
         self.list_url = reverse('vehicle-list')
@@ -30,16 +32,19 @@ class VehicleAPITests(APITestCase):
         self.assertEqual(Vehicle.objects.first().plate_number, "12ب34567")
 
     def test_list_vehicles_only_own(self):
-        other_user = User.objects.create_user(username="other", password="pass")
-        other_profile = UserProfile.objects.create(user=other_user, email="o@t.com")
+        other_user = User.objects.create_user(
+            username="other", password="pass", email="other@test.com"
+        )
+        other_profile = UserProfile.objects.get(user=other_user)
         Vehicle.objects.create(user_profile=other_profile, model="سمند", year=1400, plate_number="99ج999")
 
         Vehicle.objects.create(user_profile=self.profile, model="پراید", year=1395, plate_number="11ا111")
 
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['plate_number'], "11ا111")
+        payload = response.data.get("data", response.data)
+        self.assertEqual(len(payload), 1)
+        self.assertEqual(payload[0]["plateNumber"], "11ا111")
 
     def test_update_vehicle_own(self):
         vehicle = Vehicle.objects.create(
@@ -56,8 +61,10 @@ class VehicleAPITests(APITestCase):
         self.assertEqual(vehicle.current_km, 15000)
 
     def test_cannot_update_other_vehicle(self):
-        other_user = User.objects.create_user(username="other2", password="pass")
-        other_profile = UserProfile.objects.create(user=other_user, email="o2@t.com")
+        other_user = User.objects.create_user(
+            username="other2", password="pass", email="o2@test.com"
+        )
+        other_profile = UserProfile.objects.get(user=other_user)
         other_vehicle = Vehicle.objects.create(
             user_profile=other_profile,
             model="دیگر",

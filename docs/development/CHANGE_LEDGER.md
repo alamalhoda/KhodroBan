@@ -37,6 +37,11 @@
 - **تصمیم:** تابع `getErrorMessage` در `shared/services/api.ts` از فیلدهای `message`, `detail`, `error` در پاسخ خطا استفاده می‌کند. 401 باعث پاک شدن token و فراخوانی onAuthError می‌شود.
 - **مسیر:** `shared/services/api.ts`
 
+### 2025-02-11 — Reports summary & Regression Gate
+- **حوزه:** API, other
+- **تصمیم:** گزارش خلاصه فقط از Django — GET `/api/reports/summary/` با `totalServiceCost`, `totalExpenses`, `costByCategory`, `costByMonth`. Export CSV/PDF و trend ماهانه در MVP پیاده نشده (backlog). Regression Gate: smoke روزانه (auth + vehicle tests)، suite هفتگی (همه تست‌های khodroban + build فرانت)، چک‌لیست قبل از PR در `REGRESSION_GATE.md`.
+- **مسیر:** `backend/django/khodroban/views.py` (ReportSummaryView), `docs/development/REGRESSION_GATE.md`, `API_CONTRACT_REGISTRY.md`, `PAGE_REVIEW_LOG.md`
+
 ---
 
 *ورودی‌های بعدی با تکمیل هر صفحه یا تصمیم جدید اضافه شوند.*

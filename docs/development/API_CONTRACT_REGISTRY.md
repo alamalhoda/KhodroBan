@@ -81,10 +81,10 @@
 
 | انتظار FE | مسیر Django | وضعیت |
 |-----------|-------------|--------|
-| GET summary | GET `/api/reports/summary/` | ندارد |
-| GET export CSV | GET `/api/reports/export/csv/` | ندارد |
-| GET export PDF | GET `/api/reports/export/pdf/` | ندارد |
-| GET trend monthly | GET `/api/reports/trend/monthly/` | ندارد |
+| GET summary | GET `/api/reports/summary/` | دارد |
+| GET export CSV | GET `/api/reports/export/csv/` | ندارد (MVP: بعداً) |
+| GET export PDF | GET `/api/reports/export/pdf/` | ندارد (MVP: بعداً) |
+| GET trend monthly | GET `/api/reports/trend/monthly/` | ندارد (MVP: خلاصه شامل costByMonth) |
 
 ---
 

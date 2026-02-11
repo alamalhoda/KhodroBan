@@ -14,6 +14,9 @@ import logging
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
+from collections import defaultdict
 from .serializers import RegisterSerializer, MyTokenObtainPairSerializer
 
 from .models import (
@@ -451,6 +454,76 @@ def huey_health(request):
         return Response(result)
     except Exception as e:
         return Response({'status': 'error', 'detail': str(e)}, status=500)
+
+
+class ReportSummaryView(APIView):
+    """خلاصه گزارش سرویس و هزینه برای فرانت (Django)."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile = request.user.userprofile
+        vehicle_id = request.query_params.get('vehicle_id') or request.query_params.get('vehicleId')
+        vehicles = Vehicle.objects.filter(user_profile=profile)
+        if vehicle_id:
+            vehicles = vehicles.filter(vehicle_id=vehicle_id)
+        if not vehicles.exists():
+            return api_response({
+                'totalServiceCost': 0,
+                'totalExpenses': 0,
+                'totalCost': 0,
+                'serviceCount': 0,
+                'expenseCount': 0,
+                'costByCategory': {},
+                'costByMonth': [],
+            })
+        vehicle_ids = list(vehicles.values_list('vehicle_id', flat=True))
+        services = Service.objects.filter(vehicle_id__in=vehicle_ids)
+        expenses = DailyExpense.objects.filter(vehicle_id__in=vehicle_ids)
+        total_service_cost = services.aggregate(s=Sum('total_cost'))['s'] or 0
+        total_expenses = expenses.aggregate(s=Sum('amount'))['s'] or 0
+        cost_by_category = {}
+        services_prefetch = Service.objects.filter(vehicle_id__in=vehicle_ids).prefetch_related('serviceitem_set')
+        for s in services_prefetch:
+            items = list(s.serviceitem_set.all())
+            types = [it.service_type_code_id for it in items]
+            key = f"service_{types[0]}" if types else 'service_other'
+            cost_by_category[key] = cost_by_category.get(key, 0) + (s.total_cost or 0)
+        for e in expenses:
+            key = e.category_code or 'other'
+            cost_by_category[key] = cost_by_category.get(key, 0) + e.amount
+        month_agg = list(
+            Service.objects.filter(vehicle_id__in=vehicle_ids)
+            .annotate(month=TruncMonth('service_date_gregorian'))
+            .values('month')
+            .annotate(amount=Sum('total_cost'))
+            .order_by('-month')[:12]
+        )
+        expense_month = list(
+            DailyExpense.objects.filter(vehicle_id__in=vehicle_ids)
+            .annotate(month=TruncMonth('expense_date_gregorian'))
+            .values('month')
+            .annotate(amount=Sum('amount'))
+            .order_by('-month')[:12]
+        )
+        by_month = defaultdict(int)
+        for r in month_agg:
+            key = r['month'].strftime('%Y-%m') if r['month'] else ''
+            if key:
+                by_month[key] += r['amount'] or 0
+        for r in expense_month:
+            key = r['month'].strftime('%Y-%m') if r['month'] else ''
+            if key:
+                by_month[key] += r['amount'] or 0
+        cost_by_month = [{'month': k, 'amount': v} for k, v in sorted(by_month.items(), reverse=True)[:12]]
+        return api_response({
+            'totalServiceCost': total_service_cost,
+            'totalExpenses': total_expenses,
+            'totalCost': total_service_cost + total_expenses,
+            'serviceCount': services.count(),
+            'expenseCount': expenses.count(),
+            'costByCategory': cost_by_category,
+            'costByMonth': cost_by_month,
+        })
 
 
 class MeView(APIView):
