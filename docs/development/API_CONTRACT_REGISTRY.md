@@ -82,9 +82,14 @@
 | انتظار FE | مسیر Django | وضعیت |
 |-----------|-------------|--------|
 | GET summary | GET `/api/reports/summary/` | دارد |
-| GET export CSV | GET `/api/reports/export/csv/` | ندارد (MVP: بعداً) |
+| GET export CSV | GET `/api/reports/export/csv/` | ندارد (MVP: ساخته‌شده سمت کلاینت از GET services + GET expenses) |
 | GET export PDF | GET `/api/reports/export/pdf/` | ندارد (MVP: بعداً) |
-| GET trend monthly | GET `/api/reports/trend/monthly/` | ندارد (MVP: خلاصه شامل costByMonth) |
+| GET trend monthly | — | از خلاصه: پاسخ summary شامل `costByMonth` است |
+
+**خلاصه گزارش (GET summary):**
+- **Query params (اختیاری):** `vehicle_id` (یا camelCase `vehicleId`)، `date_from` / `date_to` (یا `dateFrom` / `dateTo`) به صورت ISO `YYYY-MM-DD`.
+- **پاسخ:** `totalCost`, `totalKm`, `costByCategory`, `costByMonth` (آرایه `{ month, amount }`).
+- **هزینه‌های اخیر (جدول در صفحه):** از لیست سرویس و هزینه (GET `/api/services/`, GET `/api/expenses/`) با همان فیلتر vehicle/بازه ادغام و مرتب‌سازی بر اساس تاریخ.
 
 ---
 

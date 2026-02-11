@@ -182,17 +182,17 @@
 
 ## Reports
 
-- **۱. ساختار:** مطابق (ReportsView)
+- **۱. ساختار:** مطابق (ReportsView + report store + reportService)
 - **۲. تست frontend:** ناقص
-- **۳. ارتباط با backend:** فقط Django — GET /api/reports/summary/
-- **۴. زیرساخت Django:** ReportSummaryView — کافی برای MVP
-- **۵. تست backend:** ناقص
-- **۶. مدیریت خطا:** یکپارچه
+- **۳. ارتباط با backend:** فقط Django — GET /api/reports/summary/ (فیلتر vehicle_id, date_from, date_to)، GET /api/services/ و GET /api/expenses/ برای جدول هزینه‌های اخیر و خروجی CSV سمت کلاینت
+- **۴. زیرساخت Django:** ReportSummaryView (فیلتر تاریخ، totalKm، costByMonth فیلترشده) — کافی برای MVP
+- **۵. تست backend:** دارد — test_reports.py (احراز هویت، پاسخ خالی، فیلتر vehicle_id، فیلتر date_from/date_to)
+- **۶. مدیریت خطا:** یکپارچه (store error + تلاش مجدد)
 - **۷. i18n:** ناقص
 - **۸. a11y:** نیاز به بهبود
-- **۹. قرارداد API:** ثبت شده
-- **وضعیت flow:** بدون باگ بحرانی (خلاصه؛ export CSV/PDF در backlog)
-- **اقدامات بعدی:** —
+- **۹. قرارداد API:** ثبت شده (فیلترها و totalKm در API_CONTRACT_REGISTRY)
+- **وضعیت flow:** بدون باگ بحرانی؛ صفحه با داده واقعی (دراپ‌دان خودرو/بازه، کارت‌ها، نمودار ماهانه، تفکیک هزینه، جدول اخیر، دانلود CSV)
+- **اقدامات بعدی:** تست واحد/e2e فرانت برای ReportsView در صورت نیاز
 
 ---
 
