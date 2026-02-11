@@ -23,7 +23,8 @@ alwaysApply: true
 3. branch جدید را صریحاً از شاخه مبدا بساز (`git checkout -b ... develop`).
 4. قبل از PR، feature branch را با `origin/develop` همگام کن.
 5. اگر rebase انجام شد، فقط `--force-with-lease` مجاز است (نه `--force`).
-6. همیشه در پیشنهاد merge مشخص کن مقصد کدام branch است.
+6. ادغام `feature/*` یا `bugfix/*` به `develop` فقط از طریق Pull Request مجاز است.
+7. برای ادغام عادی به `develop` هرگز دستور merge مستقیم محلی (`git merge feature/...`) پیشنهاد نده.
 
 ## ترتیب استاندارد شروع Feature
 ```bash
@@ -66,11 +67,14 @@ git merge origin/develop
 2. `git add <file>`
 3. ادامه فرآیند (`git merge --continue` یا `git rebase --continue`)
 
-## Push و PR
+## Push و PR (اجباری برای ادغام به `develop`)
 ```bash
 git push -u origin feature/<name>
 # اگر rebase شده:
 git push --force-with-lease origin feature/<name>
+
+# ساخت PR به develop
+gh pr create --base develop --head feature/<name> --title "<title>" --body "<body>"
 ```
 
 PR باید:
@@ -86,24 +90,18 @@ PR باید:
 - تست‌های مرتبط پاس شده‌اند
 - commit messageها استاندارد هستند
 
-## قاعده Merge (خیلی مهم)
-- branch فعلی = مقصد merge
-- branchی که بعد از `git merge` می‌آید = منبع
-
-نمونه صحیح برای بردن feature به develop:
-```bash
-git checkout develop
-git pull origin develop
-git merge feature/<name>
-git push origin develop
-```
+## قاعده ادغام به `develop` (خیلی مهم)
+- مسیر مجاز ادغام: `feature/*` یا `bugfix/*` -> Pull Request -> `develop`
+- merge مستقیم محلی روی `develop` برای جریان عادی مجاز نیست.
+- اگر کاربر درخواست merge مستقیم داد، ابتدا مسیر PR را پیشنهاد بده و دلیل ایمنی را کوتاه توضیح بده.
 
 ## رفتار اجباری AI در پیشنهاد دستورات
 - قبل از دستورهای حساس، ابتدا `git status` پیشنهاد بده.
 - در صورت مشاهده الگوی خطرناک (مثل کار روی `main`/`develop`)، هشدار صریح بده.
 - در صورت ابهام در هدف کاربر، اول هدف را شفاف کن و سپس دستور بده.
+- برای ادغام به `develop` ابتدا push branch و سپس PR را راهنمایی/اجرا کن.
 
-## پاک‌سازی بعد از Merge
+## پاک‌سازی بعد از PR Merge
 ```bash
 git checkout develop
 git pull origin develop

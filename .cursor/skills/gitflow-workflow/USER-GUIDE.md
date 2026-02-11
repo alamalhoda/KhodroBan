@@ -13,7 +13,8 @@ Skill `gitflow-workflow` کمک می‌کند جریان GitFlow پروژه را
 - همگام‌سازی branch قبل از PR
 - push امن بعد از rebase
 - چک‌لیست آماده‌سازی PR
-- پاک‌سازی branch بعد از merge
+- ادغام به `develop` فقط از مسیر PR
+- پاک‌سازی branch بعد از PR merge
 
 ---
 
@@ -57,6 +58,7 @@ Skill `gitflow-workflow` کمک می‌کند جریان GitFlow پروژه را
 3. مسیر امن GitFlow را مرحله‌به‌مرحله پیشنهاد/اجرا می‌کند
 4. قبل از PR، sync با `origin/develop` را یادآوری می‌کند
 5. به جای `--force` از `--force-with-lease` استفاده می‌کند
+6. برای ادغام به `develop` مسیر PR را پیشنهاد می‌دهد (نه merge مستقیم محلی)
 
 ---
 
@@ -90,7 +92,7 @@ Skill `gitflow-workflow` کمک می‌کند جریان GitFlow پروژه را
 ### دستور اشتباه به نظر می‌رسد
 
 - وضعیت فعلی branch را اعلام کن.
-- هدف را دقیق بگو (مثلا: merge می‌خواهی یا rebase؟).
+- هدف را دقیق بگو (مثلا: PR می‌خواهی یا فقط sync/rebase؟).
 
 ---
 
