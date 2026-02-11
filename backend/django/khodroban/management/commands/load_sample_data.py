@@ -34,6 +34,7 @@ from khodroban.sample_data import (
     SAMPLE_SERVICE_TYPES,
     ensure_plans,
     ensure_service_types,
+    ensure_expense_categories,
 )
 
 SAMPLE_USERNAME = "sample_user"
@@ -78,6 +79,9 @@ class Command(BaseCommand):
 
         ensure_service_types()
         self.stdout.write(self.style.SUCCESS("  انواع سرویس ایجاد/بروز شدند."))
+
+        ensure_expense_categories()
+        self.stdout.write(self.style.SUCCESS("  دسته‌بندی هزینه‌ها ایجاد/بروز شدند."))
 
         user = ensure_sample_user()
         profile = UserProfile.objects.get(user=user)
@@ -153,7 +157,7 @@ class Command(BaseCommand):
         )
         if created:
             st_oil = ServiceType.objects.get(code="oil_change")
-            st_filter = ServiceType.objects.get(code="oil_filter")
+            st_filter = ServiceType.objects.get(code="filter")
             ServiceItem.objects.create(service=service1, service_type_code=st_oil, cost=500000, description="روغن ۵W30")
             ServiceItem.objects.create(service=service1, service_type_code=st_filter, cost=350000, description="فیلتر روغن اصل")
 

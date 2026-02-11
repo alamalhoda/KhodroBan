@@ -120,15 +120,15 @@
 
 - **۱. ساختار:** مطابق (AddServiceView + service, vehicle, serviceType, expenseCategory stores)
 - **۲. تست frontend:** ناقص
-- **۳. ارتباط با backend:** فقط Django (سرویس/هزینه از shared؛ نوع سرویس/دسته‌بندی فعلاً Supabase)
-- **۴. زیرساخت Django:** ServiceViewSet, DailyExpenseViewSet, latest — کافی
-- **۵. تست backend:** ناقص (تست API سرویس/هزینه در PR بعدی)
+- **۳. ارتباط با backend:** فقط Django (سرویس/هزینه، نوع سرویس، دسته‌بندی هزینه از Django)
+- **۴. زیرساخت Django:** ServiceViewSet با types/items، ServiceItem، seed service_types و expense_categories، DailyExpenseViewSet، latest — کافی
+- **۵. تست backend:** دارد (test_api_services: create با types/items، VehicleKmHistory، Jalali date)
 - **۶. مدیریت خطا:** یکپارچه
 - **۷. i18n:** ناقص
 - **۸. a11y:** نیاز به بهبود
 - **۹. قرارداد API:** ثبت شده
-- **وضعیت flow:** بدون باگ بحرانی (با django-only-categories تکمیل می‌شود)
-- **اقدامات بعدی:** اتصال service-types/expense-categories به Django
+- **وضعیت flow:** بدون باگ بحرانی؛ اتصال service-types/expense-categories به Django انجام شده
+- **اقدامات بعدی:** —
 
 ---
 

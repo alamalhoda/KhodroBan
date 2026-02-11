@@ -16,9 +16,11 @@ from django.contrib.auth.models import User
 from khodroban.models import (
     SubscriptionPlan,
     ServiceType,
+    ExpenseCategory,
     UserProfile,
     Vehicle,
 )
+from khodroban.seed_data import SERVICE_TYPES_SEED, EXPENSE_CATEGORIES_SEED
 
 
 SAMPLE_PLANS = [
@@ -27,13 +29,8 @@ SAMPLE_PLANS = [
     {"plan_code": "pro+", "plan_name": "حرفه‌ای پلاس", "max_vehicles": None, "monthly_price": 199000},
 ]
 
-SAMPLE_SERVICE_TYPES = [
-    {"code": "oil_change", "name": "تعویض روغن", "group_name": "روغن و فیلتر", "icon": "🛢️"},
-    {"code": "oil_filter", "name": "فیلتر روغن", "group_name": "روغن و فیلتر", "icon": "🔧"},
-    {"code": "air_filter", "name": "فیلتر هوا", "group_name": "فیلترها", "icon": "💨"},
-    {"code": "tire_rotation", "name": "جابجایی لاستیک", "group_name": "لاستیک", "icon": "🛞"},
-    {"code": "brake_pad", "name": "لنت ترمز", "group_name": "ترمز", "icon": "🛑"},
-]
+# برای سازگاری با تست‌های قدیمی؛ منبع حقیقت: seed_data.SERVICE_TYPES_SEED
+SAMPLE_SERVICE_TYPES = SERVICE_TYPES_SEED
 
 
 def ensure_plans():
@@ -54,15 +51,29 @@ def ensure_plans():
 
 
 def ensure_service_types():
-    """انواع سرویس نمونه را در دیتابیس ایجاد می‌کند (get_or_create)."""
-    for s in SAMPLE_SERVICE_TYPES:
+    """انواع سرویس را مطابق seed_data (Supabase 005) در دیتابیس ایجاد می‌کند (get_or_create)."""
+    for s in SERVICE_TYPES_SEED:
         ServiceType.objects.get_or_create(
             code=s["code"],
             defaults={
                 "name": s["name"],
                 "group_name": s["group_name"],
                 "icon": s["icon"],
-                "is_active": True,
+                "is_active": s.get("is_active", True),
+            },
+        )
+
+
+def ensure_expense_categories():
+    """دسته‌بندی هزینه‌ها را مطابق seed_data (Supabase 005) در دیتابیس ایجاد می‌کند (get_or_create)."""
+    for c in EXPENSE_CATEGORIES_SEED:
+        ExpenseCategory.objects.get_or_create(
+            code=c["code"],
+            defaults={
+                "name": c["name"],
+                "group_name": c["group_name"],
+                "icon": c["icon"],
+                "is_active": c.get("is_active", True),
             },
         )
 

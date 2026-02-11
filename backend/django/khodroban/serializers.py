@@ -1,4 +1,5 @@
 # khodroban/serializers.py
+from datetime import datetime
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer as JWTTokenObtainPairSerializer
 from .models import (
@@ -9,6 +10,36 @@ from .models import (
 )
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+
+
+def parse_service_date(value):
+    """
+    Parse date string from frontend: ISO (YYYY-MM-DD) or Jalali (YYYY/MM/DD, year 1300-1500).
+    Returns (date, date) for (service_date, service_date_gregorian) as date objects.
+    """
+    if not value or not isinstance(value, str):
+        return None, None
+    value = value.strip()
+    # ISO
+    if len(value) >= 10 and value[4] == '-' and value[7] == '-':
+        try:
+            d = datetime.strptime(value[:10], '%Y-%m-%d').date()
+            return d, d
+        except ValueError:
+            pass
+    # Jalali (e.g. 1403/06/15 or 1403-06-15)
+    try:
+        import jdatetime
+        parts = value.replace('-', '/').split('/')
+        if len(parts) >= 3:
+            y, m, d = int(parts[0]), int(parts[1]), int(parts[2])
+            if 1300 <= y <= 1500 and 1 <= m <= 12 and 1 <= d <= 31:
+                jd = jdatetime.date(y, m, d)
+                g = jd.togregorian()
+                return g, g
+    except (ImportError, ValueError, TypeError):
+        pass
+    return None, None
 
 
 class UserProfileMinimalSerializer(serializers.ModelSerializer):
@@ -190,17 +221,22 @@ class ServiceApiSerializer(ServiceSerializer):
     def to_internal_value(self, data):
         # vehicle از request در perform_create ست می‌شود
         key_map = [
-            ('service_date', 'date'), ('service_km', 'km'), ('total_cost', 'cost'),
+            ('service_km', 'km'), ('total_cost', 'cost'),
             ('general_note', 'note'), ('description', 'note'),
         ]
         internal = {}
         for snake, camel in key_map:
             if camel in data or snake in data:
                 internal[snake] = data.get(camel) or data.get(snake)
-        if 'date' in data and 'service_date' not in internal:
-            internal['service_date'] = data['date']
+        # تاریخ: ISO یا شمسی به میلادی
         if 'date' in data:
-            internal['service_date_gregorian'] = data['date']  # همان تاریخ برای گرگوری
+            service_date, service_date_gregorian = parse_service_date(data['date'])
+            if service_date is None:
+                raise serializers.ValidationError(
+                    {'date': 'فرمت تاریخ نامعتبر است. از YYYY-MM-DD (میلادی) یا YYYY/MM/DD (شمسی) استفاده کنید.'}
+                )
+            internal['service_date'] = service_date
+            internal['service_date_gregorian'] = service_date_gregorian
         return super().to_internal_value(internal)
 
 
