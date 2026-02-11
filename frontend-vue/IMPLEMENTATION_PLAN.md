@@ -83,6 +83,11 @@
   - [x] report store: فیلتر بازه (۳۰ روز/امسال/سال گذشته) و خودرو، fetchReportData، exportReport('csv')
   - [x] ReportsView: دراپ‌دان خودرو و بازه، چهار کارت خلاصه، نمودار روند ماهانه، تفکیک هزینه، جدول هزینه‌های اخیر، دکمه دانلود CSV، حالت بارگذاری و خطا
   - [x] مستندات: API_CONTRACT_REGISTRY، PAGE_REVIEW_LOG، DEMO_SCENARIO به‌روز شده؛ PR به develop ادغام شده
+- [x] **Add-Service Django Complete** (۱۴۰۳/۱۱)
+  - [x] Backend: seed_data (SERVICE_TYPES_SEED، EXPENSE_CATEGORIES_SEED مطابق Supabase 005)، ensure_expense_categories، migration 0003
+  - [x] Backend: API سرویس با types/items در create و update، ServiceItem، تبدیل تاریخ ISO/شمسی (jdatetime)، VehicleKmHistory پس از ثبت، prefetch_related
+  - [x] Backend: test_api_services (create با types/items، VehicleKmHistory، نوع نامعتبر، تاریخ شمسی)
+  - [x] مستندات: API_CONTRACT_REGISTRY، PAGE_REVIEW_LOG به‌روز شد؛ PR #25 ادغام با develop
 
 ### ⚠️ کارهای ناتمام
 
@@ -1468,6 +1473,7 @@
 **تکمیل شده در Service Pages:**
 - ✅ Service Store (اتصال کامل به serviceService)
 - ✅ AddServiceView (اتصال به API، i18n، Toast، Components، MainLayout)
+- ✅ **Backend Add-Service:** types/items در create و update، seed service_types و expense_categories (Supabase 005)، VehicleKmHistory، تست test_api_services (PR #25)
 - ✅ ServiceListView (اتصال به API، i18n، Toast، Components، MainLayout)
 - ✅ SelectServiceTypeView (اتصال به API، MainLayout)
 - ✅ ویرایش و حذف سرویس با Modal تایید
@@ -1481,11 +1487,12 @@
 - ✅ فیلتر بر اساس وضعیت و خودرو
 
 **گام بعدی:** 🔧 تکمیل باقی Features
-- Expense Management
+- ~~Add-Service Backend~~ ✅ (types/items، seed، VehicleKmHistory، test_api_services — PR #25)
+- تکمیل Service Management فرانت (Pagination، فیلتر، بهبود UX در AddServiceView)
+- Expense Management (فرم/لیست هزینه؛ Backend آماده است)
 - ~~Reports~~ ✅ (اتصال به API با داده واقعی، فیلتر، نمودار، CSV)
 - Settings (با کانال‌های یادآوری چندگانه)
-- AI Assistant
-- Upgrade Pro
+- AI Assistant / Upgrade Pro
 
-**زمان تخمینی:** ۵-۷ روز
+**گزینه‌های پیشنهادی برای ادامه:** [TODO.md – گزینه‌های موجود برای ادامه کار](../TODO.md#-گزینههای-موجود-برای-ادامه-کار)
 

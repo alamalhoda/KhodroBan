@@ -53,6 +53,14 @@
 
 ---
 
+## ✅ انجام‌شده (اخیر)
+
+### Add-Service Django Complete (ادغام با develop)
+**وضعیت:** ✅ انجام شد (PR #25 ادغام شده)  
+**شامل:** seed_data (service_types، expense_categories مطابق Supabase 005)، API سرویس با types/items در create و update، تبدیل تاریخ شمسی/ISO، VehicleKmHistory پس از ثبت، prefetch برای N+1، test_api_services، به‌روزرسانی API_CONTRACT_REGISTRY و PAGE_REVIEW_LOG.
+
+---
+
 ## 🟡 اولویت متوسط
 
 ### 1. تکمیل Service Management (فاز ۴)
@@ -62,7 +70,7 @@
 **زمان تخمینی:** 2-3 روز
 
 **توضیحات:**
-کارهای باقی‌مانده برای تکمیل مدیریت سرویس‌ها:
+کارهای باقی‌مانده برای تکمیل مدیریت سرویس‌ها (سمت فرانت و UX):
 
 1. **UI برای Pagination در ServiceListView**
    - Store پشتیبانی می‌کند اما UI برای pagination وجود ندارد
@@ -361,11 +369,30 @@ CREATE INDEX IF NOT EXISTS idx_expense_categories_meta ON public.expense_categor
 
 ---
 
+## 🎯 گزینه‌های موجود برای ادامه کار
+
+با توجه به وضعیت فعلی پروژه (ادغام Add-Service Django با develop)، گزینه‌های پیشنهادی برای گام بعدی:
+
+| اولویت | گزینه | توضیح کوتاه | زمان تخمینی |
+|--------|--------|-------------|-------------|
+| 🔴 بالا | **تکمیل Service Management (فرانت)** | UI برای Pagination و فیلتر در ServiceListView؛ بهبود UX در AddServiceView؛ تست فرانت برای سرویس | 2–3 روز |
+| 🔴 بالا | **تکمیل Expense Management (فاز ۵)** | اتصال expenseStore به expenseService؛ فرم/لیست/ویرایش هزینه؛ Django از قبل expense-categories و DailyExpense را پشتیبانی می‌کند | 2–3 روز |
+| 🟡 متوسط | **تبدیل group_name به کد انگلیسی** | migration و i18n برای group_name در service_types و expense_categories (طبق TODO_GROUP_NAME_MIGRATION.md) | 2–3 ساعت |
+| 🟡 متوسط | **بهبود UX یادآور پس از ثبت سرویس/هزینه** | مودال یادآور پس از ثبت یا checkbox با مودال (طبق TODO.md فاز ۶) | 2–3 روز |
+| 🟡 متوسط | **تست Backend Integration** | تست ارتباط فرانت با Django (services، expenses، reminders)، پیکربندی Test Infrastructure | 1–2 روز |
+| 🟢 پایین | **بهبودهای پیشرفته Service** | نمایش موقعیت (Maps)، display_order، meta/رنگ، یکپارچه‌سازی تگ و مودال انتخاب سرویس | 5–7 روز |
+| 🟢 پایین | **Settings و کانال‌های یادآوری** | کانال‌های چندگانه (SMS، Telegram، Push)، تنظیمات یادآوری | بسته به scope |
+
+**توصیه:** برای جریان کامل کاربر (ثبت خودرو → ثبت سرویس → ثبت هزینه → گزارش)، تکمیل **Expense Management** یا **تکمیل Service Management فرانت** منطقی‌ترین گام بعدی است.
+
+---
+
 ## 🔗 لینک‌های مفید
 
-- [GitHub Issues](https://github.com/your-org/OilChenger/issues) - برای tracking issues
+- [GitHub Issues](https://github.com/alamalhoda/KhodroBan/issues) - برای tracking issues
 - [IMPLEMENTATION_PLAN.md](./frontend-vue/IMPLEMENTATION_PLAN.md) - برنامه جامع پیاده‌سازی (Roadmap)
-- [ROADMAP.md](./ROADMAP.md) - برنامه‌ریزی بلندمدت (در صورت وجود)
+- [PAGE_REVIEW_LOG.md](./docs/development/PAGE_REVIEW_LOG.md) - وضعیت بررسی صفحات
+- [API_CONTRACT_REGISTRY.md](./docs/development/API_CONTRACT_REGISTRY.md) - قرارداد API
 
 ---
 
@@ -386,5 +413,5 @@ CREATE INDEX IF NOT EXISTS idx_expense_categories_meta ON public.expense_categor
 
 ---
 
-**آخرین به‌روزرسانی:** 2025-01-XX
+**آخرین به‌روزرسانی:** ۱۴۰۳/۱۱ (بعد از ادغام Add-Service Django با develop)
 
