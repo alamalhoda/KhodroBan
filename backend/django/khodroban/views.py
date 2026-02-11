@@ -456,6 +456,17 @@ def huey_health(request):
         return Response({'status': 'error', 'detail': str(e)}, status=500)
 
 
+def _parse_date(value):
+    """Parse ISO date string (YYYY-MM-DD) to date or None."""
+    if not value:
+        return None
+    try:
+        from datetime import datetime
+        return datetime.strptime(value[:10], '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        return None
+
+
 class ReportSummaryView(APIView):
     """خلاصه گزارش سرویس و هزینه برای فرانت (Django)."""
     permission_classes = [IsAuthenticated]
@@ -463,6 +474,8 @@ class ReportSummaryView(APIView):
     def get(self, request):
         profile = request.user.userprofile
         vehicle_id = request.query_params.get('vehicle_id') or request.query_params.get('vehicleId')
+        date_from = _parse_date(request.query_params.get('date_from') or request.query_params.get('dateFrom'))
+        date_to = _parse_date(request.query_params.get('date_to') or request.query_params.get('dateTo'))
         vehicles = Vehicle.objects.filter(user_profile=profile)
         if vehicle_id:
             vehicles = vehicles.filter(vehicle_id=vehicle_id)
@@ -475,14 +488,26 @@ class ReportSummaryView(APIView):
                 'expenseCount': 0,
                 'costByCategory': {},
                 'costByMonth': [],
+                'totalKm': 0,
             })
         vehicle_ids = list(vehicles.values_list('vehicle_id', flat=True))
         services = Service.objects.filter(vehicle_id__in=vehicle_ids)
         expenses = DailyExpense.objects.filter(vehicle_id__in=vehicle_ids)
+        if date_from:
+            services = services.filter(service_date_gregorian__gte=date_from)
+            expenses = expenses.filter(expense_date_gregorian__gte=date_from)
+        if date_to:
+            services = services.filter(service_date_gregorian__lte=date_to)
+            expenses = expenses.filter(expense_date_gregorian__lte=date_to)
         total_service_cost = services.aggregate(s=Sum('total_cost'))['s'] or 0
         total_expenses = expenses.aggregate(s=Sum('amount'))['s'] or 0
+        total_km = sum(v.current_km or 0 for v in vehicles)
         cost_by_category = {}
         services_prefetch = Service.objects.filter(vehicle_id__in=vehicle_ids).prefetch_related('serviceitem_set')
+        if date_from:
+            services_prefetch = services_prefetch.filter(service_date_gregorian__gte=date_from)
+        if date_to:
+            services_prefetch = services_prefetch.filter(service_date_gregorian__lte=date_to)
         for s in services_prefetch:
             items = list(s.serviceitem_set.all())
             types = [it.service_type_code_id for it in items]
@@ -491,16 +516,22 @@ class ReportSummaryView(APIView):
         for e in expenses:
             key = e.category_code or 'other'
             cost_by_category[key] = cost_by_category.get(key, 0) + e.amount
+        services_for_month = Service.objects.filter(vehicle_id__in=vehicle_ids)
+        expenses_for_month = DailyExpense.objects.filter(vehicle_id__in=vehicle_ids)
+        if date_from:
+            services_for_month = services_for_month.filter(service_date_gregorian__gte=date_from)
+            expenses_for_month = expenses_for_month.filter(expense_date_gregorian__gte=date_from)
+        if date_to:
+            services_for_month = services_for_month.filter(service_date_gregorian__lte=date_to)
+            expenses_for_month = expenses_for_month.filter(expense_date_gregorian__lte=date_to)
         month_agg = list(
-            Service.objects.filter(vehicle_id__in=vehicle_ids)
-            .annotate(month=TruncMonth('service_date_gregorian'))
+            services_for_month.annotate(month=TruncMonth('service_date_gregorian'))
             .values('month')
             .annotate(amount=Sum('total_cost'))
             .order_by('-month')[:12]
         )
         expense_month = list(
-            DailyExpense.objects.filter(vehicle_id__in=vehicle_ids)
-            .annotate(month=TruncMonth('expense_date_gregorian'))
+            expenses_for_month.annotate(month=TruncMonth('expense_date_gregorian'))
             .values('month')
             .annotate(amount=Sum('amount'))
             .order_by('-month')[:12]
@@ -523,6 +554,7 @@ class ReportSummaryView(APIView):
             'expenseCount': expenses.count(),
             'costByCategory': cost_by_category,
             'costByMonth': cost_by_month,
+            'totalKm': total_km,
         })
 
 

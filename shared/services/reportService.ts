@@ -384,18 +384,31 @@ const reportServiceSupabase: IReportService = {
 
 const reportServiceDjango: IReportService = {
   async getSummary(filter?: ReportFilter): Promise<ReportSummary> {
+    const params: Record<string, string | undefined> = {};
+    if (filter?.vehicleId) params.vehicle_id = filter.vehicleId;
+    if (filter?.startDate) params.date_from = filter.startDate;
+    if (filter?.endDate) params.date_to = filter.endDate;
     const response = await api.get<ApiResponse<ReportSummary>>('/reports/summary/', {
-      params: filter,
+      params,
     });
     return response.data.data;
   },
 
   async exportCSV(filter?: ReportFilter): Promise<Blob> {
-    const response = await api.get('/reports/export/csv/', {
-      params: filter,
-      responseType: 'blob',
+    const services = await serviceService.getAll(filter?.vehicleId);
+    const expenses = await expenseService.getAll(filter?.vehicleId);
+    let csv = 'نوع,تاریخ,مبلغ,توضیحات\n';
+    services.forEach((s) => {
+      const dateStr = typeof s.date === 'string' ? s.date : '';
+      const typeStr = typeof s.type === 'string' ? s.type : (Array.isArray(s.types) && s.types[0]) ? s.types[0] : 'other';
+      csv += `سرویس - ${typeStr},${dateStr},${s.cost},${s.note ?? ''}\n`;
     });
-    return response.data;
+    expenses.forEach((e) => {
+      const dateStr = typeof e.date === 'string' ? e.date : '';
+      csv += `هزینه - ${e.category ?? 'other'},${dateStr},${e.amount},${e.note ?? ''}\n`;
+    });
+    const BOM = '\uFEFF';
+    return new Blob([BOM + csv], { type: 'text/csv;charset=utf-8' });
   },
 
   async exportPDF(filter?: ReportFilter): Promise<Blob> {
@@ -410,11 +423,8 @@ const reportServiceDjango: IReportService = {
     vehicleId?: string,
     months = 6
   ): Promise<{ month: string; amount: number }[]> {
-    const response = await api.get<ApiResponse<{ month: string; amount: number }[]>>(
-      '/reports/trend/monthly/',
-      { params: { vehicle_id: vehicleId, months } }
-    );
-    return response.data.data;
+    const summary = await this.getSummary({ vehicleId });
+    return (summary.costByMonth ?? []).slice(0, months);
   },
 
   downloadFile(blob: Blob, filename: string) {

@@ -279,6 +279,7 @@ export interface ReportSummary {
   expenseCount: number;
   costByCategory: Record<string, number>;
   costByMonth: { month: string; amount: number }[];
+  totalKm?: number;
 }
 
 // ========================================
