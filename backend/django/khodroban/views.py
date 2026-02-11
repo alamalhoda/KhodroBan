@@ -18,7 +18,7 @@ from .serializers import RegisterSerializer, MyTokenObtainPairSerializer
 
 from .models import (
     Vehicle, Service, DailyExpense, ReminderSetting, Reminder,
-    Notification, TelegramSetting, UserProfile
+    Notification, TelegramSetting, UserProfile, VehicleKmHistory
 )
 from rest_framework.exceptions import PermissionDenied
 from .serializers import (
@@ -26,7 +26,8 @@ from .serializers import (
     ServiceSerializer, ServiceApiSerializer,
     DailyExpenseSerializer, DailyExpenseApiSerializer,
     ReminderSettingSerializer, ReminderSerializer, ReminderApiSerializer,
-    NotificationSerializer, TelegramSettingSerializer
+    NotificationSerializer, TelegramSettingSerializer,
+    VehicleKmHistorySerializer
 )
 from .huey_tasks import send_telegram
 
@@ -92,6 +93,92 @@ class VehicleViewSet(ApiResponseMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user_profile=self.request.user.userprofile)
+
+    @action(detail=True, methods=['patch'], url_path='km')
+    def update_km(self, request, pk=None):
+        vehicle = self.get_object()
+        km = request.data.get('km')
+        if km is None:
+            return Response(
+                {'success': False, 'errors': ['km الزامی است.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            km = int(km)
+        except (TypeError, ValueError):
+            return Response(
+                {'success': False, 'errors': ['کیلومتر باید عدد باشد.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if km < 0:
+            return Response(
+                {'success': False, 'errors': ['کیلومتر نمی‌تواند منفی باشد.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        vehicle.current_km = km
+        vehicle.save(update_fields=['current_km', 'updated_at'])
+        VehicleKmHistory.objects.create(
+            vehicle=vehicle,
+            km=km,
+            source_type='manual',
+            source_id=None,
+            note=request.data.get('note', '')
+        )
+        serializer = self.get_serializer(vehicle)
+        return api_response(serializer.data)
+
+    @action(detail=True, methods=['post', 'get'], url_path='km-history')
+    def km_history(self, request, pk=None):
+        vehicle = self.get_object()
+        if request.method == 'GET':
+            records = VehicleKmHistory.objects.filter(vehicle=vehicle).order_by('-recorded_at')
+            data = [
+                {
+                    'id': str(r.id),
+                    'vehicleId': str(vehicle.vehicle_id),
+                    'km': r.km,
+                    'recordedAt': r.recorded_at.isoformat() if r.recorded_at else None,
+                    'sourceType': r.source_type,
+                    'sourceId': r.source_id,
+                    'note': r.note or '',
+                    'createdAt': r.created_at.isoformat() if r.created_at else None,
+                }
+                for r in records
+            ]
+            return api_response(data)
+        # POST
+        km = request.data.get('km')
+        source_type = request.data.get('sourceType') or request.data.get('source_type') or 'manual'
+        source_id = request.data.get('sourceId') or request.data.get('source_id')
+        note = request.data.get('note') or ''
+        if km is None:
+            return Response(
+                {'success': False, 'errors': ['km الزامی است.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            km = int(km)
+        except (TypeError, ValueError):
+            return Response(
+                {'success': False, 'errors': ['کیلومتر باید عدد باشد.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if km < 0:
+            return Response(
+                {'success': False, 'errors': ['کیلومتر نمی‌تواند منفی باشد.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        VehicleKmHistory.objects.create(
+            vehicle=vehicle,
+            km=km,
+            source_type=source_type,
+            source_id=source_id,
+            note=note
+        )
+        vehicle.current_km = km
+        vehicle.save(update_fields=['current_km', 'updated_at'])
+        serializer = self.get_serializer(vehicle)
+        return api_response(serializer.data, status.HTTP_200_OK)
 
 
 class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):

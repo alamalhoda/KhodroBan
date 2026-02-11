@@ -65,3 +65,51 @@
 - **۹. قرارداد API:** ثبت شده
 - **وضعیت flow:** بدون باگ بحرانی
 - **اقدامات بعدی:** تست API برای services/expenses/reminders در PRهای بعدی
+
+---
+
+## Vehicle List
+
+- **۱. ساختار:** مطابق (VehicleListView + vehicle store)
+- **۲. تست frontend:** ناقص — vehicle.test.js دارد؛ View جدا ندارد
+- **۳. ارتباط با backend:** فقط Django — GET /api/vehicles/
+- **۴. زیرساخت Django:** VehicleViewSet — کافی
+- **۵. تست backend:** دارد — test_api_vehicles.py (list, create, update, km, km-history)
+- **۶. مدیریت خطا:** یکپارچه
+- **۷. i18n:** ناقص
+- **۸. a11y:** نیاز به بهبود
+- **۹. قرارداد API:** ثبت شده
+- **وضعیت flow:** بدون باگ بحرانی
+- **اقدامات بعدی:** —
+
+---
+
+## Vehicle Details
+
+- **۱. ساختار:** مطابق (VehicleDetailsView + vehicle, service stores)
+- **۲. تست frontend:** ناقص
+- **۳. ارتباط با backend:** فقط Django — GET /api/vehicles/<id>/، PATCH km، km-history
+- **۴. زیرساخت Django:** VehicleViewSet + actions km, km-history — کافی
+- **۵. تست backend:** دارد
+- **۶. مدیریت خطا:** یکپارچه
+- **۷. i18n:** ناقص
+- **۸. a11y:** نیاز به بهبود
+- **۹. قرارداد API:** ثبت شده
+- **وضعیت flow:** بدون باگ بحرانی
+- **اقدامات بعدی:** —
+
+---
+
+## Vehicle Management
+
+- **۱. ساختار:** مطابق (VehicleManagementView + vehicle store)
+- **۲. تست frontend:** ناقص
+- **۳. ارتباط با backend:** فقط Django — POST /api/vehicles/، PATCH /api/vehicles/<id>/
+- **۴. زیرساخت Django:** VehicleViewSet — کافی
+- **۵. تست backend:** دارد
+- **۶. مدیریت خطا:** یکپارچه
+- **۷. i18n:** ناقص
+- **۸. a11y:** نیاز به بهبود
+- **۹. قرارداد API:** ثبت شده
+- **وضعیت flow:** بدون باگ بحرانی
+- **اقدامات بعدی:** —

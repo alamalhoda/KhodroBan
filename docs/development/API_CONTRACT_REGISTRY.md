@@ -30,9 +30,9 @@
 | POST create | POST `/api/vehicles/` | دارد |
 | PATCH update | PATCH `/api/vehicles/<id>/` | دارد |
 | DELETE | DELETE `/api/vehicles/<id>/` | دارد |
-| PATCH km | PATCH `/api/vehicles/<id>/km/` | ندارد |
-| POST km-history | POST `/api/vehicles/<id>/km-history/` | ندارد |
-| GET km-history | GET `/api/vehicles/<id>/km-history/` | ندارد |
+| PATCH km | PATCH `/api/vehicles/<id>/km/` | دارد |
+| POST km-history | POST `/api/vehicles/<id>/km-history/` | دارد |
+| GET km-history | GET `/api/vehicles/<id>/km-history/` | دارد |
 
 ---
 
