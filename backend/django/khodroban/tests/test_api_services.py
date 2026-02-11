@@ -5,6 +5,9 @@ from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth.models import User
 
+# Test-only placeholder; not a real secret (avoids GitGuardian false positive).
+TEST_USER_PASSWORD = "test-only-placeholder"
+
 from khodroban.models import (
     Vehicle, UserProfile, Service, ServiceItem, ServiceType,
     VehicleKmHistory,
@@ -15,7 +18,7 @@ from khodroban.sample_data import ensure_plans, ensure_service_types, ensure_exp
 class ServiceAPITests(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username="svcuser", password="svcpass")
+        self.user = User.objects.create_user(username="svcuser", password=TEST_USER_PASSWORD)
         self.profile, _ = UserProfile.objects.get_or_create(
             user=self.user, defaults={"email": "svc@test.com"}
         )
