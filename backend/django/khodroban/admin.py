@@ -6,6 +6,7 @@ from .models import (
     UserSubscription,
     Vehicle,
     ServiceType,
+    ExpenseCategory,
     Service,
     ServiceItem,
     DailyExpense,
@@ -133,6 +134,14 @@ class VehicleAdmin(admin.ModelAdmin):
 
 @admin.register(ServiceType)
 class ServiceTypeAdmin(admin.ModelAdmin):
+    list_display = ("code", "name", "group_name", "icon", "is_active", "created_at")
+    list_filter = ("group_name", "is_active")
+    search_fields = ("code", "name", "group_name")
+    ordering = ("group_name", "code")
+
+
+@admin.register(ExpenseCategory)
+class ExpenseCategoryAdmin(admin.ModelAdmin):
     list_display = ("code", "name", "group_name", "icon", "is_active", "created_at")
     list_filter = ("group_name", "is_active")
     search_fields = ("code", "name", "group_name")

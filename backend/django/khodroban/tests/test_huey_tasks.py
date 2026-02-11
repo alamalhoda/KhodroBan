@@ -10,7 +10,9 @@ from khodroban.models import ReminderSetting, Vehicle, UserProfile, Notification
 class HueyReminderTaskTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="huey", password="pass")
-        self.profile = UserProfile.objects.create(user=self.user, email="h@t.com")
+        self.profile, _ = UserProfile.objects.get_or_create(
+            user=self.user, defaults={"email": "h@t.com"}
+        )
         self.vehicle = Vehicle.objects.create(
             user_profile=self.profile,
             model="Test Huey",

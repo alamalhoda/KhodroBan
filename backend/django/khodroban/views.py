@@ -14,11 +14,15 @@ import logging
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
+from collections import defaultdict
 from .serializers import RegisterSerializer, MyTokenObtainPairSerializer
 
 from .models import (
     Vehicle, Service, DailyExpense, ReminderSetting, Reminder,
-    Notification, TelegramSetting, UserProfile
+    Notification, TelegramSetting, UserProfile, VehicleKmHistory,
+    ServiceType, ExpenseCategory
 )
 from rest_framework.exceptions import PermissionDenied
 from .serializers import (
@@ -26,7 +30,9 @@ from .serializers import (
     ServiceSerializer, ServiceApiSerializer,
     DailyExpenseSerializer, DailyExpenseApiSerializer,
     ReminderSettingSerializer, ReminderSerializer, ReminderApiSerializer,
-    NotificationSerializer, TelegramSettingSerializer
+    NotificationSerializer, TelegramSettingSerializer,
+    VehicleKmHistorySerializer,
+    ServiceTypeSerializer, ExpenseCategorySerializer
 )
 from .huey_tasks import send_telegram
 
@@ -93,6 +99,92 @@ class VehicleViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user_profile=self.request.user.userprofile)
 
+    @action(detail=True, methods=['patch'], url_path='km')
+    def update_km(self, request, pk=None):
+        vehicle = self.get_object()
+        km = request.data.get('km')
+        if km is None:
+            return Response(
+                {'success': False, 'errors': ['km الزامی است.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            km = int(km)
+        except (TypeError, ValueError):
+            return Response(
+                {'success': False, 'errors': ['کیلومتر باید عدد باشد.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if km < 0:
+            return Response(
+                {'success': False, 'errors': ['کیلومتر نمی‌تواند منفی باشد.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        vehicle.current_km = km
+        vehicle.save(update_fields=['current_km', 'updated_at'])
+        VehicleKmHistory.objects.create(
+            vehicle=vehicle,
+            km=km,
+            source_type='manual',
+            source_id=None,
+            note=request.data.get('note', '')
+        )
+        serializer = self.get_serializer(vehicle)
+        return api_response(serializer.data)
+
+    @action(detail=True, methods=['post', 'get'], url_path='km-history')
+    def km_history(self, request, pk=None):
+        vehicle = self.get_object()
+        if request.method == 'GET':
+            records = VehicleKmHistory.objects.filter(vehicle=vehicle).order_by('-recorded_at')
+            data = [
+                {
+                    'id': str(r.id),
+                    'vehicleId': str(vehicle.vehicle_id),
+                    'km': r.km,
+                    'recordedAt': r.recorded_at.isoformat() if r.recorded_at else None,
+                    'sourceType': r.source_type,
+                    'sourceId': r.source_id,
+                    'note': r.note or '',
+                    'createdAt': r.created_at.isoformat() if r.created_at else None,
+                }
+                for r in records
+            ]
+            return api_response(data)
+        # POST
+        km = request.data.get('km')
+        source_type = request.data.get('sourceType') or request.data.get('source_type') or 'manual'
+        source_id = request.data.get('sourceId') or request.data.get('source_id')
+        note = request.data.get('note') or ''
+        if km is None:
+            return Response(
+                {'success': False, 'errors': ['km الزامی است.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            km = int(km)
+        except (TypeError, ValueError):
+            return Response(
+                {'success': False, 'errors': ['کیلومتر باید عدد باشد.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if km < 0:
+            return Response(
+                {'success': False, 'errors': ['کیلومتر نمی‌تواند منفی باشد.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        VehicleKmHistory.objects.create(
+            vehicle=vehicle,
+            km=km,
+            source_type=source_type,
+            source_id=source_id,
+            note=note
+        )
+        vehicle.current_km = km
+        vehicle.save(update_fields=['current_km', 'updated_at'])
+        serializer = self.get_serializer(vehicle)
+        return api_response(serializer.data, status.HTTP_200_OK)
+
 
 class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     queryset = Service.objects.all()
@@ -112,6 +204,27 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
         total_cost = self.request.data.get('cost', 0)
         serializer.save(vehicle=vehicle, total_cost=total_cost)
 
+    @action(detail=False, methods=['get'], url_path='latest/(?P<vehicle_id>[^/.]+)')
+    def latest(self, request, vehicle_id=None):
+        vehicle = Vehicle.objects.filter(
+            vehicle_id=vehicle_id,
+            user_profile=request.user.userprofile
+        ).first()
+        if not vehicle:
+            return Response(
+                {'success': False, 'errors': ['خودرو یافت نشد.']},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        service = (
+            Service.objects.filter(vehicle=vehicle)
+            .order_by('-service_date_gregorian')
+            .first()
+        )
+        if not service:
+            return api_response(None)
+        serializer = self.get_serializer(service)
+        return api_response(serializer.data)
+
 
 class DailyExpenseViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     queryset = DailyExpense.objects.all()
@@ -129,6 +242,20 @@ class DailyExpenseViewSet(ApiResponseMixin, viewsets.ModelViewSet):
         if not vehicle:
             raise PermissionDenied('خودرو یافت نشد یا دسترسی ندارید.')
         serializer.save(vehicle=vehicle)
+
+
+class ServiceTypeViewSet(ApiResponseMixin, viewsets.ReadOnlyModelViewSet):
+    """انواع سرویس (فقط خواندنی) برای فرانت در حالت Django."""
+    queryset = ServiceType.objects.filter(is_active=True).order_by('group_name', 'code')
+    serializer_class = ServiceTypeSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class ExpenseCategoryViewSet(ApiResponseMixin, viewsets.ReadOnlyModelViewSet):
+    """دسته‌بندی هزینه (فقط خواندنی) برای فرانت در حالت Django."""
+    queryset = ExpenseCategory.objects.filter(is_active=True).order_by('group_name', 'code')
+    serializer_class = ExpenseCategorySerializer
+    permission_classes = [IsAuthenticated]
 
 
 class ReminderSettingViewSet(ApiResponseMixin, viewsets.ModelViewSet):
@@ -150,6 +277,34 @@ class ReminderViewSet(ApiResponseMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user_profile=self.request.user.userprofile)
+
+    @action(detail=True, methods=['post'], url_path='dismiss')
+    def dismiss(self, request, pk=None):
+        reminder = self.get_object()
+        reminder.dismissed = True
+        reminder.save(update_fields=['dismissed', 'updated_at'])
+        return api_response({'status': 'dismissed'})
+
+    @action(detail=False, methods=['get'], url_path='vehicle/(?P<vehicle_id>[^/.]+)')
+    def by_vehicle(self, request, vehicle_id=None):
+        vehicle = Vehicle.objects.filter(
+            vehicle_id=vehicle_id,
+            user_profile=request.user.userprofile
+        ).first()
+        if not vehicle:
+            return api_response([])
+        reminders = Reminder.objects.filter(
+            user_profile=request.user.userprofile,
+            vehicle=vehicle
+        ).order_by('-created_at')
+        serializer = self.get_serializer(reminders, many=True)
+        return api_response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='user')
+    def user_list(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return api_response(serializer.data)
 
 
 class NotificationViewSet(ApiResponseMixin, viewsets.ReadOnlyModelViewSet):
@@ -299,6 +454,76 @@ def huey_health(request):
         return Response(result)
     except Exception as e:
         return Response({'status': 'error', 'detail': str(e)}, status=500)
+
+
+class ReportSummaryView(APIView):
+    """خلاصه گزارش سرویس و هزینه برای فرانت (Django)."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile = request.user.userprofile
+        vehicle_id = request.query_params.get('vehicle_id') or request.query_params.get('vehicleId')
+        vehicles = Vehicle.objects.filter(user_profile=profile)
+        if vehicle_id:
+            vehicles = vehicles.filter(vehicle_id=vehicle_id)
+        if not vehicles.exists():
+            return api_response({
+                'totalServiceCost': 0,
+                'totalExpenses': 0,
+                'totalCost': 0,
+                'serviceCount': 0,
+                'expenseCount': 0,
+                'costByCategory': {},
+                'costByMonth': [],
+            })
+        vehicle_ids = list(vehicles.values_list('vehicle_id', flat=True))
+        services = Service.objects.filter(vehicle_id__in=vehicle_ids)
+        expenses = DailyExpense.objects.filter(vehicle_id__in=vehicle_ids)
+        total_service_cost = services.aggregate(s=Sum('total_cost'))['s'] or 0
+        total_expenses = expenses.aggregate(s=Sum('amount'))['s'] or 0
+        cost_by_category = {}
+        services_prefetch = Service.objects.filter(vehicle_id__in=vehicle_ids).prefetch_related('serviceitem_set')
+        for s in services_prefetch:
+            items = list(s.serviceitem_set.all())
+            types = [it.service_type_code_id for it in items]
+            key = f"service_{types[0]}" if types else 'service_other'
+            cost_by_category[key] = cost_by_category.get(key, 0) + (s.total_cost or 0)
+        for e in expenses:
+            key = e.category_code or 'other'
+            cost_by_category[key] = cost_by_category.get(key, 0) + e.amount
+        month_agg = list(
+            Service.objects.filter(vehicle_id__in=vehicle_ids)
+            .annotate(month=TruncMonth('service_date_gregorian'))
+            .values('month')
+            .annotate(amount=Sum('total_cost'))
+            .order_by('-month')[:12]
+        )
+        expense_month = list(
+            DailyExpense.objects.filter(vehicle_id__in=vehicle_ids)
+            .annotate(month=TruncMonth('expense_date_gregorian'))
+            .values('month')
+            .annotate(amount=Sum('amount'))
+            .order_by('-month')[:12]
+        )
+        by_month = defaultdict(int)
+        for r in month_agg:
+            key = r['month'].strftime('%Y-%m') if r['month'] else ''
+            if key:
+                by_month[key] += r['amount'] or 0
+        for r in expense_month:
+            key = r['month'].strftime('%Y-%m') if r['month'] else ''
+            if key:
+                by_month[key] += r['amount'] or 0
+        cost_by_month = [{'month': k, 'amount': v} for k, v in sorted(by_month.items(), reverse=True)[:12]]
+        return api_response({
+            'totalServiceCost': total_service_cost,
+            'totalExpenses': total_expenses,
+            'totalCost': total_service_cost + total_expenses,
+            'serviceCount': services.count(),
+            'expenseCount': expenses.count(),
+            'costByCategory': cost_by_category,
+            'costByMonth': cost_by_month,
+        })
 
 
 class MeView(APIView):

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer as JWTTokenObtainPairSerializer
 from .models import (
     SubscriptionPlan, UserProfile, UserSubscription,
-    Vehicle, Service, ServiceItem, ServiceType,
+    Vehicle, Service, ServiceItem, ServiceType, ExpenseCategory,
     DailyExpense, ReminderSetting, Reminder,
     Notification, TelegramSetting, VehicleKmHistory,
 )
@@ -112,6 +112,13 @@ class VehicleApiSerializer(VehicleSerializer):
 class ServiceTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceType
+        fields = ['code', 'name', 'group_name', 'icon', 'is_active']
+        read_only_fields = ['code']
+
+
+class ExpenseCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExpenseCategory
         fields = ['code', 'name', 'group_name', 'icon', 'is_active']
         read_only_fields = ['code']
 

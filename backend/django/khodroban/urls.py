@@ -3,9 +3,10 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import RegisterView, MyTokenObtainPairView, MeView
+from .views import RegisterView, MyTokenObtainPairView, MeView, ReportSummaryView
 from .views import (
     VehicleViewSet, ServiceViewSet, DailyExpenseViewSet,
+    ServiceTypeViewSet, ExpenseCategoryViewSet,
     ReminderSettingViewSet, ReminderViewSet, NotificationViewSet,
     TelegramSettingViewSet, telegram_webhook, huey_health
 )
@@ -14,6 +15,8 @@ router = DefaultRouter()
 router.register(r'vehicles', VehicleViewSet)
 router.register(r'services', ServiceViewSet)
 router.register(r'expenses', DailyExpenseViewSet)
+router.register(r'service-types', ServiceTypeViewSet)
+router.register(r'expense-categories', ExpenseCategoryViewSet)
 router.register(r'reminder-settings', ReminderSettingViewSet)
 router.register(r'reminders', ReminderViewSet)
 router.register(r'notifications', NotificationViewSet)
@@ -28,6 +31,7 @@ urlpatterns = [
     path('api/token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/register/', RegisterView.as_view(), name='register'),
+    path('api/reports/summary/', ReportSummaryView.as_view(), name='report_summary'),
 
     path('telegram/webhook/', telegram_webhook, name='telegram_webhook'),
     path('huey-health/', huey_health, name='huey_health'),

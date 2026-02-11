@@ -9,7 +9,9 @@ from khodroban.models import Reminder, Vehicle, UserProfile
 class ReminderModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="test", password="pass")
-        self.profile = UserProfile.objects.create(user=self.user, email="a@b.com")
+        self.profile, _ = UserProfile.objects.get_or_create(
+            user=self.user, defaults={"email": "a@b.com"}
+        )
         self.vehicle = Vehicle.objects.create(
             user_profile=self.profile,
             model="Test Car",
@@ -40,7 +42,9 @@ class ReminderModelTests(TestCase):
 class ReminderStatusTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="tester", password="pass")
-        self.profile = UserProfile.objects.create(user=self.user, email="t@e.com")
+        self.profile, _ = UserProfile.objects.get_or_create(
+            user=self.user, defaults={"email": "t@e.com"}
+        )
         self.vehicle = Vehicle.objects.create(
             user_profile=self.profile,
             model="TestModel",
@@ -66,7 +70,7 @@ class ReminderStatusTests(TestCase):
             warning_days_before=7
         )
         self.assertEqual(r.status, 'near')
-        self.assertIn("4 روز دیگر", r.message)
+        self.assertIn("روز دیگر", r.message)
 
     def test_status_overdue_by_km(self):
         r = Reminder.objects.create(

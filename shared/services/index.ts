@@ -20,13 +20,3 @@ export {
   type AIRequestParams,
   type AIResponse,
 } from './ai';
-export {
-  analyzeCarIssue,
-  getCurrentProviderInfo,
-  isAIServiceConfigured,
-  resetAIProvider,
-  type AIModelMode,
-  type AIProvider,
-  type AIRequestParams,
-  type AIResponse,
-} from './ai';
