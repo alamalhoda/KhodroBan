@@ -30,6 +30,8 @@ export default defineConfig({
       '@services': path.resolve(__dirname, '../shared/services'),
       '@types': path.resolve(__dirname, '../shared/types'),
       '@utils': path.resolve(__dirname, '../shared/utils'),
+      // Resolve axios from frontend-vue node_modules when shared/services/api.ts is loaded (CI)
+      axios: path.resolve(__dirname, 'node_modules/axios'),
     },
   },
 })
