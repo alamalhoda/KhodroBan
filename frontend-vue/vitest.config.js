@@ -33,6 +33,7 @@ export default defineConfig({
       // Resolve from frontend-vue node_modules when shared/* is loaded (CI)
       axios: path.resolve(__dirname, 'node_modules/axios'),
       '@supabase/supabase-js': path.resolve(__dirname, 'node_modules/@supabase/supabase-js'),
+      'persian-date': path.resolve(__dirname, 'node_modules/persian-date'),
     },
   },
 })
