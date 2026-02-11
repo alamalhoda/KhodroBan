@@ -127,6 +127,10 @@ export default defineConfig({
       '@services': path.resolve(__dirname, '../shared/services'),
       '@types': path.resolve(__dirname, '../shared/types'),
       '@utils': path.resolve(__dirname, '../shared/utils'),
+      // Resolve from frontend-vue node_modules when shared/* is loaded (CI build)
+      axios: path.resolve(__dirname, 'node_modules/axios'),
+      '@supabase/supabase-js': path.resolve(__dirname, 'node_modules/@supabase/supabase-js'),
+      'persian-date': path.resolve(__dirname, 'node_modules/persian-date'),
     },
   },
   server: {
