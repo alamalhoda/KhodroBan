@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '../stores/service'
 import { useVehicleStore } from '../stores/vehicle'
 import { useServiceTypeStore } from '../stores/serviceType'
+import { servicePresetService } from '../services/servicePresetService'
 import { useExpenseCategoryStore } from '../stores/expenseCategory'
 import { useExpenseStore } from '../stores/expense'
 import { useReminderStore } from '../stores/reminder'
@@ -46,6 +47,7 @@ const isSubmitting = ref(false)
 const isLoadingEdit = ref(false)
 const activeTab = ref('service') // 'service' or 'expense'
 const showServiceTypeModal = ref(false)
+const serviceTypeSelectorKey = ref(0)
 
 // حالت ویرایش سرویس (از لیست سرویس‌ها با query edit=id)
 const editingServiceId = computed(() => route.query.edit || null)
@@ -87,6 +89,36 @@ const filteredOptions = computed(() => {
     (opt.label.toLowerCase().includes(query) || opt.value.toLowerCase().includes(query))
   )
 })
+
+// گروه‌بندی گزینه‌های فیلترشده (برای تب سرویس)
+const groupedFilteredOptions = computed(() => {
+  if (activeTab.value !== 'service') {
+    return [
+      {
+        id: 'default',
+        title: '',
+        options: filteredOptions.value
+      }
+    ]
+  }
+
+  const groups = {}
+  filteredOptions.value.forEach((opt) => {
+    const key = opt.category || 'other'
+    if (!groups[key]) {
+      groups[key] = {
+        id: key,
+        title: serviceTypeStore.serviceTypesWithTranslation.find(t => t.group_name === key)?.groupName || key,
+        options: []
+      }
+    }
+    groups[key].options.push(opt)
+  })
+  return Object.values(groups)
+})
+
+// پیش‌تعریف‌های انتخاب سریع (از API، توسط ادمین تعریف شده)
+const servicePresets = ref([])
 
 // Get label by value based on active tab
 const getLabel = (value) => {
@@ -403,6 +435,7 @@ const switchTab = (tab) => {
 }
 
 const openServiceTypeModal = () => {
+  serviceTypeSelectorKey.value++
   showServiceTypeModal.value = true
 }
 
@@ -492,6 +525,22 @@ const handleAutocompleteKeydown = (event) => {
   }
 }
 
+/** اعمال یک preset انتخاب سریع (سرویس‌های تعریف‌شده توسط ادمین) */
+const applyServicePreset = (preset) => {
+  if (activeTab.value !== 'service' || !preset?.service_type_codes?.length) return
+  formData.value.types = [...preset.service_type_codes]
+  formData.value.type = preset.service_type_codes[0] || ''
+}
+
+/** آیا انتخاب فعلی با این preset یکسان است؟ */
+const presetMatchesSelection = (preset) => {
+  const codes = preset?.service_type_codes ?? []
+  const current = formData.value.types ?? []
+  if (codes.length !== current.length) return false
+  const set = new Set(codes)
+  return current.every((c) => set.has(c))
+}
+
 // Lifecycle
 onMounted(async () => {
   // Fetch service types from database if not already loaded
@@ -522,6 +571,14 @@ onMounted(async () => {
       console.error('Error fetching vehicles:', error)
       toast.error(t('vehicles.management.error'))
     }
+  }
+
+  // پیش‌تعریف‌های انتخاب سریع (فقط وقتی backend Django است)
+  try {
+    servicePresets.value = await servicePresetService.getAll()
+  } catch (error) {
+    console.warn('Could not load service presets:', error)
+    servicePresets.value = []
   }
 
   // حالت ویرایش: بارگذاری سرویس از query edit=id
@@ -698,8 +755,25 @@ watch(() => route.query.edit, (newEditId) => {
             <div v-if="activeTab === 'service'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <label class="flex flex-col gap-2 md:col-span-2">
                 <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.serviceType') }}</span>
+                <!-- انتخاب سریع (پیش‌تعریف‌های ادمین) -->
+                <div v-if="servicePresets.length > 0" class="flex flex-wrap gap-2 mb-2">
+                  <button
+                    v-for="preset in servicePresets"
+                    :key="preset.preset_id"
+                    type="button"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs transition-colors"
+                    :class="presetMatchesSelection(preset)
+                      ? 'bg-primary text-white border-primary dark:bg-blue-500 dark:border-blue-500'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                    @click="applyServicePreset(preset)"
+                  >
+                    <span class="material-symbols-outlined text-[16px]" aria-hidden="true">build</span>
+                    <span>{{ preset.name }}</span>
+                  </button>
+                </div>
                 <div class="relative">
-                  <div class="flex flex-wrap items-center gap-2 min-h-[48px] p-2 pe-12 rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-shadow"
+                  <div
+                    class="flex flex-wrap items-center gap-2 min-h-[48px] p-2 pe-12 rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-shadow"
                     :class="{ 'border-red-500': formErrors.type }"
                   >
                     <!-- Selected service type tags -->
@@ -725,6 +799,7 @@ watch(() => route.query.edit, (newEditId) => {
                       @focus="handleAutocompleteFocus"
                       @blur="handleAutocompleteBlur"
                       @keydown="handleAutocompleteKeydown"
+                      role="combobox"
                       :aria-label="$t('services.add.selectServiceType')"
                       :aria-expanded="showAutocompleteDropdown"
                       :aria-controls="showAutocompleteDropdown ? 'service-type-autocomplete' : undefined"
@@ -738,31 +813,54 @@ watch(() => route.query.edit, (newEditId) => {
                       @click.stop="openServiceTypeModal"
                       type="button"
                       :aria-label="$t('services.add.selectFromModal')"
-                      class="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-gray-400 hover:text-primary dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                      class="absolute left-2 top-1/2 -translate-y-1/2 px-2 py-1.5 rounded-lg text-gray-400 hover:text-primary dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary flex items-center gap-1"
                       :title="$t('services.add.selectFromModal')"
                     >
                       <span class="material-symbols-outlined text-lg" aria-hidden="true">tune</span>
+                      <span class="hidden sm:inline text-xs">{{ $t('services.add.selectFromModal') }}</span>
                     </button>
                   </div>
                   <!-- Autocomplete dropdown -->
                   <Transition name="fade">
                     <div 
                       v-if="showAutocompleteDropdown && filteredOptions.length > 0"
+                      id="service-type-autocomplete"
+                      role="listbox"
                       class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-60 overflow-y-auto"
                       @mousedown.prevent
                     >
-                      <button
-                        v-for="(option, index) in filteredOptions"
-                        :key="option.value"
-                        @click="selectOption(option)"
-                        @mouseenter="autocompleteFocusedIndex = index"
-                        type="button"
-                        class="w-full px-4 py-3 text-right hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
-                        :class="{ 'bg-gray-50 dark:bg-gray-700': autocompleteFocusedIndex === index }"
+                      <div
+                        v-for="group in groupedFilteredOptions"
+                        :key="group.id"
+                        class="border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                       >
-                        <span class="text-sm font-medium text-[#121317] dark:text-white">{{ option.label }}</span>
-                        <span class="material-symbols-outlined text-gray-400 text-lg">add</span>
-                      </button>
+                        <div v-if="group.title" class="px-4 pt-2 pb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                          {{ group.title }}
+                        </div>
+                        <button
+                          v-for="(option, index) in group.options"
+                          :key="option.value"
+                          @click="selectOption(option)"
+                          @mouseenter="autocompleteFocusedIndex = index"
+                          type="button"
+                          role="option"
+                          :aria-selected="autocompleteFocusedIndex === index"
+                          class="w-full px-4 py-3 text-right hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
+                          :class="{ 'bg-gray-50 dark:bg-gray-700': autocompleteFocusedIndex === index }"
+                        >
+                          <div class="flex items-center gap-2">
+                            <span
+                              v-if="option.icon"
+                              class="material-symbols-outlined text-primary/70 dark:text-blue-300 text-lg"
+                              aria-hidden="true"
+                            >
+                              {{ option.icon }}
+                            </span>
+                            <span class="text-sm font-medium text-[#121317] dark:text-white">{{ option.label }}</span>
+                          </div>
+                          <span class="material-symbols-outlined text-gray-400 text-lg">add</span>
+                        </button>
+                      </div>
                     </div>
                   </Transition>
                 </div>
@@ -1052,7 +1150,9 @@ watch(() => route.query.edit, (newEditId) => {
       :title="$t('services.selectType.title')"
     >
       <ServiceTypeSelector
+        :key="serviceTypeSelectorKey"
         :vehicle-id="formData.vehicleId"
+        :selected-types="formData.types"
         @select="handleServiceTypeSelect"
         @cancel="handleServiceTypeCancel"
       />

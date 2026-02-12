@@ -134,6 +134,37 @@ class ServiceType(models.Model):
         return self.name
 
 
+class ServicePreset(models.Model):
+    """
+    پیش‌تعریف انتخاب سریع سرویس (مثلاً «سرویس ۵۰۰۰» شامل روغن موتور و فیلتر).
+    توسط ادمین تعریف می‌شود؛ کاربر با یک کلیک همه انواع سرویس داخل preset را انتخاب می‌کند.
+    """
+    preset_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    display_order = models.PositiveSmallIntegerField(default=0)
+    service_types = models.ManyToManyField(
+        ServiceType,
+        related_name="presets",
+        blank=True,
+        help_text=_("انواع سرویس‌ای که با انتخاب این preset انتخاب می‌شوند"),
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = _("Service Preset")
+        verbose_name_plural = _("Service Presets")
+        ordering = ["display_order", "name"]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.updated_at = timezone.now()
+        super().save(*args, **kwargs)
+
+
 class ExpenseCategory(models.Model):
     """دسته‌بندی هزینه (مثل سوخت، کارواش) — فقط خواندنی برای فرانت."""
     id = models.AutoField(primary_key=True)

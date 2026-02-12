@@ -15,6 +15,13 @@ const props = defineProps({
   compact: {
     type: Boolean,
     default: false
+  },
+  /**
+   * لیست کدهای انواع سرویس از قبل انتخاب‌شده (برای باز شدن مودال با وضعیت فعلی فرم)
+   */
+  selectedTypes: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -33,9 +40,6 @@ const expandedCategories = ref([])
 // Service categories and types from store (database + i18n)
 const serviceCategories = computed(() => {
   const grouped = serviceTypeStore.groupedServiceTypes
-  if (grouped.length > 0 && expandedCategories.value.length === 0) {
-    expandedCategories.value = [grouped[0].id]
-  }
   return grouped.map((category) => ({
     id: category.id,
     title: category.title,
@@ -78,6 +82,21 @@ const selectedServicesText = computed(() => {
   if (selectedServiceTypes.value.length === 1) return selectedServiceTypes.value[0].title
   return `${selectedServiceTypes.value.length} ${t('services.selectType.selectedCount', 'مورد انتخاب شده')}`
 })
+
+/**
+ * همگام‌سازی انتخاب‌ها با props.selectedTypes (کد انواع سرویس)
+ * فقط برای زمان باز شدن/نخستین بار استفاده می‌شود تا انتخاب‌های قبلی کاربر حفظ شود.
+ */
+const syncSelectedFromProps = () => {
+  if (!props.selectedTypes || props.selectedTypes.length === 0) {
+    selectedServiceTypes.value = []
+    return
+  }
+  selectedServiceTypes.value = props.selectedTypes.map((code) => ({
+    id: code,
+    title: serviceTypeStore.getServiceTypeLabel(code)
+  }))
+}
 
 const toggleCategory = (categoryId) => {
   const index = expandedCategories.value.indexOf(categoryId)
@@ -132,6 +151,22 @@ onMounted(async () => {
       console.error('Error fetching vehicles:', error)
       toast.error(t('vehicles.management.error'))
     }
+  }
+
+  // بعد از اینکه انواع سرویس از store آماده شد، انتخاب‌های اولیه را از props همگام کن
+  syncSelectedFromProps()
+
+  // گروه‌هایی که حداقل یک سرویس انتخاب‌شده دارند را باز کن
+  const grouped = serviceTypeStore.groupedServiceTypes
+  if (grouped.length === 0) return
+  const selectedIds = new Set(selectedServiceTypes.value.map((s) => s.id))
+  const categoriesToExpand = grouped
+    .filter((cat) => cat.services.some((s) => selectedIds.has(s.id)))
+    .map((cat) => cat.id)
+  if (categoriesToExpand.length > 0) {
+    expandedCategories.value = categoriesToExpand
+  } else {
+    expandedCategories.value = [grouped[0].id]
   }
 })
 </script>

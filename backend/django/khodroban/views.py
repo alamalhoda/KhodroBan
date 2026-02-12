@@ -23,7 +23,7 @@ from django.db import transaction
 from .models import (
     Vehicle, Service, ServiceItem, DailyExpense, ReminderSetting, Reminder,
     Notification, TelegramSetting, UserProfile, VehicleKmHistory,
-    ServiceType, ExpenseCategory
+    ServiceType, ServicePreset, ExpenseCategory
 )
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from .serializers import (
@@ -33,7 +33,7 @@ from .serializers import (
     ReminderSettingSerializer, ReminderSerializer, ReminderApiSerializer,
     NotificationSerializer, TelegramSettingSerializer,
     VehicleKmHistorySerializer,
-    ServiceTypeSerializer, ExpenseCategorySerializer
+    ServiceTypeSerializer, ServicePresetSerializer, ExpenseCategorySerializer
 )
 from .huey_tasks import send_telegram
 
@@ -389,6 +389,13 @@ class ServiceTypeViewSet(ApiResponseMixin, viewsets.ReadOnlyModelViewSet):
     """انواع سرویس (فقط خواندنی) برای فرانت در حالت Django."""
     queryset = ServiceType.objects.filter(is_active=True).order_by('group_name', 'code')
     serializer_class = ServiceTypeSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class ServicePresetViewSet(ApiResponseMixin, viewsets.ReadOnlyModelViewSet):
+    """پیش‌تعریف‌های انتخاب سریع سرویس (فقط خواندنی)."""
+    queryset = ServicePreset.objects.filter(is_active=True).prefetch_related('service_types')
+    serializer_class = ServicePresetSerializer
     permission_classes = [IsAuthenticated]
 
 

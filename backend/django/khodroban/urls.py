@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import RegisterView, MyTokenObtainPairView, MeView, ReportSummaryView
 from .views import (
     VehicleViewSet, ServiceViewSet, DailyExpenseViewSet,
-    ServiceTypeViewSet, ExpenseCategoryViewSet,
+    ServiceTypeViewSet, ServicePresetViewSet, ExpenseCategoryViewSet,
     ReminderSettingViewSet, ReminderViewSet, NotificationViewSet,
     TelegramSettingViewSet, telegram_webhook, huey_health
 )
@@ -16,6 +16,7 @@ router.register(r'vehicles', VehicleViewSet)
 router.register(r'services', ServiceViewSet)
 router.register(r'expenses', DailyExpenseViewSet)
 router.register(r'service-types', ServiceTypeViewSet)
+router.register(r'service-presets', ServicePresetViewSet)
 router.register(r'expense-categories', ExpenseCategoryViewSet)
 router.register(r'reminder-settings', ReminderSettingViewSet)
 router.register(r'reminders', ReminderViewSet)
