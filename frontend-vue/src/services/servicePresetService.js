@@ -1,6 +1,6 @@
 import { api } from './index'
 
-const isDjango = () => import.meta.env.VITE_BACKEND_TYPE === 'django'
+const isDjango = (env = import.meta.env) => env?.VITE_BACKEND_TYPE === 'django'
 
 /**
  * سرویس پیش‌تعریف‌های انتخاب سریع سرویس (فقط وقتی backend نوع django است).
@@ -10,10 +10,11 @@ const isDjango = () => import.meta.env.VITE_BACKEND_TYPE === 'django'
 export const servicePresetService = {
   /**
    * دریافت همه presetهای فعال
+   * @param {object} [env] - برای تست؛ پیش‌فرض: import.meta.env
    * @returns {Promise<Array<{ preset_id: number, name: string, display_order: number, service_type_codes: string[] }>>}
    */
-  async getAll() {
-    if (!isDjango()) {
+  async getAll(env = import.meta.env) {
+    if (!isDjango(env)) {
       return []
     }
     try {

@@ -8,7 +8,7 @@ from django.utils.crypto import get_random_string
 
 from khodroban.models import (
     Vehicle, UserProfile, Service, ServiceItem, ServiceType,
-    VehicleKmHistory,
+    VehicleKmHistory, ServicePreset,
 )
 from khodroban.sample_data import ensure_plans, ensure_service_types, ensure_expense_categories
 
@@ -38,6 +38,7 @@ class ServiceAPITests(APITestCase):
         )
         self.list_url = reverse("service-list")
         self.detail_url = lambda pk: reverse("service-detail", kwargs={"pk": pk})
+        self.presets_list_url = reverse("servicepreset-list")
 
     def test_create_service_with_types_creates_service_and_items(self):
         data = {
@@ -131,3 +132,28 @@ class ServiceAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         service = Service.objects.first()
         self.assertEqual(service.service_date_gregorian, date(2024, 9, 6))
+
+    def test_list_service_presets_returns_active_presets_with_type_codes(self):
+        oil = ServiceType.objects.get(code="oil_change")
+        filt = ServiceType.objects.get(code="filter")
+        preset = ServicePreset.objects.create(
+            name="سرویس ۵۰۰۰",
+            display_order=10,
+            is_active=True,
+        )
+        preset.service_types.set([oil, filt])
+        response = self.client.get(self.presets_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        payload = response.data.get("data", response.data)
+        self.assertIsInstance(payload, list)
+        self.assertGreaterEqual(len(payload), 1)
+        first = next((p for p in payload if p.get("preset_id") == preset.preset_id), None)
+        self.assertIsNotNone(first)
+        self.assertEqual(first["name"], "سرویس ۵۰۰۰")
+        self.assertEqual(first["display_order"], 10)
+        self.assertEqual(set(first["service_type_codes"]), {"oil_change", "filter"})
+
+    def test_list_service_presets_unauthorized_returns_401(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.get(self.presets_list_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
