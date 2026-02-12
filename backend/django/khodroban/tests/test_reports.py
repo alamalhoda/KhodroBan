@@ -63,7 +63,7 @@ class ReportSummaryTests(APITestCase):
         )
         response = self.client.get(
             self.summary_url,
-            {"vehicle_id": str(self.vehicle.vehicle_id)},
+            {"vehicle_id": str(self.vehicle.id)},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         payload = response.data.get("data", response.data)

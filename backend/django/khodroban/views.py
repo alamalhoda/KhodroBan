@@ -141,7 +141,7 @@ class VehicleViewSet(ApiResponseMixin, viewsets.ModelViewSet):
             data = [
                 {
                     'id': str(r.id),
-                    'vehicleId': str(vehicle.vehicle_id),
+                    'vehicleId': str(vehicle.id),
                     'km': r.km,
                     'recordedAt': r.recorded_at.isoformat() if r.recorded_at else None,
                     'sourceType': r.source_type,
@@ -194,7 +194,7 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Service.objects.filter(vehicle__user_profile=self.request.user.userprofile).prefetch_related(
-            'serviceitem_set__service_type_code'
+            'items__service_type'
         )
 
     def perform_create(self, serializer):
@@ -241,7 +241,7 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
 
             type_objs = {c: ServiceType.objects.get(code=c) for c in type_codes}
             if items:
-                # یک رکورد به ازای هر type (unique_together service, service_type_code)
+                # یک رکورد به ازای هر type (unique_together service, service_type)
                 by_type = defaultdict(lambda: {'cost': 0, 'descriptions': []})
                 for item in items:
                     code = item.get('type')
@@ -255,7 +255,7 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
                     desc = '؛ '.join(data['descriptions']) if data['descriptions'] else None
                     ServiceItem.objects.get_or_create(
                         service=service,
-                        service_type_code=type_objs[code],
+                        service_type=type_objs[code],
                         defaults={'cost': data['cost'], 'description': desc or None}
                     )
             else:
@@ -263,7 +263,7 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
                 for code in type_codes:
                     ServiceItem.objects.get_or_create(
                         service=service,
-                        service_type_code=type_objs[code],
+                        service_type=type_objs[code],
                         defaults={'cost': per_cost, 'description': None}
                     )
 
@@ -278,7 +278,7 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
                             vehicle=vehicle,
                             km=km_int,
                             source_type='service',
-                            source_id=service.service_id,
+                            source_id=service.id,
                             note=f'سرویس: {types_text}'
                         )
                         vehicle.current_km = km_int
@@ -299,7 +299,7 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
         elif types:
             type_codes = list(types) if isinstance(types, (list, tuple)) else [types]
         with transaction.atomic():
-            service.serviceitem_set.all().delete()
+            service.items.all().delete()
             if not type_codes:
                 return
             existing = set(
@@ -327,7 +327,7 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
                     desc = '؛ '.join(data['descriptions']) if data['descriptions'] else None
                     ServiceItem.objects.create(
                         service=service,
-                        service_type_code=type_objs[code],
+                        service_type=type_objs[code],
                         cost=data['cost'],
                         description=desc or None
                     )
@@ -338,7 +338,7 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
                 for code in type_codes:
                     ServiceItem.objects.create(
                         service=service,
-                        service_type_code=type_objs[code],
+                        service_type=type_objs[code],
                         cost=per_cost,
                         description=None
                     )
@@ -348,7 +348,7 @@ class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='latest/(?P<vehicle_id>[^/.]+)')
     def latest(self, request, vehicle_id=None):
         vehicle = Vehicle.objects.filter(
-            vehicle_id=vehicle_id,
+            pk=vehicle_id,
             user_profile=request.user.userprofile
         ).first()
         if not vehicle:
@@ -436,7 +436,7 @@ class ReminderViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='vehicle/(?P<vehicle_id>[^/.]+)')
     def by_vehicle(self, request, vehicle_id=None):
         vehicle = Vehicle.objects.filter(
-            vehicle_id=vehicle_id,
+            pk=vehicle_id,
             user_profile=request.user.userprofile
         ).first()
         if not vehicle:
@@ -626,7 +626,7 @@ class ReportSummaryView(APIView):
         date_to = _parse_date(request.query_params.get('date_to') or request.query_params.get('dateTo'))
         vehicles = Vehicle.objects.filter(user_profile=profile)
         if vehicle_id:
-            vehicles = vehicles.filter(vehicle_id=vehicle_id)
+            vehicles = vehicles.filter(pk=vehicle_id)
         if not vehicles.exists():
             return api_response({
                 'totalServiceCost': 0,
@@ -638,7 +638,7 @@ class ReportSummaryView(APIView):
                 'costByMonth': [],
                 'totalKm': 0,
             })
-        vehicle_ids = list(vehicles.values_list('vehicle_id', flat=True))
+        vehicle_ids = list(vehicles.values_list('id', flat=True))
         services = Service.objects.filter(vehicle_id__in=vehicle_ids)
         expenses = DailyExpense.objects.filter(vehicle_id__in=vehicle_ids)
         if date_from:
@@ -651,18 +651,18 @@ class ReportSummaryView(APIView):
         total_expenses = expenses.aggregate(s=Sum('amount'))['s'] or 0
         total_km = sum(v.current_km or 0 for v in vehicles)
         cost_by_category = {}
-        services_prefetch = Service.objects.filter(vehicle_id__in=vehicle_ids).prefetch_related('serviceitem_set')
+        services_prefetch = Service.objects.filter(vehicle_id__in=vehicle_ids).prefetch_related('items')
         if date_from:
             services_prefetch = services_prefetch.filter(service_date_gregorian__gte=date_from)
         if date_to:
             services_prefetch = services_prefetch.filter(service_date_gregorian__lte=date_to)
         for s in services_prefetch:
-            items = list(s.serviceitem_set.all())
-            types = [it.service_type_code_id for it in items]
+            items = list(s.items.all())
+            types = [it.service_type_id for it in items]
             key = f"service_{types[0]}" if types else 'service_other'
             cost_by_category[key] = cost_by_category.get(key, 0) + (s.total_cost or 0)
         for e in expenses:
-            key = e.category_code or 'other'
+            key = (e.category.code if e.category else 'other')
             cost_by_category[key] = cost_by_category.get(key, 0) + e.amount
         services_for_month = Service.objects.filter(vehicle_id__in=vehicle_ids)
         expenses_for_month = DailyExpense.objects.filter(vehicle_id__in=vehicle_ids)

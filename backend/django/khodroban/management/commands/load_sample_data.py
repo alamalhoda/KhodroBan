@@ -18,6 +18,7 @@ from datetime import timedelta
 from khodroban.models import (
     SubscriptionPlan,
     ServiceType,
+    ExpenseCategory,
     UserProfile,
     Vehicle,
     Service,
@@ -158,26 +159,27 @@ class Command(BaseCommand):
         if created:
             st_oil = ServiceType.objects.get(code="oil_change")
             st_filter = ServiceType.objects.get(code="filter")
-            ServiceItem.objects.create(service=service1, service_type_code=st_oil, cost=500000, description="روغن ۵W30")
-            ServiceItem.objects.create(service=service1, service_type_code=st_filter, cost=350000, description="فیلتر روغن اصل")
+            ServiceItem.objects.create(service=service1, service_type=st_oil, cost=500000, description="روغن ۵W30")
+            ServiceItem.objects.create(service=service1, service_type=st_filter, cost=350000, description="فیلتر روغن اصل")
 
             VehicleKmHistory.objects.create(
                 vehicle=v1,
                 km=92000,
                 source_type="service",
-                source_id=service1.service_id,
+                source_id=service1.id,
                 note="سرویس دوره‌ای",
             )
 
         # هزینه روزانه برای خودرو اول
         exp_date = today - timedelta(days=5)
+        cat_fuel = ExpenseCategory.objects.filter(code="fuel").first()
         DailyExpense.objects.get_or_create(
             vehicle=v1,
             expense_date=exp_date,
             amount=200000,
             defaults={
                 "expense_date_gregorian": exp_date,
-                "category_code": "fuel",
+                "category": cat_fuel,
                 "km_at_expense": 94800,
                 "description": "باک بنزین نمونه",
             },

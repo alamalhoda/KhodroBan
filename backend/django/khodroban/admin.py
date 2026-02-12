@@ -39,7 +39,7 @@ class VehicleInline(admin.TabularInline):
 class ServiceItemInline(admin.TabularInline):
     model = ServiceItem
     extra = 0
-    autocomplete_fields = ("service_type_code",)
+    autocomplete_fields = ("service_type",)
     readonly_fields = ("created_at",)
 
 
@@ -95,7 +95,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 @admin.register(UserSubscription)
 class UserSubscriptionAdmin(admin.ModelAdmin):
     list_display = (
-        "subscription_id",
+        "id",
         "user_profile",
         "plan",
         "start_date",
@@ -117,7 +117,7 @@ class UserSubscriptionAdmin(admin.ModelAdmin):
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
     list_display = (
-        "vehicle_id",
+        "id",
         "model",
         "plate_number",
         "year",
@@ -163,7 +163,7 @@ class ExpenseCategoryAdmin(admin.ModelAdmin):
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     list_display = (
-        "service_id",
+        "id",
         "vehicle",
         "service_date",
         "service_date_gregorian",
@@ -182,10 +182,10 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(ServiceItem)
 class ServiceItemAdmin(admin.ModelAdmin):
-    list_display = ("service_item_id", "service", "service_type_code", "cost", "created_at")
-    list_filter = ("service_type_code",)
+    list_display = ("id", "service", "service_type", "cost", "created_at")
+    list_filter = ("service_type",)
     search_fields = ("service__vehicle__plate_number", "description")
-    autocomplete_fields = ("service", "service_type_code")
+    autocomplete_fields = ("service", "service_type")
     readonly_fields = ("created_at",)
     list_per_page = 25
 
@@ -193,17 +193,17 @@ class ServiceItemAdmin(admin.ModelAdmin):
 @admin.register(DailyExpense)
 class DailyExpenseAdmin(admin.ModelAdmin):
     list_display = (
-        "expense_id",
+        "id",
         "vehicle",
         "expense_date",
         "expense_date_gregorian",
         "amount",
-        "category_code",
+        "category",
         "km_at_expense",
         "created_at",
     )
-    list_filter = ("category_code",)
-    search_fields = ("vehicle__plate_number", "description", "category_code")
+    list_filter = ("category",)
+    search_fields = ("vehicle__plate_number", "description", "category__code")
     raw_id_fields = ("vehicle",)
     readonly_fields = ("created_at", "updated_at")
     date_hierarchy = "expense_date_gregorian"
@@ -215,7 +215,7 @@ class DailyExpenseAdmin(admin.ModelAdmin):
 @admin.register(ReminderSetting)
 class ReminderSettingAdmin(admin.ModelAdmin):
     list_display = (
-        "reminder_setting_id",
+        "id",
         "vehicle",
         "reminder_mode",
         "interval_km",
