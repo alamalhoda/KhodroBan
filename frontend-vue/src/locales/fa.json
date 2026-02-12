@@ -24,7 +24,13 @@
     "optional": "اختیاری",
     "selected": "انتخاب شده",
     "actions": "عملیات",
-    "km": "کیلومتر"
+    "km": "کیلومتر",
+    "showing": "نمایش",
+    "to": "تا",
+    "of": "از",
+    "previousPage": "صفحه قبل",
+    "nextPage": "صفحه بعد",
+    "retry": "تلاش مجدد"
   },
   "auth": {
     "login": "ورود",
@@ -126,6 +132,7 @@
       "normal": "عادی",
       "currentMileage": "کارکرد فعلی",
       "km": "کیلومتر",
+      "vehicle": "خودرو",
       "usageStatus": "وضعیت طرح رایگان",
       "usageDescription": "شما از {count} خودرو از ۳ خودروی مجاز استفاده کرده‌اید.",
       "usagePercent": "پر شده",

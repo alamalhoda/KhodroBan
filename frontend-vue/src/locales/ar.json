@@ -24,7 +24,12 @@
     "optional": "اختياري",
     "selected": "محدد",
     "actions": "الإجراءات",
-    "km": "كم"
+    "km": "كم",
+    "showing": "عرض",
+    "to": "إلى",
+    "of": "من",
+    "previousPage": "الصفحة السابقة",
+    "nextPage": "الصفحة التالية"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -126,6 +131,7 @@
       "normal": "عادي",
       "currentMileage": "المسافة الحالية",
       "km": "كم",
+      "vehicle": "المركبة",
       "usageStatus": "حالة الخطة المجانية",
       "usageDescription": "أنت تستخدم {count} مركبة من أصل 3 مركبات مسموحة.",
       "usagePercent": "ممتلئة",

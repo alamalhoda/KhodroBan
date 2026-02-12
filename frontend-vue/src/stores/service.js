@@ -168,6 +168,22 @@ export const useServiceStore = defineStore('service', () => {
     return services.value.find(s => s.id === id)
   }
 
+  /** دریافت یک سرویس از API (برای ویرایش در صفحه add-service) */
+  const fetchServiceById = async (id) => {
+    error.value = null
+    try {
+      const service = await serviceService.getById(id)
+      const index = services.value.findIndex(s => String(s.id) === String(id))
+      if (index !== -1) {
+        services.value[index] = service
+      }
+      return service
+    } catch (err) {
+      error.value = err.message
+      throw err
+    }
+  }
+
   // Filter actions
   const setSearchQuery = (query) => {
     searchQuery.value = query
@@ -253,6 +269,7 @@ export const useServiceStore = defineStore('service', () => {
     updateService,
     deleteService,
     getServiceById,
+    fetchServiceById,
     setSearchQuery,
     setFilterVehicle,
     setFilterType,

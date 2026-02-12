@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer as JWTTokenObtainPairSerializer
 from .models import (
     SubscriptionPlan, UserProfile, UserSubscription,
-    Vehicle, Service, ServiceItem, ServiceType, ExpenseCategory,
+    Vehicle, Service, ServiceItem, ServiceType, ServicePreset, ExpenseCategory,
     DailyExpense, ReminderSetting, Reminder,
     Notification, TelegramSetting, VehicleKmHistory,
 )
@@ -145,6 +145,19 @@ class ServiceTypeSerializer(serializers.ModelSerializer):
         model = ServiceType
         fields = ['code', 'name', 'group_name', 'icon', 'is_active']
         read_only_fields = ['code']
+
+
+class ServicePresetSerializer(serializers.ModelSerializer):
+    """خروجی برای فرانت: id, name, display_order, service_type_codes (لیست کدها)."""
+    service_type_codes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ServicePreset
+        fields = ['preset_id', 'name', 'display_order', 'service_type_codes', 'is_active']
+        read_only_fields = ['preset_id', 'name', 'display_order', 'service_type_codes', 'is_active']
+
+    def get_service_type_codes(self, obj):
+        return list(obj.service_types.filter(is_active=True).values_list('code', flat=True).order_by('code'))
 
 
 class ExpenseCategorySerializer(serializers.ModelSerializer):

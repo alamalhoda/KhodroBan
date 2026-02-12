@@ -95,7 +95,6 @@ const handleSelectService = (serviceId, serviceTitle) => {
               ? 'bg-white dark:bg-gray-800 border-2 border-primary/20 dark:border-primary/40 shadow-sm'
               : 'bg-white dark:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700'
           "
-          @click="handleSelectService(service.id, service.title)"
         >
           <div class="flex items-center gap-3">
             <div class="relative flex items-center">
@@ -105,6 +104,7 @@ const handleSelectService = (serviceId, serviceTitle) => {
                 type="checkbox"
                 :aria-label="service.title"
                 @click.stop
+                @change="handleSelectService(service.id, service.title)"
               />
             </div>
             <div class="flex flex-col">

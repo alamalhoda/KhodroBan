@@ -6,6 +6,7 @@ from .models import (
     UserSubscription,
     Vehicle,
     ServiceType,
+    ServicePreset,
     ExpenseCategory,
     Service,
     ServiceItem,
@@ -138,6 +139,15 @@ class ServiceTypeAdmin(admin.ModelAdmin):
     list_filter = ("group_name", "is_active")
     search_fields = ("code", "name", "group_name")
     ordering = ("group_name", "code")
+
+
+@admin.register(ServicePreset)
+class ServicePresetAdmin(admin.ModelAdmin):
+    list_display = ("name", "display_order", "is_active", "created_at")
+    list_filter = ("is_active",)
+    search_fields = ("name",)
+    ordering = ("display_order", "name")
+    filter_horizontal = ("service_types",)
 
 
 @admin.register(ExpenseCategory)

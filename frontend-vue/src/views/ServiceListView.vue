@@ -1,4 +1,10 @@
 <script setup>
+/**
+ * صفحه لیست سرویس‌ها
+ *
+ * TODO (لیست کارهای بعدی این صفحه):
+ * - جستجو و فیلتر (از جمله فیلتر خودرو، نوع سرویس، بازه تاریخ)
+ */
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -16,70 +22,55 @@ const serviceStore = useServiceStore()
 const vehicleStore = useVehicleStore()
 const toast = useToast()
 
+// آیکون نوع سرویس برای نمایش در جدول (Material Symbols)
+const SERVICE_TYPE_ICONS = {
+  oil_change: 'oil_barrel',
+  filter: 'filter_alt',
+  brakes: 'security',
+  battery: 'battery_charging_full',
+  tire: 'tire_repair',
+  other: 'build'
+}
+
 // State
-const services = ref([])
 const isLoading = ref(false)
 const showDeleteModal = ref(false)
-const showEditModal = ref(false)
 const serviceToDelete = ref(null)
-const serviceToEdit = ref(null)
-const selectedVehicleId = ref(null)
 
-// Edit form
-const editForm = ref({
-  date: '',
-  km: '',
-  cost: '',
-  type: '',
-  note: ''
-})
-
-const editFormErrors = ref({})
-
-// Service type options
-const serviceTypes = computed(() => [
-  { value: 'oil_change', label: t('services.types.oil_change') },
-  { value: 'filter', label: t('services.types.filter') },
-  { value: 'brakes', label: t('services.types.brakes') },
-  { value: 'battery', label: t('services.types.battery') },
-  { value: 'tire', label: t('services.types.tire') },
-  { value: 'other', label: t('services.types.other') }
+// گزینه‌های فیلتر خودرو
+const vehicleOptions = computed(() => [
+  { value: '', label: t('services.allVehicles') },
+  ...vehicleStore.vehicles.map(v => ({
+    value: v.id,
+    label: `${v.model} - ${v.year}`
+  }))
 ])
 
-// Computed
-const selectedVehicle = computed(() => {
-  if (!selectedVehicleId.value) return null
-  // Compare as strings to handle both string and number IDs
-  return vehicleStore.vehicles.find(v => String(v.id) === String(selectedVehicleId.value))
-})
+// لیست سرویس‌های صفحه‌بندی‌شده از store
+const displayedServices = computed(() => serviceStore.paginatedServices)
 
-const vehicleOptions = computed(() => {
-  return [
-    { value: '', label: t('services.allVehicles') },
-    ...vehicleStore.vehicles.map(v => ({
-      value: v.id,
-      label: `${v.model} - ${v.year}`
-    }))
-  ]
-})
+const totalPages = computed(() => serviceStore.totalPages)
+const currentPage = computed(() => serviceStore.currentPage)
+const totalItems = computed(() => serviceStore.totalItems)
+const pageSize = computed(() => serviceStore.pageSize)
 
-const filteredServices = computed(() => {
-  // If a vehicle is selected, show only its services
-  if (selectedVehicleId.value) {
-    // Use servicesByVehicle which filters by vehicleId
-    const vehicleServices = serviceStore.servicesByVehicle(selectedVehicleId.value)
-    return vehicleServices
-  }
-  // Otherwise show all services (no filter)
-  return serviceStore.services
-})
+/** برچسب خودرو برای نمایش در جدول */
+function getVehicleLabel(vehicleId) {
+  if (!vehicleId) return '—'
+  const v = vehicleStore.vehicles.find(v => String(v.id) === String(vehicleId))
+  return v ? `${v.model} - ${v.year}` : '—'
+}
+
+/** آیکون نوع سرویس */
+function getServiceTypeIcon(type) {
+  return SERVICE_TYPE_ICONS[type] || 'build'
+}
 
 // Methods
-const fetchServices = async () => {
+const fetchServices = async (vehicleId) => {
   isLoading.value = true
   try {
-    await serviceStore.fetchServices(selectedVehicleId.value || undefined)
-    services.value = serviceStore.services
+    await serviceStore.fetchServices(vehicleId ?? undefined)
   } catch (error) {
     console.error('Error fetching services:', error)
     toast.error(t('services.add.error'))
@@ -88,17 +79,20 @@ const fetchServices = async () => {
   }
 }
 
-const handleEdit = (service) => {
-  serviceToEdit.value = service
-  editForm.value = {
-    date: service.date || '',
-    km: service.km?.toString() || '',
-    cost: service.cost?.toString() || '',
-    type: service.type || '',
-    note: service.note || ''
+const handleVehicleChange = (vehicleId) => {
+  const id = vehicleId === '' || vehicleId == null ? null : String(vehicleId)
+  serviceStore.setFilterVehicle(id)
+  if (id != null) {
+    router.replace({ query: { ...route.query, vehicleId: id } })
+  } else {
+    const { vehicleId: _, ...rest } = route.query
+    router.replace({ query: rest })
   }
-  editFormErrors.value = {}
-  showEditModal.value = true
+  fetchServices(id ?? undefined)
+}
+
+const handleEdit = (service) => {
+  router.push({ name: 'add-service', query: { edit: service.id } })
 }
 
 const handleDelete = (service) => {
@@ -126,68 +120,6 @@ const handleDeleteCancel = () => {
   serviceToDelete.value = null
 }
 
-const validateEditForm = () => {
-  const errors = {}
-  
-  if (!editForm.value.date) {
-    errors.date = t('services.add.validation.dateRequired')
-  }
-  
-  if (!editForm.value.km || editForm.value.km <= 0) {
-    errors.km = t('services.add.validation.kmRequired')
-  } else if (isNaN(parseInt(editForm.value.km))) {
-    errors.km = t('services.add.validation.kmInvalid')
-  }
-  
-  if (!editForm.value.cost || editForm.value.cost <= 0) {
-    errors.cost = t('services.add.validation.costRequired')
-  } else if (isNaN(parseInt(editForm.value.cost))) {
-    errors.cost = t('services.add.validation.costInvalid')
-  }
-  
-  if (!editForm.value.type) {
-    errors.type = t('services.add.validation.typeRequired')
-  }
-  
-  editFormErrors.value = errors
-  return Object.keys(errors).length === 0
-}
-
-const handleEditSubmit = async () => {
-  if (!validateEditForm() || !serviceToEdit.value) return
-  
-  try {
-    await serviceStore.updateService(serviceToEdit.value.id, {
-      date: editForm.value.date,
-      km: parseInt(editForm.value.km),
-      cost: parseInt(editForm.value.cost),
-      type: editForm.value.type,
-      note: editForm.value.note || undefined
-    })
-    
-    toast.success(t('services.edit.success'))
-    showEditModal.value = false
-    serviceToEdit.value = null
-    await fetchServices()
-  } catch (error) {
-    console.error('Error updating service:', error)
-    toast.error(t('services.edit.error'))
-  }
-}
-
-const handleEditCancel = () => {
-  showEditModal.value = false
-  serviceToEdit.value = null
-  editForm.value = {
-    date: '',
-    km: '',
-    cost: '',
-    type: '',
-    note: ''
-  }
-  editFormErrors.value = {}
-}
-
 const handleBack = () => {
   router.back()
 }
@@ -197,32 +129,23 @@ const handleRefresh = async () => {
     if (vehicleStore.vehicles.length === 0) {
       await vehicleStore.fetchVehicles()
     }
-    await fetchServices()
+    await fetchServices(serviceStore.filterVehicleId ?? undefined)
   } catch (error) {
     console.error('Error refreshing data:', error)
     toast.error(t('common.error'))
   }
 }
 
-// Methods for vehicle selection
-const handleVehicleChange = (vehicleId) => {
-  // Convert empty string to null
-  const normalizedId = vehicleId === '' || !vehicleId ? null : vehicleId
-  selectedVehicleId.value = normalizedId
-  // Update route query without navigation
-  if (normalizedId) {
-    router.replace({ query: { ...route.query, vehicleId: normalizedId } })
-  } else {
-    const { vehicleId: _, ...rest } = route.query
-    router.replace({ query: rest })
-  }
-  // Fetch services for the selected vehicle or all services
-  fetchServices()
+const handleAddService = () => {
+  router.push({ name: 'add-service' })
+}
+
+const handlePageChange = (page) => {
+  serviceStore.setPage(page)
 }
 
 // Lifecycle
 onMounted(async () => {
-  // Fetch vehicles first
   if (vehicleStore.vehicles.length === 0) {
     try {
       await vehicleStore.fetchVehicles()
@@ -231,27 +154,23 @@ onMounted(async () => {
       toast.error(t('vehicles.management.error'))
     }
   }
-  
-  // Get vehicle ID from route query
   if (route.query.vehicleId) {
-    selectedVehicleId.value = String(route.query.vehicleId)
+    const id = String(route.query.vehicleId)
+    serviceStore.setFilterVehicle(id)
+    await fetchServices(id)
   } else {
-    selectedVehicleId.value = null
+    await fetchServices(undefined)
   }
-  // Don't set default vehicle - show all services if no vehicle is selected
-  
-  // Fetch services (will fetch all if no vehicleId is set)
-  await fetchServices()
 })
 
-// Watch for route query changes
 watch(() => route.query.vehicleId, (newVehicleId) => {
   if (newVehicleId) {
-    selectedVehicleId.value = String(newVehicleId)
+    serviceStore.setFilterVehicle(String(newVehicleId))
+    fetchServices(String(newVehicleId))
   } else {
-    selectedVehicleId.value = null
+    serviceStore.setFilterVehicle(null)
+    fetchServices(undefined)
   }
-  fetchServices()
 }, { immediate: false })
 </script>
 
@@ -263,14 +182,23 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
           <h1 class="text-[#121317] dark:text-white tracking-tight text-2xl sm:text-[32px] font-bold leading-tight">{{ $t('services.serviceList') }}</h1>
           <p class="text-[#666e85] dark:text-gray-400 text-sm font-normal leading-normal">{{ $t('services.selectDetails.subtitle') }}</p>
         </div>
-        <Select
-          :model-value="selectedVehicleId || ''"
-          @update:model-value="handleVehicleChange"
-          :options="vehicleOptions"
-          icon="directions_car"
-          class="w-full sm:w-auto min-w-[200px]"
-          :aria-label="$t('services.allVehicles')"
-        />
+        <div class="flex flex-wrap items-center gap-4">
+          <Select
+            :model-value="serviceStore.filterVehicleId ?? ''"
+            @update:model-value="handleVehicleChange"
+            :options="vehicleOptions"
+            icon="directions_car"
+            class="w-full sm:w-auto min-w-[200px]"
+            :aria-label="$t('services.allVehicles')"
+          />
+          <Button
+            @click="handleAddService"
+            variant="primary"
+            icon="add"
+          >
+            {{ $t('services.addService') }}
+          </Button>
+        </div>
       </header>
       
       <!-- Loading state -->
@@ -295,16 +223,17 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
       </Card>
       
       <!-- Services list - Desktop Table -->
-      <Card v-else-if="filteredServices.length > 0" class="overflow-hidden p-0">
+      <Card v-else-if="totalItems > 0" class="overflow-hidden p-0">
         <div class="overflow-x-auto">
           <table 
             class="w-full"
             role="table"
-            aria-label="$t('services.serviceList')"
+            :aria-label="$t('services.serviceList')"
           >
             <thead class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
               <tr>
                 <th scope="col" class="px-4 sm:px-6 py-4 text-right text-sm font-bold text-gray-900 dark:text-white">{{ $t('services.date') }}</th>
+                <th scope="col" class="px-4 sm:px-6 py-4 text-right text-sm font-bold text-gray-900 dark:text-white hidden sm:table-cell">{{ $t('vehicles.management.vehicle', 'خودرو') }}</th>
                 <th scope="col" class="px-4 sm:px-6 py-4 text-right text-sm font-bold text-gray-900 dark:text-white">{{ $t('services.serviceType') }}</th>
                 <th scope="col" class="px-4 sm:px-6 py-4 text-right text-sm font-bold text-gray-900 dark:text-white hidden sm:table-cell">{{ $t('services.mileage') }}</th>
                 <th scope="col" class="px-4 sm:px-6 py-4 text-right text-sm font-bold text-gray-900 dark:text-white">{{ $t('services.cost') }}</th>
@@ -314,12 +243,18 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
               <tr 
-                v-for="service in filteredServices" 
+                v-for="service in displayedServices" 
                 :key="service.id" 
                 class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
               >
                 <td class="px-4 sm:px-6 py-4 text-sm text-gray-900 dark:text-white">{{ formatDate(service.date) }}</td>
-                <td class="px-4 sm:px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $t(`services.types.${service.type}`, service.type) }}</td>
+                <td class="px-4 sm:px-6 py-4 text-sm text-gray-700 dark:text-gray-300 hidden sm:table-cell">{{ getVehicleLabel(service.vehicleId) }}</td>
+                <td class="px-4 sm:px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                  <span class="inline-flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg text-gray-500 dark:text-gray-400" aria-hidden="true">{{ getServiceTypeIcon(service.type) }}</span>
+                    {{ $t(`services.types.${service.type}`, service.type) }}
+                  </span>
+                </td>
                 <td class="px-4 sm:px-6 py-4 text-sm text-gray-700 dark:text-gray-300 hidden sm:table-cell">{{ formatCurrency(service.km) }} {{ $t('vehicles.management.km') }}</td>
                 <td class="px-4 sm:px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ formatCurrency(service.cost) }} {{ $t('common.currency') }}</td>
                 <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate hidden md:table-cell">{{ service.note || '-' }}</td>
@@ -346,18 +281,54 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="flex flex-wrap items-center justify-between gap-4 px-4 sm:px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            {{ $t('common.showing', 'نمایش') }}
+            {{ (currentPage - 1) * pageSize + 1 }}
+            {{ $t('common.to', 'تا') }}
+            {{ Math.min(currentPage * pageSize, totalItems) }}
+            {{ $t('common.of', 'از') }}
+            {{ totalItems }}
+          </p>
+          <nav class="flex items-center gap-2" aria-label="Pagination">
+            <Button
+              variant="outline"
+              size="sm"
+              icon="chevron_left"
+              :disabled="currentPage <= 1"
+              :aria-label="$t('common.previousPage', 'صفحه قبل')"
+              @click="handlePageChange(currentPage - 1)"
+            />
+            <span class="text-sm text-gray-700 dark:text-gray-300 px-2">
+              {{ currentPage }} / {{ totalPages }}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              icon="chevron_right"
+              :disabled="currentPage >= totalPages"
+              :aria-label="$t('common.nextPage', 'صفحه بعد')"
+              @click="handlePageChange(currentPage + 1)"
+            />
+          </nav>
+        </div>
         
         <!-- Mobile Card View -->
         <div class="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
           <div 
-            v-for="service in filteredServices" 
+            v-for="service in displayedServices" 
             :key="service.id"
             class="p-4 space-y-3"
           >
             <div class="flex justify-between items-start">
-              <div>
-                <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $t(`services.types.${service.type}`, service.type) }}</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ formatDate(service.date) }}</p>
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-gray-500 dark:text-gray-400" aria-hidden="true">{{ getServiceTypeIcon(service.type) }}</span>
+                <div>
+                  <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $t(`services.types.${service.type}`, service.type) }}</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ formatDate(service.date) }} · {{ getVehicleLabel(service.vehicleId) }}</p>
+                </div>
               </div>
               <div class="flex items-center gap-2">
                 <Button
@@ -445,103 +416,6 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
           {{ $t('services.delete.confirmButton') }}
         </Button>
       </template>
-    </Modal>
-    
-    <!-- Edit Service Modal -->
-    <Modal
-      v-model:open="showEditModal"
-      :title="$t('services.edit.title')"
-      size="lg"
-      :close-on-overlay="false"
-    >
-      <form @submit.prevent="handleEditSubmit" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <label class="flex flex-col gap-2">
-            <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.serviceDate') }}</span>
-            <input 
-              v-model="editForm.date"
-              class="form-input w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 px-4 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow text-end" 
-              :class="{ 'border-red-500': editFormErrors.date }"
-              type="date" 
-            />
-            <p v-if="editFormErrors.date" class="text-red-500 text-xs mt-1">{{ editFormErrors.date }}</p>
-          </label>
-          <label class="flex flex-col gap-2">
-            <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.currentKm') }}</span>
-            <div class="relative">
-              <input 
-                v-model="editForm.km"
-                class="form-input w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 pe-4 ps-12 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow dir-ltr text-right" 
-                :class="{ 'border-red-500': editFormErrors.km }"
-                :placeholder="$t('services.add.currentKmPlaceholder')" 
-                type="number" 
-              />
-              <span class="absolute left-4 top-3 text-gray-400 text-sm">km</span>
-              <p v-if="editFormErrors.km" class="text-red-500 text-xs mt-1">{{ editFormErrors.km }}</p>
-            </div>
-          </label>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <label class="flex flex-col gap-2">
-            <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.serviceType') }}</span>
-            <select 
-              v-model="editForm.type"
-              class="form-select w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 px-4 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow bg-[position:left_0.5rem_center] ps-4 pe-10"
-              :class="{ 'border-red-500': editFormErrors.type }"
-            >
-              <option value="">{{ $t('services.add.selectServiceType') }}</option>
-              <option 
-                v-for="serviceType in serviceTypes" 
-                :key="serviceType.value" 
-                :value="serviceType.value"
-              >
-                {{ serviceType.label }}
-              </option>
-            </select>
-            <p v-if="editFormErrors.type" class="text-red-500 text-xs mt-1">{{ editFormErrors.type }}</p>
-          </label>
-          <label class="flex flex-col gap-2">
-            <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.totalCost') }}</span>
-            <div class="relative">
-              <span class="absolute left-4 top-3 text-gray-500 dark:text-gray-400 text-sm font-medium">{{ $t('common.currency') }}</span>
-              <input 
-                v-model="editForm.cost"
-                class="form-input w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 pe-4 ps-16 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow dir-ltr text-right" 
-                :class="{ 'border-red-500': editFormErrors.cost }"
-                placeholder="۰" 
-                type="number" 
-              />
-              <p v-if="editFormErrors.cost" class="text-red-500 text-xs mt-1">{{ editFormErrors.cost }}</p>
-            </div>
-          </label>
-        </div>
-        
-        <label class="flex flex-col gap-2">
-          <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.note') }}</span>
-          <textarea 
-            v-model="editForm.note"
-            class="form-textarea w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white min-h-[100px] p-4 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow resize-y" 
-            :placeholder="$t('services.add.notePlaceholder')"
-          ></textarea>
-        </label>
-        
-        <div class="flex justify-end gap-4 pt-4">
-          <Button
-            @click="handleEditCancel"
-            variant="outline"
-          >
-            {{ $t('services.add.cancel') }}
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            icon="save"
-          >
-            {{ $t('services.edit.submit') }}
-          </Button>
-        </div>
-      </form>
     </Modal>
   </MainLayout>
 </template>

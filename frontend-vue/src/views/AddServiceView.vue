@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '../stores/service'
 import { useVehicleStore } from '../stores/vehicle'
 import { useServiceTypeStore } from '../stores/serviceType'
+import { servicePresetService } from '../services/servicePresetService'
 import { useExpenseCategoryStore } from '../stores/expenseCategory'
 import { useExpenseStore } from '../stores/expense'
 import { useReminderStore } from '../stores/reminder'
@@ -43,8 +44,14 @@ const reminderInterval = ref({ days: 90, km: 5000 })
 
 const formErrors = ref({})
 const isSubmitting = ref(false)
+const isLoadingEdit = ref(false)
 const activeTab = ref('service') // 'service' or 'expense'
 const showServiceTypeModal = ref(false)
+const serviceTypeSelectorKey = ref(0)
+
+// حالت ویرایش سرویس (از لیست سرویس‌ها با query edit=id)
+const editingServiceId = computed(() => route.query.edit || null)
+const isEditMode = computed(() => !!editingServiceId.value)
 
 // Autocomplete state
 const autocompleteQuery = ref('')
@@ -83,6 +90,36 @@ const filteredOptions = computed(() => {
   )
 })
 
+// گروه‌بندی گزینه‌های فیلترشده (برای تب سرویس)
+const groupedFilteredOptions = computed(() => {
+  if (activeTab.value !== 'service') {
+    return [
+      {
+        id: 'default',
+        title: '',
+        options: filteredOptions.value
+      }
+    ]
+  }
+
+  const groups = {}
+  filteredOptions.value.forEach((opt) => {
+    const key = opt.category || 'other'
+    if (!groups[key]) {
+      groups[key] = {
+        id: key,
+        title: serviceTypeStore.serviceTypesWithTranslation.find(t => t.group_name === key)?.groupName || key,
+        options: []
+      }
+    }
+    groups[key].options.push(opt)
+  })
+  return Object.values(groups)
+})
+
+// پیش‌تعریف‌های انتخاب سریع (از API، توسط ادمین تعریف شده)
+const servicePresets = ref([])
+
 // Get label by value based on active tab
 const getLabel = (value) => {
   if (activeTab.value === 'service') {
@@ -90,6 +127,27 @@ const getLabel = (value) => {
   } else {
     return expenseCategoryStore.getExpenseCategoryLabel(value)
   }
+}
+
+/** تبدیل رشته تاریخ (شمسی یا میلادی) به YYYY-MM-DD برای input type="date" */
+async function toDateInputValue(dateStr) {
+  if (!dateStr) return ''
+  const s = String(dateStr).trim()
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
+  const parts = s.split(/[\/\-]/)
+  if (parts.length === 3 && parseInt(parts[0], 10) > 1300) {
+    try {
+      const PersianDate = (await import('persian-date')).default
+      const pd = new PersianDate().parse(s.replace(/\//g, '-'))
+      const d = pd.toDate()
+      if (d && !isNaN(d.getTime())) return d.toISOString().split('T')[0]
+    } catch (e) {
+      console.warn('toDateInputValue jalali parse failed:', e)
+    }
+  }
+  const d = new Date(s)
+  if (!isNaN(d.getTime())) return d.toISOString().split('T')[0]
+  return s
 }
 
 // Computed
@@ -157,6 +215,29 @@ const validateForm = () => {
   return Object.keys(errors).length === 0
 }
 
+const loadServiceForEdit = async () => {
+  const id = editingServiceId.value
+  if (!id) return
+  isLoadingEdit.value = true
+  try {
+    const service = await serviceStore.fetchServiceById(id)
+    formData.value.vehicleId = String(service.vehicleId)
+    formData.value.date = await toDateInputValue(service.date)
+    formData.value.km = service.km?.toString() ?? ''
+    formData.value.cost = service.cost?.toString() ?? ''
+    formData.value.types = (service.types && service.types.length) ? [...service.types] : (service.type ? [service.type] : [])
+    formData.value.type = service.type || (formData.value.types[0] || '')
+    formData.value.note = service.note ?? ''
+    activeTab.value = 'service'
+  } catch (error) {
+    console.error('Error loading service for edit:', error)
+    toast.error(t('services.edit.error'))
+    router.push({ name: 'service-list' })
+  } finally {
+    isLoadingEdit.value = false
+  }
+}
+
 const handleSubmit = async () => {
   if (!validateForm()) {
     toast.warning(t('validation.required'))
@@ -167,17 +248,24 @@ const handleSubmit = async () => {
   
   try {
     if (activeTab.value === 'service') {
-      // Create service
       const serviceData = {
         vehicleId: formData.value.vehicleId,
-        date: formData.value.date, // Will be converted in service layer
+        date: formData.value.date,
         km: parseInt(formData.value.km),
         cost: parseInt(formData.value.cost),
-        type: formData.value.types[0] || formData.value.type, // Primary type
+        type: formData.value.types[0] || formData.value.type,
         types: formData.value.types.length > 0 ? formData.value.types : [],
         note: formData.value.note || undefined
       }
-      
+
+      if (isEditMode.value) {
+        await serviceStore.updateService(editingServiceId.value, serviceData)
+        toast.success(t('services.edit.success'))
+        router.push({ name: 'service-list' })
+        return
+      }
+
+      // Create service
       const createdService = await serviceStore.createService(serviceData)
       toast.success(t('services.add.success'))
       
@@ -347,6 +435,7 @@ const switchTab = (tab) => {
 }
 
 const openServiceTypeModal = () => {
+  serviceTypeSelectorKey.value++
   showServiceTypeModal.value = true
 }
 
@@ -436,6 +525,22 @@ const handleAutocompleteKeydown = (event) => {
   }
 }
 
+/** اعمال یک preset انتخاب سریع (سرویس‌های تعریف‌شده توسط ادمین) */
+const applyServicePreset = (preset) => {
+  if (activeTab.value !== 'service' || !preset?.service_type_codes?.length) return
+  formData.value.types = [...preset.service_type_codes]
+  formData.value.type = preset.service_type_codes[0] || ''
+}
+
+/** آیا انتخاب فعلی با این preset یکسان است؟ */
+const presetMatchesSelection = (preset) => {
+  const codes = preset?.service_type_codes ?? []
+  const current = formData.value.types ?? []
+  if (codes.length !== current.length) return false
+  const set = new Set(codes)
+  return current.every((c) => set.has(c))
+}
+
 // Lifecycle
 onMounted(async () => {
   // Fetch service types from database if not already loaded
@@ -447,7 +552,7 @@ onMounted(async () => {
       toast.error(t('services.error', 'خطا در دریافت انواع سرویس'))
     }
   }
-  
+
   // Fetch expense categories from database if not already loaded
   if (expenseCategoryStore.expenseCategories.length === 0) {
     try {
@@ -457,18 +562,7 @@ onMounted(async () => {
       toast.error(t('expenses.error', 'خطا در دریافت دسته‌بندی هزینه‌ها'))
     }
   }
-  
-  // Check for query parameters (from SelectServiceTypeView)
-  if (route.query.types) {
-    const types = route.query.types.split(',')
-    formData.value.types = types
-    formData.value.type = types[0] || '' // Set first type as primary
-  }
-  
-  if (route.query.vehicleId) {
-    formData.value.vehicleId = route.query.vehicleId
-  }
-  
+
   // Fetch vehicles if not already loaded
   if (vehicleStore.vehicles.length === 0) {
     try {
@@ -478,12 +572,56 @@ onMounted(async () => {
       toast.error(t('vehicles.management.error'))
     }
   }
-  
+
+  // پیش‌تعریف‌های انتخاب سریع (فقط وقتی backend Django است)
+  try {
+    servicePresets.value = await servicePresetService.getAll()
+  } catch (error) {
+    console.warn('Could not load service presets:', error)
+    servicePresets.value = []
+  }
+
+  // حالت ویرایش: بارگذاری سرویس از query edit=id
+  if (editingServiceId.value) {
+    await loadServiceForEdit()
+    return
+  }
+
+  // Check for query parameters (from SelectServiceTypeView)
+  if (route.query.types) {
+    const types = route.query.types.split(',')
+    formData.value.types = types
+    formData.value.type = types[0] || ''
+  }
+
+  if (route.query.vehicleId) {
+    formData.value.vehicleId = route.query.vehicleId
+  }
+
   // Set first vehicle as default if available and not set from query
   if (vehicleStore.vehicles.length > 0 && !formData.value.vehicleId) {
     formData.value.vehicleId = vehicleStore.vehicles[0].id
   }
 })
+
+watch(() => route.query.edit, (newEditId) => {
+  if (newEditId) {
+    loadServiceForEdit()
+  } else {
+    formData.value = {
+      vehicleId: vehicleStore.vehicles.length > 0 ? vehicleStore.vehicles[0].id : '',
+      date: new Date().toISOString().split('T')[0],
+      km: '',
+      cost: '',
+      type: '',
+      types: [],
+      category: '',
+      note: '',
+      shopName: ''
+    }
+    activeTab.value = 'service'
+  }
+}, { immediate: false })
 </script>
 
 <template>
@@ -491,8 +629,8 @@ onMounted(async () => {
     <div class="flex flex-col gap-6">
         <div class="flex flex-wrap justify-between items-end gap-4">
           <header class="flex flex-col gap-1">
-            <h1 class="text-[#121317] dark:text-white tracking-tight text-2xl sm:text-[32px] font-bold leading-tight">{{ $t('services.add.title') }}</h1>
-            <p class="text-[#666e85] dark:text-gray-400 text-sm font-normal leading-normal">{{ $t('services.add.subtitle') }}</p>
+            <h1 class="text-[#121317] dark:text-white tracking-tight text-2xl sm:text-[32px] font-bold leading-tight">{{ isEditMode ? $t('services.edit.title') : $t('services.add.title') }}</h1>
+            <p class="text-[#666e85] dark:text-gray-400 text-sm font-normal leading-normal">{{ isEditMode ? $t('services.edit.subtitle', 'ویرایش اطلاعات سرویس') : $t('services.add.subtitle') }}</p>
           </header>
           <Select
             v-model="formData.vehicleId"
@@ -506,7 +644,7 @@ onMounted(async () => {
         </div>
       
       <!-- Loading state -->
-      <div v-if="vehicleStore.isLoading || serviceTypeStore.isLoading || expenseCategoryStore.isLoading" class="flex justify-center py-12">
+      <div v-if="vehicleStore.isLoading || serviceTypeStore.isLoading || expenseCategoryStore.isLoading || isLoadingEdit" class="flex justify-center py-12">
         <LoadingSpinner size="lg" :show-text="true" :text="$t('common.loading')" />
       </div>
       
@@ -617,8 +755,25 @@ onMounted(async () => {
             <div v-if="activeTab === 'service'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <label class="flex flex-col gap-2 md:col-span-2">
                 <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.serviceType') }}</span>
+                <!-- انتخاب سریع (پیش‌تعریف‌های ادمین) -->
+                <div v-if="servicePresets.length > 0" class="flex flex-wrap gap-2 mb-2">
+                  <button
+                    v-for="preset in servicePresets"
+                    :key="preset.preset_id"
+                    type="button"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs transition-colors"
+                    :class="presetMatchesSelection(preset)
+                      ? 'bg-primary text-white border-primary dark:bg-blue-500 dark:border-blue-500'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                    @click="applyServicePreset(preset)"
+                  >
+                    <span class="material-symbols-outlined text-[16px]" aria-hidden="true">build</span>
+                    <span>{{ preset.name }}</span>
+                  </button>
+                </div>
                 <div class="relative">
-                  <div class="flex flex-wrap items-center gap-2 min-h-[48px] p-2 pe-12 rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-shadow"
+                  <div
+                    class="flex flex-wrap items-center gap-2 min-h-[48px] p-2 pe-12 rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-shadow"
                     :class="{ 'border-red-500': formErrors.type }"
                   >
                     <!-- Selected service type tags -->
@@ -644,6 +799,7 @@ onMounted(async () => {
                       @focus="handleAutocompleteFocus"
                       @blur="handleAutocompleteBlur"
                       @keydown="handleAutocompleteKeydown"
+                      role="combobox"
                       :aria-label="$t('services.add.selectServiceType')"
                       :aria-expanded="showAutocompleteDropdown"
                       :aria-controls="showAutocompleteDropdown ? 'service-type-autocomplete' : undefined"
@@ -657,31 +813,54 @@ onMounted(async () => {
                       @click.stop="openServiceTypeModal"
                       type="button"
                       :aria-label="$t('services.add.selectFromModal')"
-                      class="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-gray-400 hover:text-primary dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                      class="absolute left-2 top-1/2 -translate-y-1/2 px-2 py-1.5 rounded-lg text-gray-400 hover:text-primary dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary flex items-center gap-1"
                       :title="$t('services.add.selectFromModal')"
                     >
                       <span class="material-symbols-outlined text-lg" aria-hidden="true">tune</span>
+                      <span class="hidden sm:inline text-xs">{{ $t('services.add.selectFromModal') }}</span>
                     </button>
                   </div>
                   <!-- Autocomplete dropdown -->
                   <Transition name="fade">
                     <div 
                       v-if="showAutocompleteDropdown && filteredOptions.length > 0"
+                      id="service-type-autocomplete"
+                      role="listbox"
                       class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-60 overflow-y-auto"
                       @mousedown.prevent
                     >
-                      <button
-                        v-for="(option, index) in filteredOptions"
-                        :key="option.value"
-                        @click="selectOption(option)"
-                        @mouseenter="autocompleteFocusedIndex = index"
-                        type="button"
-                        class="w-full px-4 py-3 text-right hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
-                        :class="{ 'bg-gray-50 dark:bg-gray-700': autocompleteFocusedIndex === index }"
+                      <div
+                        v-for="group in groupedFilteredOptions"
+                        :key="group.id"
+                        class="border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                       >
-                        <span class="text-sm font-medium text-[#121317] dark:text-white">{{ option.label }}</span>
-                        <span class="material-symbols-outlined text-gray-400 text-lg">add</span>
-                      </button>
+                        <div v-if="group.title" class="px-4 pt-2 pb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                          {{ group.title }}
+                        </div>
+                        <button
+                          v-for="(option, index) in group.options"
+                          :key="option.value"
+                          @click="selectOption(option)"
+                          @mouseenter="autocompleteFocusedIndex = index"
+                          type="button"
+                          role="option"
+                          :aria-selected="autocompleteFocusedIndex === index"
+                          class="w-full px-4 py-3 text-right hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
+                          :class="{ 'bg-gray-50 dark:bg-gray-700': autocompleteFocusedIndex === index }"
+                        >
+                          <div class="flex items-center gap-2">
+                            <span
+                              v-if="option.icon"
+                              class="material-symbols-outlined text-primary/70 dark:text-blue-300 text-lg"
+                              aria-hidden="true"
+                            >
+                              {{ option.icon }}
+                            </span>
+                            <span class="text-sm font-medium text-[#121317] dark:text-white">{{ option.label }}</span>
+                          </div>
+                          <span class="material-symbols-outlined text-gray-400 text-lg">add</span>
+                        </button>
+                      </div>
                     </div>
                   </Transition>
                 </div>
@@ -946,9 +1125,9 @@ onMounted(async () => {
               :loading="isSubmitting"
               :disabled="!isFormValid || isSubmitting"
               icon="save"
-              :aria-label="isSubmitting ? $t('services.add.submitting') : $t('services.add.submit')"
+              :aria-label="isSubmitting ? (isEditMode ? $t('services.edit.submitting') : $t('services.add.submitting')) : (isEditMode ? $t('services.edit.submit') : $t('services.add.submit'))"
             >
-              {{ isSubmitting ? $t('services.add.submitting') : $t('services.add.submit') }}
+              {{ isSubmitting ? (isEditMode ? $t('services.edit.submitting') : $t('services.add.submitting')) : (isEditMode ? $t('services.edit.submit') : $t('services.add.submit')) }}
             </Button>
           </div>
         </form>
@@ -971,7 +1150,9 @@ onMounted(async () => {
       :title="$t('services.selectType.title')"
     >
       <ServiceTypeSelector
+        :key="serviceTypeSelectorKey"
         :vehicle-id="formData.vehicleId"
+        :selected-types="formData.types"
         @select="handleServiceTypeSelect"
         @cancel="handleServiceTypeCancel"
       />
