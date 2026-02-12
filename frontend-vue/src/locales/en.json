@@ -24,7 +24,12 @@
     "optional": "Optional",
     "selected": "Selected",
     "actions": "Actions",
-    "km": "km"
+    "km": "km",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
   },
   "auth": {
     "login": "Login",
@@ -126,6 +131,7 @@
       "normal": "Normal",
       "currentMileage": "Current Mileage",
       "km": "km",
+      "vehicle": "Vehicle",
       "usageStatus": "Free Plan Status",
       "usageDescription": "You are using {count} vehicles out of 3 allowed.",
       "usagePercent": "filled",
