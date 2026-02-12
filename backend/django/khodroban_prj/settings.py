@@ -5,6 +5,7 @@ Django settings for KhodroBan project.
 
 from pathlib import Path
 import os
+import sys
 from datetime import timedelta
 
 # Build paths: parent of this file is khodroban_prj, parent.parent = backend/django
@@ -167,6 +168,14 @@ LOGGING = {
         'huey': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
     },
 }
+# در تست‌ها درخواست‌های 4xx (Bad Request, Forbidden, Not Found) عمداً توسط تست‌ها ایجاد می‌شوند؛
+# لاگ WARNING آن‌ها خروجی را شلوغ می‌کند، پس در حین test فقط ERROR و بالاتر نمایش داده می‌شود.
+if 'test' in sys.argv:
+    LOGGING['loggers']['django.request'] = {
+        'handlers': ['console'],
+        'level': 'ERROR',
+        'propagate': False,
+    }
 
 # ─── CORS ───────────────────────────────────────────────────────────────────
 if DEBUG:
