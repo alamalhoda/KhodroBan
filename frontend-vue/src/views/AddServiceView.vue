@@ -43,8 +43,13 @@ const reminderInterval = ref({ days: 90, km: 5000 })
 
 const formErrors = ref({})
 const isSubmitting = ref(false)
+const isLoadingEdit = ref(false)
 const activeTab = ref('service') // 'service' or 'expense'
 const showServiceTypeModal = ref(false)
+
+// حالت ویرایش سرویس (از لیست سرویس‌ها با query edit=id)
+const editingServiceId = computed(() => route.query.edit || null)
+const isEditMode = computed(() => !!editingServiceId.value)
 
 // Autocomplete state
 const autocompleteQuery = ref('')
@@ -90,6 +95,27 @@ const getLabel = (value) => {
   } else {
     return expenseCategoryStore.getExpenseCategoryLabel(value)
   }
+}
+
+/** تبدیل رشته تاریخ (شمسی یا میلادی) به YYYY-MM-DD برای input type="date" */
+async function toDateInputValue(dateStr) {
+  if (!dateStr) return ''
+  const s = String(dateStr).trim()
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
+  const parts = s.split(/[\/\-]/)
+  if (parts.length === 3 && parseInt(parts[0], 10) > 1300) {
+    try {
+      const PersianDate = (await import('persian-date')).default
+      const pd = new PersianDate().parse(s.replace(/\//g, '-'))
+      const d = pd.toDate()
+      if (d && !isNaN(d.getTime())) return d.toISOString().split('T')[0]
+    } catch (e) {
+      console.warn('toDateInputValue jalali parse failed:', e)
+    }
+  }
+  const d = new Date(s)
+  if (!isNaN(d.getTime())) return d.toISOString().split('T')[0]
+  return s
 }
 
 // Computed
@@ -157,6 +183,29 @@ const validateForm = () => {
   return Object.keys(errors).length === 0
 }
 
+const loadServiceForEdit = async () => {
+  const id = editingServiceId.value
+  if (!id) return
+  isLoadingEdit.value = true
+  try {
+    const service = await serviceStore.fetchServiceById(id)
+    formData.value.vehicleId = String(service.vehicleId)
+    formData.value.date = await toDateInputValue(service.date)
+    formData.value.km = service.km?.toString() ?? ''
+    formData.value.cost = service.cost?.toString() ?? ''
+    formData.value.types = (service.types && service.types.length) ? [...service.types] : (service.type ? [service.type] : [])
+    formData.value.type = service.type || (formData.value.types[0] || '')
+    formData.value.note = service.note ?? ''
+    activeTab.value = 'service'
+  } catch (error) {
+    console.error('Error loading service for edit:', error)
+    toast.error(t('services.edit.error'))
+    router.push({ name: 'service-list' })
+  } finally {
+    isLoadingEdit.value = false
+  }
+}
+
 const handleSubmit = async () => {
   if (!validateForm()) {
     toast.warning(t('validation.required'))
@@ -167,17 +216,24 @@ const handleSubmit = async () => {
   
   try {
     if (activeTab.value === 'service') {
-      // Create service
       const serviceData = {
         vehicleId: formData.value.vehicleId,
-        date: formData.value.date, // Will be converted in service layer
+        date: formData.value.date,
         km: parseInt(formData.value.km),
         cost: parseInt(formData.value.cost),
-        type: formData.value.types[0] || formData.value.type, // Primary type
+        type: formData.value.types[0] || formData.value.type,
         types: formData.value.types.length > 0 ? formData.value.types : [],
         note: formData.value.note || undefined
       }
-      
+
+      if (isEditMode.value) {
+        await serviceStore.updateService(editingServiceId.value, serviceData)
+        toast.success(t('services.edit.success'))
+        router.push({ name: 'service-list' })
+        return
+      }
+
+      // Create service
       const createdService = await serviceStore.createService(serviceData)
       toast.success(t('services.add.success'))
       
@@ -447,7 +503,7 @@ onMounted(async () => {
       toast.error(t('services.error', 'خطا در دریافت انواع سرویس'))
     }
   }
-  
+
   // Fetch expense categories from database if not already loaded
   if (expenseCategoryStore.expenseCategories.length === 0) {
     try {
@@ -457,18 +513,7 @@ onMounted(async () => {
       toast.error(t('expenses.error', 'خطا در دریافت دسته‌بندی هزینه‌ها'))
     }
   }
-  
-  // Check for query parameters (from SelectServiceTypeView)
-  if (route.query.types) {
-    const types = route.query.types.split(',')
-    formData.value.types = types
-    formData.value.type = types[0] || '' // Set first type as primary
-  }
-  
-  if (route.query.vehicleId) {
-    formData.value.vehicleId = route.query.vehicleId
-  }
-  
+
   // Fetch vehicles if not already loaded
   if (vehicleStore.vehicles.length === 0) {
     try {
@@ -478,12 +523,48 @@ onMounted(async () => {
       toast.error(t('vehicles.management.error'))
     }
   }
-  
+
+  // حالت ویرایش: بارگذاری سرویس از query edit=id
+  if (editingServiceId.value) {
+    await loadServiceForEdit()
+    return
+  }
+
+  // Check for query parameters (from SelectServiceTypeView)
+  if (route.query.types) {
+    const types = route.query.types.split(',')
+    formData.value.types = types
+    formData.value.type = types[0] || ''
+  }
+
+  if (route.query.vehicleId) {
+    formData.value.vehicleId = route.query.vehicleId
+  }
+
   // Set first vehicle as default if available and not set from query
   if (vehicleStore.vehicles.length > 0 && !formData.value.vehicleId) {
     formData.value.vehicleId = vehicleStore.vehicles[0].id
   }
 })
+
+watch(() => route.query.edit, (newEditId) => {
+  if (newEditId) {
+    loadServiceForEdit()
+  } else {
+    formData.value = {
+      vehicleId: vehicleStore.vehicles.length > 0 ? vehicleStore.vehicles[0].id : '',
+      date: new Date().toISOString().split('T')[0],
+      km: '',
+      cost: '',
+      type: '',
+      types: [],
+      category: '',
+      note: '',
+      shopName: ''
+    }
+    activeTab.value = 'service'
+  }
+}, { immediate: false })
 </script>
 
 <template>
@@ -491,8 +572,8 @@ onMounted(async () => {
     <div class="flex flex-col gap-6">
         <div class="flex flex-wrap justify-between items-end gap-4">
           <header class="flex flex-col gap-1">
-            <h1 class="text-[#121317] dark:text-white tracking-tight text-2xl sm:text-[32px] font-bold leading-tight">{{ $t('services.add.title') }}</h1>
-            <p class="text-[#666e85] dark:text-gray-400 text-sm font-normal leading-normal">{{ $t('services.add.subtitle') }}</p>
+            <h1 class="text-[#121317] dark:text-white tracking-tight text-2xl sm:text-[32px] font-bold leading-tight">{{ isEditMode ? $t('services.edit.title') : $t('services.add.title') }}</h1>
+            <p class="text-[#666e85] dark:text-gray-400 text-sm font-normal leading-normal">{{ isEditMode ? $t('services.edit.subtitle', 'ویرایش اطلاعات سرویس') : $t('services.add.subtitle') }}</p>
           </header>
           <Select
             v-model="formData.vehicleId"
@@ -506,7 +587,7 @@ onMounted(async () => {
         </div>
       
       <!-- Loading state -->
-      <div v-if="vehicleStore.isLoading || serviceTypeStore.isLoading || expenseCategoryStore.isLoading" class="flex justify-center py-12">
+      <div v-if="vehicleStore.isLoading || serviceTypeStore.isLoading || expenseCategoryStore.isLoading || isLoadingEdit" class="flex justify-center py-12">
         <LoadingSpinner size="lg" :show-text="true" :text="$t('common.loading')" />
       </div>
       
@@ -946,9 +1027,9 @@ onMounted(async () => {
               :loading="isSubmitting"
               :disabled="!isFormValid || isSubmitting"
               icon="save"
-              :aria-label="isSubmitting ? $t('services.add.submitting') : $t('services.add.submit')"
+              :aria-label="isSubmitting ? (isEditMode ? $t('services.edit.submitting') : $t('services.add.submitting')) : (isEditMode ? $t('services.edit.submit') : $t('services.add.submit'))"
             >
-              {{ isSubmitting ? $t('services.add.submitting') : $t('services.add.submit') }}
+              {{ isSubmitting ? (isEditMode ? $t('services.edit.submitting') : $t('services.add.submitting')) : (isEditMode ? $t('services.edit.submit') : $t('services.add.submit')) }}
             </Button>
           </div>
         </form>

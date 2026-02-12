@@ -35,30 +35,7 @@ const SERVICE_TYPE_ICONS = {
 // State
 const isLoading = ref(false)
 const showDeleteModal = ref(false)
-const showEditModal = ref(false)
 const serviceToDelete = ref(null)
-const serviceToEdit = ref(null)
-
-// Edit form
-const editForm = ref({
-  date: '',
-  km: '',
-  cost: '',
-  type: '',
-  note: ''
-})
-
-const editFormErrors = ref({})
-
-// Service type options (for edit modal)
-const serviceTypes = computed(() => [
-  { value: 'oil_change', label: t('services.types.oil_change') },
-  { value: 'filter', label: t('services.types.filter') },
-  { value: 'brakes', label: t('services.types.brakes') },
-  { value: 'battery', label: t('services.types.battery') },
-  { value: 'tire', label: t('services.types.tire') },
-  { value: 'other', label: t('services.types.other') }
-])
 
 // گزینه‌های فیلتر خودرو
 const vehicleOptions = computed(() => [
@@ -115,16 +92,7 @@ const handleVehicleChange = (vehicleId) => {
 }
 
 const handleEdit = (service) => {
-  serviceToEdit.value = service
-  editForm.value = {
-    date: service.date || '',
-    km: service.km?.toString() || '',
-    cost: service.cost?.toString() || '',
-    type: service.type || '',
-    note: service.note || ''
-  }
-  editFormErrors.value = {}
-  showEditModal.value = true
+  router.push({ name: 'add-service', query: { edit: service.id } })
 }
 
 const handleDelete = (service) => {
@@ -150,68 +118,6 @@ const handleDeleteConfirm = async () => {
 const handleDeleteCancel = () => {
   showDeleteModal.value = false
   serviceToDelete.value = null
-}
-
-const validateEditForm = () => {
-  const errors = {}
-  
-  if (!editForm.value.date) {
-    errors.date = t('services.add.validation.dateRequired')
-  }
-  
-  if (!editForm.value.km || editForm.value.km <= 0) {
-    errors.km = t('services.add.validation.kmRequired')
-  } else if (isNaN(parseInt(editForm.value.km))) {
-    errors.km = t('services.add.validation.kmInvalid')
-  }
-  
-  if (!editForm.value.cost || editForm.value.cost <= 0) {
-    errors.cost = t('services.add.validation.costRequired')
-  } else if (isNaN(parseInt(editForm.value.cost))) {
-    errors.cost = t('services.add.validation.costInvalid')
-  }
-  
-  if (!editForm.value.type) {
-    errors.type = t('services.add.validation.typeRequired')
-  }
-  
-  editFormErrors.value = errors
-  return Object.keys(errors).length === 0
-}
-
-const handleEditSubmit = async () => {
-  if (!validateEditForm() || !serviceToEdit.value) return
-  
-  try {
-    await serviceStore.updateService(serviceToEdit.value.id, {
-      date: editForm.value.date,
-      km: parseInt(editForm.value.km),
-      cost: parseInt(editForm.value.cost),
-      type: editForm.value.type,
-      note: editForm.value.note || undefined
-    })
-    
-    toast.success(t('services.edit.success'))
-    showEditModal.value = false
-    serviceToEdit.value = null
-    await fetchServices()
-  } catch (error) {
-    console.error('Error updating service:', error)
-    toast.error(t('services.edit.error'))
-  }
-}
-
-const handleEditCancel = () => {
-  showEditModal.value = false
-  serviceToEdit.value = null
-  editForm.value = {
-    date: '',
-    km: '',
-    cost: '',
-    type: '',
-    note: ''
-  }
-  editFormErrors.value = {}
 }
 
 const handleBack = () => {
@@ -510,103 +416,6 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
           {{ $t('services.delete.confirmButton') }}
         </Button>
       </template>
-    </Modal>
-    
-    <!-- Edit Service Modal -->
-    <Modal
-      v-model:open="showEditModal"
-      :title="$t('services.edit.title')"
-      size="lg"
-      :close-on-overlay="false"
-    >
-      <form @submit.prevent="handleEditSubmit" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <label class="flex flex-col gap-2">
-            <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.serviceDate') }}</span>
-            <input 
-              v-model="editForm.date"
-              class="form-input w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 px-4 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow text-end" 
-              :class="{ 'border-red-500': editFormErrors.date }"
-              type="date" 
-            />
-            <p v-if="editFormErrors.date" class="text-red-500 text-xs mt-1">{{ editFormErrors.date }}</p>
-          </label>
-          <label class="flex flex-col gap-2">
-            <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.currentKm') }}</span>
-            <div class="relative">
-              <input 
-                v-model="editForm.km"
-                class="form-input w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 pe-4 ps-12 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow dir-ltr text-right" 
-                :class="{ 'border-red-500': editFormErrors.km }"
-                :placeholder="$t('services.add.currentKmPlaceholder')" 
-                type="number" 
-              />
-              <span class="absolute left-4 top-3 text-gray-400 text-sm">km</span>
-              <p v-if="editFormErrors.km" class="text-red-500 text-xs mt-1">{{ editFormErrors.km }}</p>
-            </div>
-          </label>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <label class="flex flex-col gap-2">
-            <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.serviceType') }}</span>
-            <select 
-              v-model="editForm.type"
-              class="form-select w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 px-4 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow bg-[position:left_0.5rem_center] ps-4 pe-10"
-              :class="{ 'border-red-500': editFormErrors.type }"
-            >
-              <option value="">{{ $t('services.add.selectServiceType') }}</option>
-              <option 
-                v-for="serviceType in serviceTypes" 
-                :key="serviceType.value" 
-                :value="serviceType.value"
-              >
-                {{ serviceType.label }}
-              </option>
-            </select>
-            <p v-if="editFormErrors.type" class="text-red-500 text-xs mt-1">{{ editFormErrors.type }}</p>
-          </label>
-          <label class="flex flex-col gap-2">
-            <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.totalCost') }}</span>
-            <div class="relative">
-              <span class="absolute left-4 top-3 text-gray-500 dark:text-gray-400 text-sm font-medium">{{ $t('common.currency') }}</span>
-              <input 
-                v-model="editForm.cost"
-                class="form-input w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 pe-4 ps-16 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow dir-ltr text-right" 
-                :class="{ 'border-red-500': editFormErrors.cost }"
-                placeholder="۰" 
-                type="number" 
-              />
-              <p v-if="editFormErrors.cost" class="text-red-500 text-xs mt-1">{{ editFormErrors.cost }}</p>
-            </div>
-          </label>
-        </div>
-        
-        <label class="flex flex-col gap-2">
-          <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.note') }}</span>
-          <textarea 
-            v-model="editForm.note"
-            class="form-textarea w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white min-h-[100px] p-4 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow resize-y" 
-            :placeholder="$t('services.add.notePlaceholder')"
-          ></textarea>
-        </label>
-        
-        <div class="flex justify-end gap-4 pt-4">
-          <Button
-            @click="handleEditCancel"
-            variant="outline"
-          >
-            {{ $t('services.add.cancel') }}
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            icon="save"
-          >
-            {{ $t('services.edit.submit') }}
-          </Button>
-        </div>
-      </form>
     </Modal>
   </MainLayout>
 </template>
