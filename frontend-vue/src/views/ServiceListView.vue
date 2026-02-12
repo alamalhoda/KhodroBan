@@ -5,17 +5,18 @@
  * TODO (لیست کارهای بعدی این صفحه):
  * - جستجو و فیلتر (از جمله فیلتر خودرو، نوع سرویس، بازه تاریخ)
  */
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '../stores/service'
 import { useVehicleStore } from '../stores/vehicle'
 import { useToast } from '../composables/useToast'
 import MainLayout from '../components/MainLayout.vue'
-import { Button, Card, LoadingSpinner, Modal } from '../components/ui'
+import { Button, Select, Card, LoadingSpinner, Modal } from '../components/ui'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 
 const router = useRouter()
+const route = useRoute()
 const { t } = useI18n()
 const serviceStore = useServiceStore()
 const vehicleStore = useVehicleStore()
@@ -59,6 +60,15 @@ const serviceTypes = computed(() => [
   { value: 'other', label: t('services.types.other') }
 ])
 
+// گزینه‌های فیلتر خودرو
+const vehicleOptions = computed(() => [
+  { value: '', label: t('services.allVehicles') },
+  ...vehicleStore.vehicles.map(v => ({
+    value: v.id,
+    label: `${v.model} - ${v.year}`
+  }))
+])
+
 // لیست سرویس‌های صفحه‌بندی‌شده از store
 const displayedServices = computed(() => serviceStore.paginatedServices)
 
@@ -80,16 +90,28 @@ function getServiceTypeIcon(type) {
 }
 
 // Methods
-const fetchServices = async () => {
+const fetchServices = async (vehicleId) => {
   isLoading.value = true
   try {
-    await serviceStore.fetchServices(undefined)
+    await serviceStore.fetchServices(vehicleId ?? undefined)
   } catch (error) {
     console.error('Error fetching services:', error)
     toast.error(t('services.add.error'))
   } finally {
     isLoading.value = false
   }
+}
+
+const handleVehicleChange = (vehicleId) => {
+  const id = vehicleId === '' || vehicleId == null ? null : String(vehicleId)
+  serviceStore.setFilterVehicle(id)
+  if (id != null) {
+    router.replace({ query: { ...route.query, vehicleId: id } })
+  } else {
+    const { vehicleId: _, ...rest } = route.query
+    router.replace({ query: rest })
+  }
+  fetchServices(id ?? undefined)
 }
 
 const handleEdit = (service) => {
@@ -201,7 +223,7 @@ const handleRefresh = async () => {
     if (vehicleStore.vehicles.length === 0) {
       await vehicleStore.fetchVehicles()
     }
-    await fetchServices()
+    await fetchServices(serviceStore.filterVehicleId ?? undefined)
   } catch (error) {
     console.error('Error refreshing data:', error)
     toast.error(t('common.error'))
@@ -226,8 +248,24 @@ onMounted(async () => {
       toast.error(t('vehicles.management.error'))
     }
   }
-  await fetchServices()
+  if (route.query.vehicleId) {
+    const id = String(route.query.vehicleId)
+    serviceStore.setFilterVehicle(id)
+    await fetchServices(id)
+  } else {
+    await fetchServices(undefined)
+  }
 })
+
+watch(() => route.query.vehicleId, (newVehicleId) => {
+  if (newVehicleId) {
+    serviceStore.setFilterVehicle(String(newVehicleId))
+    fetchServices(String(newVehicleId))
+  } else {
+    serviceStore.setFilterVehicle(null)
+    fetchServices(undefined)
+  }
+}, { immediate: false })
 </script>
 
 <template>
@@ -238,13 +276,23 @@ onMounted(async () => {
           <h1 class="text-[#121317] dark:text-white tracking-tight text-2xl sm:text-[32px] font-bold leading-tight">{{ $t('services.serviceList') }}</h1>
           <p class="text-[#666e85] dark:text-gray-400 text-sm font-normal leading-normal">{{ $t('services.selectDetails.subtitle') }}</p>
         </div>
-        <Button
-          @click="handleAddService"
-          variant="primary"
-          icon="add"
-        >
-          {{ $t('services.addService') }}
-        </Button>
+        <div class="flex flex-wrap items-center gap-4">
+          <Select
+            :model-value="serviceStore.filterVehicleId ?? ''"
+            @update:model-value="handleVehicleChange"
+            :options="vehicleOptions"
+            icon="directions_car"
+            class="w-full sm:w-auto min-w-[200px]"
+            :aria-label="$t('services.allVehicles')"
+          />
+          <Button
+            @click="handleAddService"
+            variant="primary"
+            icon="add"
+          >
+            {{ $t('services.addService') }}
+          </Button>
+        </div>
       </header>
       
       <!-- Loading state -->
