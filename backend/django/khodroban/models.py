@@ -1,4 +1,15 @@
 # khodroban/models.py
+"""
+مدل‌های دامنه خدروبان.
+
+قرارداد کلید اصلی:
+- نام فیلد PK برای همه مدل‌ها «id» است (به‌جز UserProfile که PK آن رابطه OneToOne با User است).
+- نوع PK:
+  - BigAutoField: برای جدول‌هایی که احتمال رشد زیاد رکورد دارند (Service, ServiceItem, Vehicle, ...).
+  - AutoField: برای جدول‌های مرجع کوچک (SubscriptionPlan, ServiceType, ServicePreset, ExpenseCategory).
+  - UUIDField: برای موجودیت‌هایی که نیاز به شناسه یکتا در سطح توزیع‌شده یا عدم پیش‌بینی پذیری دارند (Reminder, Notification, TelegramSetting).
+  استفاده از انواع مختلف مشکلی ایجاد نمی‌کند؛ هر مدل با توجه به نیازش انتخاب شده است.
+"""
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -8,7 +19,7 @@ import uuid
 
 
 class SubscriptionPlan(models.Model):
-    plan_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     plan_code = models.CharField(max_length=20, unique=True)
     plan_name = models.CharField(max_length=100)
     max_vehicles = models.IntegerField(null=True, blank=True)
@@ -33,7 +44,13 @@ class SubscriptionPlan(models.Model):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    """کلید اصلی این مدل همان user (OneToOne با User) است تا با request.user.userprofile سازگار بماند."""
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name="userprofile",
+    )
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
@@ -62,9 +79,17 @@ class UserProfile(models.Model):
 
 
 class UserSubscription(models.Model):
-    subscription_id = models.BigAutoField(primary_key=True)
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    plan = models.ForeignKey(SubscriptionPlan, on_delete=models.RESTRICT)
+    id = models.BigAutoField(primary_key=True)
+    user_profile = models.ForeignKey(
+        UserProfile,
+        on_delete=models.PROTECT,
+        related_name="subscriptions",
+    )
+    plan = models.ForeignKey(
+        SubscriptionPlan,
+        on_delete=models.PROTECT,
+        related_name="user_subscriptions",
+    )
     start_date = models.DateField(default=timezone.now)
     end_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
@@ -85,8 +110,12 @@ class UserSubscription(models.Model):
 
 
 class Vehicle(models.Model):
-    vehicle_id = models.BigAutoField(primary_key=True)
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    id = models.BigAutoField(primary_key=True)
+    user_profile = models.ForeignKey(
+        UserProfile,
+        on_delete=models.PROTECT,
+        related_name="vehicles",
+    )
     model = models.CharField(max_length=100)
     year = models.IntegerField()
     plate_number = models.CharField(max_length=20)
@@ -117,7 +146,7 @@ class Vehicle(models.Model):
 
 
 class ServiceType(models.Model):
-    service_type_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=100)
     group_name = models.CharField(max_length=50)
@@ -139,7 +168,7 @@ class ServicePreset(models.Model):
     پیش‌تعریف انتخاب سریع سرویس (مثلاً «سرویس ۵۰۰۰» شامل روغن موتور و فیلتر).
     توسط ادمین تعریف می‌شود؛ کاربر با یک کلیک همه انواع سرویس داخل preset را انتخاب می‌کند.
     """
-    preset_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     display_order = models.PositiveSmallIntegerField(default=0)
     service_types = models.ManyToManyField(
@@ -166,7 +195,7 @@ class ServicePreset(models.Model):
 
 
 class ExpenseCategory(models.Model):
-    """دسته‌بندی هزینه (مثل سوخت، کارواش) — فقط خواندنی برای فرانت."""
+    """دسته‌بندی هزینه (مثل سوخت، کارواش) — مرجع خواندنی برای فرانت."""
     id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=100)
@@ -185,8 +214,12 @@ class ExpenseCategory(models.Model):
 
 
 class Service(models.Model):
-    service_id = models.BigAutoField(primary_key=True)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    id = models.BigAutoField(primary_key=True)
+    vehicle = models.ForeignKey(
+        Vehicle,
+        on_delete=models.CASCADE,
+        related_name="services",
+    )
     service_date = models.DateField()
     service_date_gregorian = models.DateField()
     service_km = models.IntegerField()
@@ -217,20 +250,28 @@ class Service(models.Model):
 
 
 class ServiceItem(models.Model):
-    service_item_id = models.BigAutoField(primary_key=True)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    service_type_code = models.ForeignKey(ServiceType, on_delete=models.RESTRICT, to_field='code')
+    id = models.BigAutoField(primary_key=True)
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name="items",
+    )
+    service_type = models.ForeignKey(
+        ServiceType,
+        on_delete=models.PROTECT,
+        related_name="service_items",
+    )
     cost = models.BigIntegerField(default=0)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        unique_together = ('service', 'service_type_code')
+        unique_together = ('service', 'service_type')
         verbose_name = _("Service Item")
         verbose_name_plural = _("Service Items")
 
     def __str__(self):
-        return f"{self.service_type_code} - {self.service}"
+        return f"{self.service_type} - {self.service}"
 
     def clean(self):
         if self.cost < 0:
@@ -242,12 +283,22 @@ class ServiceItem(models.Model):
 
 
 class DailyExpense(models.Model):
-    expense_id = models.BigAutoField(primary_key=True)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    id = models.BigAutoField(primary_key=True)
+    vehicle = models.ForeignKey(
+        Vehicle,
+        on_delete=models.CASCADE,
+        related_name="daily_expenses",
+    )
+    category = models.ForeignKey(
+        ExpenseCategory,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="daily_expenses",
+    )
     expense_date = models.DateField()
     expense_date_gregorian = models.DateField()
     amount = models.BigIntegerField()
-    category_code = models.CharField(max_length=50, blank=True, null=True)
     km_at_expense = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
@@ -274,8 +325,12 @@ class DailyExpense(models.Model):
 
 
 class ReminderSetting(models.Model):
-    reminder_setting_id = models.BigAutoField(primary_key=True)
-    vehicle = models.OneToOneField(Vehicle, on_delete=models.CASCADE)
+    id = models.BigAutoField(primary_key=True)
+    vehicle = models.OneToOneField(
+        Vehicle,
+        on_delete=models.CASCADE,
+        related_name="reminder_setting",
+    )
     interval_km = models.IntegerField(default=5000)
     interval_days = models.IntegerField(default=90)
     warning_km_before = models.IntegerField(default=500)
@@ -303,8 +358,18 @@ class ReminderSetting(models.Model):
 
 class Reminder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True, blank=True)
+    user_profile = models.ForeignKey(
+        UserProfile,
+        on_delete=models.PROTECT,
+        related_name="reminders",
+    )
+    vehicle = models.ForeignKey(
+        Vehicle,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reminders",
+    )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     due_date = models.DateTimeField(null=True, blank=True)
@@ -366,8 +431,18 @@ class Reminder(models.Model):
 
 class Notification(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True, blank=True)
+    user_profile = models.ForeignKey(
+        UserProfile,
+        on_delete=models.PROTECT,
+        related_name="notifications",
+    )
+    vehicle = models.ForeignKey(
+        Vehicle,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="notifications",
+    )
     title = models.TextField()
     body = models.TextField(blank=True, null=True)
     type = models.CharField(
@@ -400,7 +475,11 @@ class Notification(models.Model):
 
 class TelegramSetting(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    user_profile = models.OneToOneField(
+        UserProfile,
+        on_delete=models.PROTECT,
+        related_name="telegram_setting",
+    )
     chat_id = models.CharField(max_length=64, blank=True, null=True, unique=True)
     connection_code = models.CharField(max_length=32, blank=True, null=True, unique=True)
     is_enabled = models.BooleanField(default=True)
@@ -421,7 +500,11 @@ class TelegramSetting(models.Model):
 
 class VehicleKmHistory(models.Model):
     id = models.BigAutoField(primary_key=True)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(
+        Vehicle,
+        on_delete=models.CASCADE,
+        related_name="km_histories",
+    )
     km = models.IntegerField()
     recorded_at = models.DateTimeField(default=timezone.now)
     source_type = models.CharField(

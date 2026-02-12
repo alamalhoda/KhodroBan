@@ -21,7 +21,8 @@ export const servicePresetService = {
       const response = await api.get('/service-presets/')
       const raw = response.data?.data ?? []
       return raw.map((r) => ({
-        preset_id: r.preset_id,
+        preset_id: r.id ?? r.preset_id,
+        id: r.id,
         name: r.name,
         display_order: r.display_order ?? 0,
         service_type_codes: Array.isArray(r.service_type_codes) ? r.service_type_codes : []

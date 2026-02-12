@@ -20,6 +20,7 @@
 | `engineering-principles.mdc` | اصول مهندسی مشترک (SSOT/SoC/DRY/KISS/YAGNI/...) | کل پروژه | ✅ true |
 | `code-quality-baseline.mdc` | baseline کیفیت کد (خوانایی، naming، magic values، secrets، test expectation) | کل پروژه | ✅ true |
 | `rule-precedence.mdc` | سیاست رسمی اولویت و حل تعارض Ruleها | کل پروژه | ✅ true |
+| `python-venv-policy.mdc` | قبل از اجرای دستور پایتون، محیط مجازی باید فعال شود (`source backend/django/venv/bin/activate`) | کل پروژه | ✅ true |
 | `rule-authoring-standard.mdc` | استاندارد نگارش/جایگذاری Ruleها | فقط تغییرات قوانین (`.cursor/rules/**`) | false |
 | `rules-audit-checklist.mdc` | چک‌لیست قابل اجرا برای PRهای مربوط به Ruleها | فقط تغییرات قوانین (`.cursor/rules/**`) | false |
 

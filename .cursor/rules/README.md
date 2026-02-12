@@ -71,7 +71,7 @@
 ## AlwaysApply Budget
 
 - بودجه هدف: حداکثر `5` Rule با `alwaysApply: true`
-- وضعیت فعلی: `4/5` (فقط در `share/`)
+- وضعیت فعلی: `5/5` (فقط در `share/`؛ شامل `python-venv-policy.mdc`)
 - Ruleهای domain باید file-scoped باشند (`alwaysApply: false` + `globs`)
 
 ## نحوه استفاده

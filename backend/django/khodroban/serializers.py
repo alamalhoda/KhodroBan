@@ -58,11 +58,11 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubscriptionPlan
         fields = [
-            'plan_id', 'plan_code', 'plan_name', 'max_vehicles',
+            'id', 'plan_code', 'plan_name', 'max_vehicles',
             'allow_csv_export', 'allow_pdf_export', 'allow_sms_reminder',
             'monthly_price', 'is_active', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['plan_id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 class UserSubscriptionSerializer(serializers.ModelSerializer):
@@ -72,17 +72,17 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSubscription
         fields = [
-            'subscription_id', 'user_profile', 'plan',
+            'id', 'user_profile', 'plan',
             'start_date', 'end_date', 'is_active', 'auto_renew',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['subscription_id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 class VehicleMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
-        fields = ['vehicle_id', 'model', 'plate_number', 'year', 'current_km']
+        fields = ['id', 'model', 'plate_number', 'year', 'current_km']
         read_only_fields = fields
 
 
@@ -92,11 +92,11 @@ class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
         fields = [
-            'vehicle_id', 'user_profile', 'model', 'year',
+            'id', 'user_profile', 'model', 'year',
             'plate_number', 'current_km', 'description',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['vehicle_id', 'user_profile', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'user_profile', 'created_at', 'updated_at']
 
     def validate_year(self, value):
         if value < 1300 or value > 1500:
@@ -116,7 +116,7 @@ class VehicleApiSerializer(VehicleSerializer):
 
     def to_representation(self, instance):
         return {
-            'id': str(instance.vehicle_id),
+            'id': str(instance.id),
             'userId': str(instance.user_profile_id),
             'model': instance.model,
             'year': instance.year,
@@ -153,8 +153,8 @@ class ServicePresetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ServicePreset
-        fields = ['preset_id', 'name', 'display_order', 'service_type_codes', 'is_active']
-        read_only_fields = ['preset_id', 'name', 'display_order', 'service_type_codes', 'is_active']
+        fields = ['id', 'name', 'display_order', 'service_type_codes', 'is_active']
+        read_only_fields = ['id', 'name', 'display_order', 'service_type_codes', 'is_active']
 
     def get_service_type_codes(self, obj):
         return list(obj.service_types.filter(is_active=True).values_list('code', flat=True).order_by('code'))
@@ -168,14 +168,14 @@ class ExpenseCategorySerializer(serializers.ModelSerializer):
 
 
 class ServiceItemSerializer(serializers.ModelSerializer):
-    service_type = ServiceTypeSerializer(source='service_type_code', read_only=True)
+    service_type = ServiceTypeSerializer(read_only=True)
 
     class Meta:
         model = ServiceItem
         fields = [
-            'service_item_id', 'service_type', 'cost', 'description', 'created_at'
+            'id', 'service_type', 'cost', 'description', 'created_at'
         ]
-        read_only_fields = ['service_item_id', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
     def validate_cost(self, value):
         if value < 0:
@@ -185,17 +185,17 @@ class ServiceItemSerializer(serializers.ModelSerializer):
 
 class ServiceSerializer(serializers.ModelSerializer):
     vehicle = VehicleMinimalSerializer(read_only=True)
-    items = ServiceItemSerializer(many=True, read_only=True, source='serviceitem_set')
+    items = ServiceItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = Service
         fields = [
-            'service_id', 'vehicle', 'service_date', 'service_date_gregorian',
+            'id', 'vehicle', 'service_date', 'service_date_gregorian',
             'service_km', 'total_cost', 'general_note', 'description',
             'items', 'created_at', 'updated_at'
         ]
         read_only_fields = [
-            'service_id', 'vehicle', 'created_at', 'updated_at', 'total_cost'
+            'id', 'vehicle', 'created_at', 'updated_at', 'total_cost'
         ]
 
     def validate(self, data):
@@ -210,15 +210,15 @@ class ServiceApiSerializer(ServiceSerializer):
     """خروجی فرانت: id, vehicleId, date, km, cost, type, types, items, note, createdAt, updatedAt"""
 
     def to_representation(self, instance):
-        items = list(instance.serviceitem_set.select_related('service_type_code').all())
-        types = [item.service_type_code.code for item in items] if items else []
+        items = list(instance.items.select_related('service_type').all())
+        types = [item.service_type.code for item in items] if items else []
         primary_type = types[0] if types else 'other'
         items_data = [
-            {'type': item.service_type_code.code, 'cost': item.cost, 'description': item.description}
+            {'type': item.service_type.code, 'cost': item.cost, 'description': item.description}
             for item in items
         ]
         return {
-            'id': str(instance.service_id),
+            'id': str(instance.id),
             'vehicleId': str(instance.vehicle_id),
             'date': instance.service_date.isoformat() if instance.service_date else None,
             'km': instance.service_km,
@@ -259,11 +259,11 @@ class DailyExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = DailyExpense
         fields = [
-            'expense_id', 'vehicle', 'expense_date', 'expense_date_gregorian',
-            'amount', 'category_code', 'km_at_expense', 'description',
+            'id', 'vehicle', 'expense_date', 'expense_date_gregorian',
+            'amount', 'category', 'km_at_expense', 'description',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['expense_id', 'vehicle', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'vehicle', 'created_at', 'updated_at']
 
     def validate_amount(self, value):
         if value <= 0:
@@ -275,12 +275,13 @@ class DailyExpenseApiSerializer(DailyExpenseSerializer):
     """خروجی فرانت: id, vehicleId, date, amount, category, km, note, createdAt, updatedAt"""
 
     def to_representation(self, instance):
+        category_code = instance.category.code if instance.category else 'other'
         return {
-            'id': str(instance.expense_id),
+            'id': str(instance.id),
             'vehicleId': str(instance.vehicle_id),
             'date': instance.expense_date.isoformat() if instance.expense_date else None,
             'amount': instance.amount,
-            'category': instance.category_code or 'other',
+            'category': category_code,
             'km': getattr(instance, 'km_at_expense', None),
             'note': instance.description or '',
             'createdAt': instance.created_at.isoformat() if instance.created_at else None,
@@ -290,7 +291,7 @@ class DailyExpenseApiSerializer(DailyExpenseSerializer):
     def to_internal_value(self, data):
         key_map = [
             ('vehicle_id', 'vehicleId'), ('expense_date', 'date'), ('amount', 'amount'),
-            ('category_code', 'category'), ('km_at_expense', 'km'), ('description', 'note'),
+            ('category', 'category'), ('km_at_expense', 'km'), ('description', 'note'),
         ]
         internal = {}
         for snake, camel in key_map:
@@ -300,6 +301,11 @@ class DailyExpenseApiSerializer(DailyExpenseSerializer):
             internal['expense_date'] = data['date']
         if 'date' in data:
             internal['expense_date_gregorian'] = data['date']
+        # فرانت category را به صورت کد (رشته) می‌فرستد؛ به id برای FK تبدیل می‌کنیم
+        if 'category' in internal and isinstance(internal['category'], str):
+            code = (internal['category'] or '').strip() or None
+            cat = ExpenseCategory.objects.filter(code=code).first() if code and code != 'other' else None
+            internal['category'] = cat.pk if cat else None
         return super().to_internal_value(internal)
 
 
@@ -309,11 +315,11 @@ class ReminderSettingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReminderSetting
         fields = [
-            'reminder_setting_id', 'vehicle', 'interval_km', 'interval_days',
+            'id', 'vehicle', 'interval_km', 'interval_days',
             'warning_km_before', 'warning_days_before', 'reminder_mode',
             'is_enabled', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['reminder_setting_id', 'vehicle', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'vehicle', 'created_at', 'updated_at']
 
 
 class ReminderSerializer(serializers.ModelSerializer):

@@ -55,7 +55,7 @@ class VehicleAPITests(APITestCase):
             current_km=10000
         )
         data = {"current_km": 15000}
-        response = self.client.patch(self.detail_url(vehicle.vehicle_id), data, format='json')
+        response = self.client.patch(self.detail_url(vehicle.id), data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         vehicle.refresh_from_db()
         self.assertEqual(vehicle.current_km, 15000)
@@ -73,7 +73,7 @@ class VehicleAPITests(APITestCase):
         )
 
         data = {"current_km": 99999}
-        response = self.client.patch(self.detail_url(other_vehicle.vehicle_id), data, format='json')
+        response = self.client.patch(self.detail_url(other_vehicle.id), data, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_vehicle_update_km(self):
@@ -84,7 +84,7 @@ class VehicleAPITests(APITestCase):
             plate_number="22ب222",
             current_km=50000,
         )
-        url = f'/api/vehicles/{vehicle.vehicle_id}/km/'
+        url = f'/api/vehicles/{vehicle.id}/km/'
         response = self.client.patch(url, {'km': 55000}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         payload = response.json()
@@ -102,7 +102,7 @@ class VehicleAPITests(APITestCase):
             plate_number="33ت333",
             current_km=10000,
         )
-        url = f'/api/vehicles/{vehicle.vehicle_id}/km-history/'
+        url = f'/api/vehicles/{vehicle.id}/km-history/'
         response = self.client.post(
             url,
             {'km': 12000, 'sourceType': 'manual', 'note': 'تست'},
