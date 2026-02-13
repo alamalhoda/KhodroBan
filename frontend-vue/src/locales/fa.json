@@ -524,6 +524,8 @@
     "completed": "انجام شده",
     "empty": "یادآوری وجود ندارد",
     "emptyDescription": "هنوز یادآوری ایجاد نکرده‌اید",
+    "retry": "تلاش مجدد",
+    "loading": "در حال بارگذاری یادآورها...",
     "targetKm": "هدف: {km} کیلومتر",
     "loadingError": "خطا در بارگذاری یادآورها",
     "createSuccess": "یادآور با موفقیت ایجاد شد",
@@ -563,10 +565,12 @@
       "kmInterval": "بازه کیلومتری",
       "kmIntervalPlaceholder": "مثلاً: 5000",
       "dueDate": "تاریخ موعد",
+      "dueDatePlaceholder": "۱۴۰۳/۰۱/۰۱",
       "dueKm": "کیلومتر سررسید",
       "warningDaysBefore": "هشدار چند روز قبل",
       "warningKmBefore": "هشدار چند کیلومتر قبل",
       "calculatedDate": "تاریخ محاسبه شده: {date}",
+      "calculatedDateLabel": "تاریخ محاسبه شده",
       "calculatedKm": "کیلومتر موعد: {km}",
       "currentKm": "کارکرد فعلی",
       "selectVehicleForKm": "برای استفاده از یادآور کیلومتری، ابتدا خودرو را انتخاب کنید",
@@ -577,10 +581,15 @@
       "vehicleRequired": "انتخاب خودرو الزامی است"
     },
     "presets": {
-      "10days": "۱۰ روز دیگر",
-      "30days": "۳۰ روز دیگر",
-      "90days": "۹۰ روز دیگر",
-      "custom": "سفارشی"
+      "tomorrow": "فردا",
+      "dayAfter": "پس‌فردا",
+      "oneWeek": "یک هفته دیگر",
+      "oneMonth": "یک ماه دیگر",
+      "twoMonths": "دو ماه دیگر",
+      "threeMonths": "سه ماه دیگر",
+      "sixMonths": "شش ماه دیگر",
+      "oneYear": "یک سال دیگر",
+      "custom": "دلخواه"
     },
     "daysRemaining": {
       "daysAgo": "{count} روز گذشته",

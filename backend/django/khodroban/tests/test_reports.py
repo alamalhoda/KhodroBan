@@ -3,20 +3,19 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
 
 from khodroban.models import Vehicle, UserProfile, Service, DailyExpense, ServiceType
-
-# Plain password for test users only (Django create_user); not a real credential.
-_REPORT_TEST_PASSWORD = "pass"
 
 
 class ReportSummaryTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
+        self._report_password = get_random_string(12)
         self.user = User.objects.create_user(
             username="reportuser",
             email="report@test.com",
-            password=_REPORT_TEST_PASSWORD,
+            password=self._report_password,
         )
         self.profile = UserProfile.objects.get(user=self.user)
         self.vehicle = Vehicle.objects.create(
@@ -48,10 +47,11 @@ class ReportSummaryTests(APITestCase):
 
     def test_report_summary_with_vehicle_filter(self):
         self.client.force_authenticate(user=self.user)
+        other_report_pass = get_random_string(12)
         other_user = User.objects.create_user(
             username="otherreport",
             email="other@test.com",
-            password=_REPORT_TEST_PASSWORD,
+            password=other_report_pass,
         )
         other_profile = UserProfile.objects.get(user=other_user)
         other_vehicle = Vehicle.objects.create(
