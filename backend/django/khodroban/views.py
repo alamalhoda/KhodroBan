@@ -483,7 +483,11 @@ class ReminderViewSet(ApiResponseMixin, viewsets.ModelViewSet):
         return Reminder.objects.filter(user_profile=self.request.user.userprofile)
 
     def perform_create(self, serializer):
-        serializer.save(user_profile=self.request.user.userprofile)
+        vehicle_id = serializer.initial_data.get('vehicleId')
+        serializer.save(
+            user_profile=self.request.user.userprofile,
+            vehicle_id=vehicle_id,
+        )
 
     @action(detail=True, methods=['post'], url_path='dismiss')
     def dismiss(self, request, pk=None):

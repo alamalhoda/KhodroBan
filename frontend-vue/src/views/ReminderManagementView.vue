@@ -88,7 +88,7 @@ const pageTitle = computed(() => {
         <ReminderForm
           :vehicle-id="vehicleId"
           :service-id="serviceId"
-          :mode="mode === 'edit' ? 'manual' : 'manual'"
+          :mode="(mode === 'edit' && initialData?.source) ? initialData.source : 'manual'"
           :initial-data="initialData"
           @submit="handleSubmit"
           @cancel="handleCancel"

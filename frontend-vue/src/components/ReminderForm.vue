@@ -102,29 +102,22 @@ const reminderType = computed(() => {
   return 'both' // default
 })
 
+// همیشه از بازه زمانی محاسبه می‌شود؛ در حالت custom با تغییر interval/type به‌روز می‌شود
 const calculatedDueDate = computed(() => {
-  if (formData.value.timeIntervalPreset === 'custom' && formData.value.dueDate) {
-    return formData.value.dueDate
-  }
-  
   if (formData.value.timeIntervalPreset === 'custom') {
-    // Calculate from interval
     const date = new Date()
-    const interval = formData.value.timeInterval
-    
-    if (formData.value.timeIntervalType === 'days') {
+    const interval = Number(formData.value.timeInterval) || 0
+    const type = formData.value.timeIntervalType || 'days'
+    if (type === 'days') {
       date.setDate(date.getDate() + interval)
-    } else if (formData.value.timeIntervalType === 'weeks') {
-      date.setDate(date.getDate() + (interval * 7))
-    } else if (formData.value.timeIntervalType === 'months') {
+    } else if (type === 'weeks') {
+      date.setDate(date.getDate() + interval * 7)
+    } else if (type === 'months') {
       date.setMonth(date.getMonth() + interval)
     }
-    
     return date.toISOString().split('T')[0]
   }
-  
-  // Use preset
-  const days = parseInt(formData.value.timeIntervalPreset) || formData.value.timeInterval
+  const days = parseInt(formData.value.timeIntervalPreset, 10) || Number(formData.value.timeInterval) || 90
   const date = new Date()
   date.setDate(date.getDate() + days)
   return date.toISOString().split('T')[0]
@@ -144,17 +137,14 @@ watch(() => formData.value.timeIntervalPreset, (newVal) => {
   }
 })
 
-watch(() => formData.value.timeInterval, () => {
-  if (formData.value.timeIntervalPreset === 'custom') {
-    formData.value.dueDate = calculatedDueDate.value
+watch(
+  () => [formData.value.timeInterval, formData.value.timeIntervalType, formData.value.timeIntervalPreset],
+  () => {
+    if (formData.value.timeIntervalPreset === 'custom') {
+      formData.value.dueDate = calculatedDueDate.value
+    }
   }
-})
-
-watch(() => formData.value.timeIntervalType, () => {
-  if (formData.value.timeIntervalPreset === 'custom') {
-    formData.value.dueDate = calculatedDueDate.value
-  }
-})
+)
 
 // Initialize form
 onMounted(() => {

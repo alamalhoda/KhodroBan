@@ -581,6 +581,13 @@
       "30days": "۳۰ روز دیگر",
       "90days": "۹۰ روز دیگر",
       "custom": "سفارشی"
+    },
+    "daysRemaining": {
+      "daysAgo": "{count} روز گذشته",
+      "today": "امروز",
+      "tomorrow": "فردا",
+      "daysLater": "{count} روز دیگر",
+      "daysPastDue": "{count} روز گذشته از موعد"
     }
   },
   "notifications": {

@@ -200,6 +200,7 @@ export interface Reminder {
   
   // هشدار
   warningDaysBefore: number;
+  warningKmBefore?: number;
   
   // وضعیت و پیام
   status: ReminderStatus;
