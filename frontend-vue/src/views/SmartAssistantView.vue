@@ -3,6 +3,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MainLayout from '../components/MainLayout.vue'
+import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
 import { useAIStore } from '../stores/ai'
 import { useAuthStore } from '../stores/auth'
 import { useVehicleStore } from '../stores/vehicle'
@@ -102,23 +103,17 @@ onMounted(() => {
           </div>
         </div>
         <!-- انتخاب خودرو -->
-        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar mask-gradient">
-          <button
-            v-for="v in vehicles"
-            :key="v.id"
-            type="button"
-            class="flex h-9 shrink-0 items-center justify-center gap-2 rounded-lg px-4 transition-all text-xs font-bold"
-            :class="selectedVehicle?.id === v.id
-              ? 'bg-primary text-white shadow-sm shadow-primary/30'
-              : 'bg-white dark:bg-white/10 border border-border text-text-muted hover:text-text-main dark:hover:text-white'"
-            @click="selectVehicle(v.id)"
-          >
-            <span class="material-symbols-outlined text-[18px]">directions_car</span>
-            {{ v.model }} - {{ v.year }}
-          </button>
+        <div class="flex flex-wrap items-center gap-2">
+          <VehicleFilterSelect
+            :model-value="selectedVehicle?.id ?? ''"
+            :show-all-option="true"
+            :all-option-label="t('smartAssistant.noVehicle')"
+            @update:model-value="(id) => vehicleStore.selectVehicle(id || null)"
+            min-width="min-w-[180px]"
+          />
           <router-link
             to="/vehicle-list"
-            class="flex h-9 shrink-0 items-center justify-center gap-2 rounded-lg bg-white dark:bg-white/10 border border-dashed border-border px-4 hover:border-primary/50 hover:text-primary text-text-muted dark:text-gray-400 text-xs font-medium transition-colors"
+            class="flex h-[42px] shrink-0 items-center justify-center gap-2 rounded-xl bg-white dark:bg-white/10 border border-dashed border-border px-4 hover:border-primary/50 hover:text-primary text-text-muted dark:text-gray-400 text-xs font-medium transition-colors"
           >
             <span class="material-symbols-outlined text-[18px]">add</span>
             {{ t('smartAssistant.addVehicle') }}

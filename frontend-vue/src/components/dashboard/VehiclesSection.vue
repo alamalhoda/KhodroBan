@@ -1,14 +1,16 @@
 <!--
   بخش خودروهای من در داشبورد
+  نمایش تصویر پیش‌فرض خودرو و آیکون رنگی (FontAwesome) در هر کارت.
 -->
 <script setup>
 import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import { formatNumber } from '@/utils/formatters'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '@/config/vehicleIcons'
 
 const props = defineProps({
-  /** آرایه خودروها */
+  /** آرایه خودروها (هر خودرو می‌تواند defaultImageUrl و iconName/iconStyle/iconColor داشته باشد) */
   vehicles: { type: Array, default: () => [] },
   /** آرایه یادآورها (برای نمایش نقطه وضعیت روی هر خودرو) */
   reminders: { type: Array, default: () => [] }
@@ -19,6 +21,17 @@ const emit = defineEmits(['view-vehicle', 'add-vehicle', 'view-all'])
 const { t } = useI18n()
 
 const hasReminderForVehicle = (vehicleId) => props.reminders.some(r => r.vehicleId === vehicleId)
+
+function vehicleIconClass(vehicle) {
+  if (!vehicle) return `fa fa-${DEFAULT_VEHICLE_ICON_STYLE} fa-${DEFAULT_VEHICLE_ICON}`
+  const style = vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE
+  const name = vehicle.iconName || DEFAULT_VEHICLE_ICON
+  return `fa fa-${style} fa-${name}`
+}
+
+function vehicleIconColor(vehicle) {
+  return vehicle?.iconColor || DEFAULT_VEHICLE_ICON_COLOR
+}
 </script>
 
 <template>
@@ -52,42 +65,46 @@ const hasReminderForVehicle = (vehicleId) => props.reminders.some(r => r.vehicle
       <Card
         v-for="vehicle in vehicles.slice(0, 4)"
         :key="vehicle.id"
-        class="p-4 flex gap-4 items-center cursor-pointer hover:shadow-lg transition-shadow"
-        role="button"
-        tabindex="0"
+        class="p-4 cursor-pointer hover:shadow-lg transition-shadow"
+        :clickable="true"
         :aria-label="`مشاهده جزئیات ${vehicle.model}`"
         @click="emit('view-vehicle', vehicle.id)"
-        @keydown.enter="emit('view-vehicle', vehicle.id)"
-        @keydown.space.prevent="emit('view-vehicle', vehicle.id)"
       >
-        <div class="w-24 h-24 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 overflow-hidden relative flex items-center justify-center">
-          <span class="material-symbols-outlined text-4xl text-gray-400" aria-hidden="true">directions_car</span>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex justify-between items-start">
-            <h4 class="text-lg font-bold text-[#121317] dark:text-white truncate">{{ vehicle.model }}</h4>
-            <span class="material-symbols-outlined text-gray-300 hover:text-primary cursor-pointer" aria-hidden="true">more_vert</span>
-          </div>
-          <p class="text-sm text-[#666e85] dark:text-gray-400 mb-2">
-            {{ vehicle.year }}
-            <template v-if="vehicle.plateNumber"> • {{ vehicle.plateNumber }}</template>
-          </p>
-          <div class="flex items-center gap-2">
-            <div class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 text-xs font-mono font-bold text-[#121317] dark:text-white" dir="ltr">
-              {{ formatNumber(vehicle.currentKm) }} km
+        <!-- wrapper برای یک سطر: اطلاعات و تصویر کنار هم (card-body به‌صورت block است) -->
+        <div class="flex flex-row gap-4 items-center w-full">
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-center gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span
+                  class="flex items-center justify-center w-7 h-7 shrink-0 rounded-full bg-gray-100 dark:bg-gray-700"
+                  :style="{ color: vehicleIconColor(vehicle) }"
+                  :title="hasReminderForVehicle(vehicle.id) ? t('dashboard.activeReminders') : t('dashboard.normal')"
+                  aria-hidden="true"
+                >
+                  <i :class="vehicleIconClass(vehicle)" class="text-sm" aria-hidden="true"></i>
+                </span>
+                <h4 class="text-lg font-bold text-[#121317] dark:text-white truncate">{{ vehicle.model }}</h4>
+              </div>
+              <span class="material-symbols-outlined text-gray-300 hover:text-primary shrink-0 pointer-events-none" aria-hidden="true">more_vert</span>
             </div>
-            <span
-              v-if="hasReminderForVehicle(vehicle.id)"
-              class="w-2 h-2 rounded-full bg-red-500"
-              :title="t('dashboard.activeReminders')"
-              aria-hidden="true"
+            <p class="text-sm text-[#666e85] dark:text-gray-400 mb-2 mt-1">
+              {{ vehicle.year }}
+              <template v-if="vehicle.plateNumber"> • {{ vehicle.plateNumber }}</template>
+            </p>
+            <div class="flex items-center gap-2">
+              <div class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 text-xs font-mono font-bold text-[#121317] dark:text-white" dir="ltr">
+                {{ formatNumber(vehicle.currentKm) }} km
+              </div>
+            </div>
+          </div>
+          <div class="w-24 h-24 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 overflow-hidden flex items-center justify-center">
+            <img
+              v-if="vehicle.defaultImageUrl"
+              :src="vehicle.defaultImageUrl"
+              :alt="vehicle.model"
+              class="w-full h-full object-cover"
             />
-            <span
-              v-else
-              class="w-2 h-2 rounded-full bg-green-500"
-              :title="t('dashboard.normal')"
-              aria-hidden="true"
-            />
+            <span v-else class="material-symbols-outlined text-4xl text-gray-400" aria-hidden="true">directions_car</span>
           </div>
         </div>
       </Card>

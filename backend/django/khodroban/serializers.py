@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer as JWTTokenObtainPairSerializer
 from .models import (
     SubscriptionPlan, UserProfile, UserSubscription,
-    Vehicle, Service, ServiceItem, ServiceType, ServicePreset, ExpenseCategory,
+    Vehicle, VehicleImage, Service, ServiceItem, ServiceType, ServicePreset, ExpenseCategory,
     DailyExpense, ReminderSetting, Reminder,
     Notification, TelegramSetting, VehicleKmHistory,
 )
@@ -82,7 +82,7 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
 class VehicleMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
-        fields = ['id', 'model', 'plate_number', 'year', 'current_km']
+        fields = ['id', 'model', 'plate_number', 'year', 'current_km', 'icon_name', 'icon_style', 'icon_color']
         read_only_fields = fields
 
 
@@ -94,6 +94,7 @@ class VehicleSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user_profile', 'model', 'year',
             'plate_number', 'current_km', 'description',
+            'icon_name', 'icon_style', 'icon_color',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'user_profile', 'created_at', 'updated_at']
@@ -112,9 +113,22 @@ class VehicleSerializer(serializers.ModelSerializer):
 # ---------- خروجی مطابق فرانت (camelCase + نام فیلدهای فرانت) ----------
 
 class VehicleApiSerializer(VehicleSerializer):
-    """خروجی: id, userId, plateNumber, currentKm, note, createdAt, updatedAt"""
+    """خروجی: id, userId, plateNumber, currentKm, note, iconName, iconStyle, iconColor, defaultImageUrl, createdAt, updatedAt"""
+
+    def _get_default_image_url(self, instance):
+        """از تصویر پیش‌فرض خودرو (با prefetch_related) آدرس کامل برمی‌گرداند."""
+        images_list = list(instance.images.all())
+        default_img = next((img for img in images_list if img.is_default), None) or (images_list[0] if images_list else None)
+        if not default_img or not default_img.image:
+            return None
+        request = self.context.get('request')
+        url = default_img.image.url
+        if request and url and not url.startswith('http'):
+            url = request.build_absolute_uri(url)
+        return url
 
     def to_representation(self, instance):
+        default_image_url = self._get_default_image_url(instance)
         return {
             'id': str(instance.id),
             'userId': str(instance.user_profile_id),
@@ -123,6 +137,10 @@ class VehicleApiSerializer(VehicleSerializer):
             'plateNumber': instance.plate_number,
             'currentKm': instance.current_km,
             'note': instance.description or '',
+            'iconName': instance.icon_name or None,
+            'iconStyle': instance.icon_style or 'solid',
+            'iconColor': instance.icon_color or None,
+            'defaultImageUrl': default_image_url,
             'createdAt': instance.created_at.isoformat() if instance.created_at else None,
             'updatedAt': instance.updated_at.isoformat() if instance.updated_at else None,
         }
@@ -132,12 +150,50 @@ class VehicleApiSerializer(VehicleSerializer):
         key_map = [
             ('model', 'model'), ('year', 'year'),
             ('plate_number', 'plateNumber'), ('current_km', 'currentKm'), ('description', 'note'),
+            ('icon_name', 'iconName'), ('icon_style', 'iconStyle'), ('icon_color', 'iconColor'),
         ]
         internal = {}
         for snake, camel in key_map:
             if camel in data or snake in data:
                 internal[snake] = data.get(camel) or data.get(snake)
         return super().to_internal_value(internal)
+
+
+class VehicleImageSerializer(serializers.ModelSerializer):
+    """خروجی برای فرانت: id, vehicleId, url, displayOrder, isDefault, createdAt."""
+
+    class Meta:
+        model = VehicleImage
+        fields = ['id', 'vehicle', 'image', 'display_order', 'is_default', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        url = instance.image.url if instance.image else None
+        if request and url and not url.startswith('http'):
+            url = request.build_absolute_uri(url)
+        return {
+            'id': str(instance.id),
+            'vehicleId': str(instance.vehicle_id),
+            'url': url,
+            'displayOrder': instance.display_order,
+            'isDefault': instance.is_default,
+            'createdAt': instance.created_at.isoformat() if instance.created_at else None,
+        }
+
+
+class VehicleImageCreateSerializer(serializers.ModelSerializer):
+    """برای آپلود: vehicle از context، image از multipart/form-data."""
+
+    class Meta:
+        model = VehicleImage
+        fields = ['image', 'display_order', 'is_default']
+
+    def create(self, validated_data):
+        vehicle = self.context.get('vehicle')
+        if not vehicle:
+            raise serializers.ValidationError('vehicle در context الزامی است.')
+        return VehicleImage.objects.create(vehicle=vehicle, **validated_data)
 
 
 class ServiceTypeSerializer(serializers.ModelSerializer):

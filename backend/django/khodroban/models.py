@@ -10,6 +10,8 @@
   - UUIDField: برای موجودیت‌هایی که نیاز به شناسه یکتا در سطح توزیع‌شده یا عدم پیش‌بینی پذیری دارند (Reminder, Notification, TelegramSetting).
   استفاده از انواع مختلف مشکلی ایجاد نمی‌کند؛ هر مدل با توجه به نیازش انتخاب شده است.
 """
+from pathlib import Path
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -121,6 +123,9 @@ class Vehicle(models.Model):
     plate_number = models.CharField(max_length=20)
     current_km = models.IntegerField(default=0)
     description = models.TextField(blank=True, null=True)
+    icon_name = models.CharField(max_length=50, blank=True, null=True, help_text=_("FontAwesome icon name, e.g. car"))
+    icon_style = models.CharField(max_length=20, blank=True, null=True, default='solid', help_text=_("FontAwesome style: solid, regular, brands"))
+    icon_color = models.CharField(max_length=20, blank=True, null=True, help_text=_("Hex color, e.g. #FF5733"))
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
 
@@ -142,6 +147,75 @@ class Vehicle(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         self.updated_at = timezone.now()
+        super().save(*args, **kwargs)
+
+
+def vehicle_image_upload_path(instance, filename):
+    """مسیر ذخیره: vehicles/<vehicle_id>/<uuid>.<ext>"""
+    ext = Path(filename).suffix.lower() if filename else '.jpg'
+    return f"vehicles/{instance.vehicle_id}/{uuid.uuid4().hex}{ext}"
+
+
+class VehicleImage(models.Model):
+    """تصویر گالری خودرو. حداکثر ۱۵ تصویر به‌ازای هر خودرو؛ JPG/PNG/WebP؛ حداکثر ۵ مگابایت."""
+    MAX_IMAGES_PER_VEHICLE = 15
+    MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+    ALLOWED_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.webp')
+
+    id = models.BigAutoField(primary_key=True)
+    vehicle = models.ForeignKey(
+        Vehicle,
+        on_delete=models.CASCADE,
+        related_name="images",
+    )
+    image = models.ImageField(
+        upload_to=vehicle_image_upload_path,
+        max_length=255,
+        help_text=_("JPG/PNG/WebP, max 5MB"),
+    )
+    display_order = models.PositiveSmallIntegerField(default=0)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = _("Vehicle Image")
+        verbose_name_plural = _("Vehicle Images")
+        ordering = ['display_order', 'created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['vehicle', 'is_default'],
+                condition=models.Q(is_default=True),
+                name='unique_vehicle_default_image',
+            ),
+        ]
+
+    def __str__(self):
+        return f"Image for {self.vehicle} (order={self.display_order}, default={self.is_default})"
+
+    def clean(self):
+        if self.image:
+            ext = Path(self.image.name).suffix.lower()
+            if ext not in self.ALLOWED_EXTENSIONS:
+                raise ValidationError(
+                    _("Only JPG, PNG and WebP formats are allowed. Got: %(ext)s") % {'ext': ext}
+                )
+            if self.image.size > self.MAX_FILE_SIZE_BYTES:
+                raise ValidationError(
+                    _("File size must not exceed 5 MB. Current: %(size)s bytes")
+                    % {'size': self.image.size}
+                )
+        if self.vehicle_id and self._state.adding:
+            count = VehicleImage.objects.filter(vehicle_id=self.vehicle_id).count()
+            if count >= self.MAX_IMAGES_PER_VEHICLE:
+                raise ValidationError(
+                    _("Maximum %(max)s images per vehicle allowed.") % {'max': self.MAX_IMAGES_PER_VEHICLE}
+                )
+
+    def save(self, *args, **kwargs):
+        # قبل از full_clean() بقیهٔ پیش‌فرض‌ها را بردار تا constraint نقض نشود
+        if self.is_default and self.vehicle_id:
+            VehicleImage.objects.filter(vehicle_id=self.vehicle_id).exclude(pk=self.pk).update(is_default=False)
+        self.full_clean()
         super().save(*args, **kwargs)
 
 

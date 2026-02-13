@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { expenseService } from '../services'
 
 export const useExpenseStore = defineStore('expense', () => {
   // State
@@ -8,22 +9,32 @@ export const useExpenseStore = defineStore('expense', () => {
   const error = ref(null)
 
   // Getters
-  const expensesByVehicle = computed(() => (vehicleId) => 
-    expenses.value.filter(e => e.vehicleId === vehicleId)
+  const expensesByVehicle = computed(() => (vehicleId) =>
+    expenses.value.filter(e => String(e.vehicleId) === String(vehicleId))
   )
-  const totalExpenses = computed(() => 
+  const totalExpenses = computed(() =>
     expenses.value.reduce((total, expense) => total + (expense.amount || 0), 0)
   )
-  const recentExpenses = computed(() => 
+  const recentExpenses = computed(() =>
     expenses.value
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 10)
   )
 
   // Actions
-  const fetchExpenses = async (vehicleId) => {
-    // Implementation will be added in later tasks
-    console.log('Fetch expenses action placeholder', vehicleId)
+  const fetchExpenses = async (vehicleId = null) => {
+    isLoading.value = true
+    error.value = null
+    try {
+      const data = await expenseService.getAll(vehicleId ?? undefined)
+      expenses.value = data ?? []
+      return expenses.value
+    } catch (err) {
+      error.value = err.message || 'خطا در دریافت لیست هزینه‌ها'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
   }
 
   const createExpense = async (data) => {

@@ -4,6 +4,7 @@ export { supabase } from './supabase';
 export { config, BACKEND_TYPE, type BackendType } from './config';
 export { authService } from './authService';
 export { vehicleService } from './vehicleService';
+export { vehicleGalleryService } from './vehicleGalleryService';
 export { serviceService } from './serviceService';
 export { expenseService } from './expenseService';
 export { reminderService } from './reminderService';

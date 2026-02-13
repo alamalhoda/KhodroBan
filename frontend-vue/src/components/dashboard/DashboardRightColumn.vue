@@ -5,7 +5,8 @@
 import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import { Button } from '@/components/ui'
-import { formatCurrency, formatNumber, formatDate } from '@/utils/formatters'
+import { useFormatDate } from '@/composables/useFormatDate'
+import { formatCurrency, formatNumber } from '@/utils/formatters'
 
 defineProps({
   /** آمار سریع (thisMonthExpenses, servicesThisMonth, avgMonthlyExpense) */
@@ -16,6 +17,7 @@ defineProps({
 
 const emit = defineEmits(['add-service', 'add-expense', 'view-reports'])
 const { t } = useI18n()
+const formatDate = useFormatDate()
 </script>
 
 <template>

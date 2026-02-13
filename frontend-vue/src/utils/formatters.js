@@ -3,6 +3,8 @@
  * @module utils/formatters
  */
 
+import { isoToJalaliStr } from './dateUtils'
+
 /**
  * فرمت ارز با اعداد فارسی (fa-IR)
  * @param {number|string} amount - مبلغ
@@ -24,7 +26,7 @@ export const formatNumber = (num) => {
 }
 
 /**
- * فرمت تاریخ به YYYY/MM/DD
+ * فرمت تاریخ به YYYY/MM/DD (میلادی)
  * @param {string} dateString - رشته تاریخ (ISO یا قابل parse توسط Date)
  * @returns {string} رشته به صورت سال/ماه/روز یا "-" برای خالی، یا همان ورودی برای تاریخ نامعتبر
  */
@@ -40,6 +42,21 @@ export const formatDate = (dateString) => {
   } catch {
     return date.toISOString().split('T')[0]
   }
+}
+
+/**
+ * فرمت تاریخ بر اساس زبان: فارسی → شمسی YYYY/MM/DD، غیرفارسی → میلادی YYYY/MM/DD
+ * @param {string} dateString - رشته تاریخ (ISO یا شمسی)
+ * @param {string} locale - کد زبان (fa, en, ar, ...)
+ * @returns {string} رشته فرمت‌شده یا "-" برای خالی
+ */
+export const formatDateByLocale = (dateString, locale) => {
+  if (!dateString) return '-'
+  if (locale === 'fa') {
+    const jalali = isoToJalaliStr(dateString)
+    return jalali || '-'
+  }
+  return formatDate(dateString)
 }
 
 /**
