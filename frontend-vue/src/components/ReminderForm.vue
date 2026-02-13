@@ -2,7 +2,9 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVehicleStore } from '../stores/vehicle'
-import { Input, Select, Button } from './ui'
+import { Input, Select, Button, PersianDatePicker } from './ui'
+import VehicleFilterSelect from './VehicleFilterSelect.vue'
+import { isoToJalaliStr, jalaliToIso } from '../utils/dateUtils'
 
 const props = defineProps({
   vehicleId: {
@@ -29,7 +31,8 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'cancel'])
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const isPersianLocale = computed(() => locale.value === 'fa')
 const vehicleStore = useVehicleStore()
 
 // State
@@ -38,10 +41,8 @@ const formData = ref({
   description: '',
   vehicleId: null,
   
-  // بازه زمانی
-  timeIntervalPreset: 'custom', // '10', '30', '90', 'custom'
-  timeInterval: 90,
-  timeIntervalType: 'days', // 'days' | 'weeks' | 'months'
+  // بازه زمانی — فقط preset و تاریخ موعد (بدون فیلد تعداد/نوع)
+  timeIntervalPreset: '30', // '1'|'2'|'7'|'30'|'60'|'90'|'180'|'365'|'custom'
   dueDate: null,
   
   // بازه کیلومتری
@@ -56,28 +57,17 @@ const formData = ref({
   type: null
 })
 
-// Preset options
+// Preset options: فردا / پس‌فردا / یک هفته / یک ماه / دو ماه / سه ماه / شش ماه / یک سال / دلخواه
 const timePresets = computed(() => [
-  { value: '10', label: t('reminders.presets.10days') },
-  { value: '30', label: t('reminders.presets.30days') },
-  { value: '90', label: t('reminders.presets.90days') },
+  { value: '1', label: t('reminders.presets.tomorrow') },
+  { value: '2', label: t('reminders.presets.dayAfter') },
+  { value: '7', label: t('reminders.presets.oneWeek') },
+  { value: '30', label: t('reminders.presets.oneMonth') },
+  { value: '60', label: t('reminders.presets.twoMonths') },
+  { value: '90', label: t('reminders.presets.threeMonths') },
+  { value: '180', label: t('reminders.presets.sixMonths') },
+  { value: '365', label: t('reminders.presets.oneYear') },
   { value: 'custom', label: t('reminders.presets.custom') }
-])
-
-// Vehicle options
-const vehicleOptions = computed(() => {
-  const options = vehicleStore.vehicles.map(v => ({
-    value: v.id,
-    label: `${v.model} - ${v.year}`
-  }))
-  return [{ value: '', label: t('vehicles.selectVehicle') }, ...options]
-})
-
-// Time unit options
-const timeUnitOptions = computed(() => [
-  { value: 'days', label: t('reminders.form.days') },
-  { value: 'weeks', label: t('reminders.form.weeks') },
-  { value: 'months', label: t('reminders.form.months') }
 ])
 
 // Computed
@@ -93,35 +83,31 @@ const currentKm = computed(() => {
 
 // Determine reminder type automatically based on filled fields
 const reminderType = computed(() => {
-  const hasTime = formData.value.timeIntervalPreset && formData.value.timeInterval
+  const hasTime = !!formData.value.timeIntervalPreset
   const hasKm = formData.value.kmInterval && formData.value.vehicleId
-  
+
   if (hasTime && hasKm) return 'both'
   if (hasTime) return 'time'
   if (hasKm) return 'km'
   return 'both' // default
 })
 
-// همیشه از بازه زمانی محاسبه می‌شود؛ در حالت custom با تغییر interval/type به‌روز می‌شود
+// تاریخ موعد بر اساس preset: عدد = امروز + N روز؛ custom = همان formData.dueDate یا پیش‌فرض
 const calculatedDueDate = computed(() => {
   if (formData.value.timeIntervalPreset === 'custom') {
-    const date = new Date()
-    const interval = Number(formData.value.timeInterval) || 0
-    const type = formData.value.timeIntervalType || 'days'
-    if (type === 'days') {
-      date.setDate(date.getDate() + interval)
-    } else if (type === 'weeks') {
-      date.setDate(date.getDate() + interval * 7)
-    } else if (type === 'months') {
-      date.setMonth(date.getMonth() + interval)
-    }
-    return date.toISOString().split('T')[0]
+    return formData.value.dueDate || getDefaultDueDate()
   }
-  const days = parseInt(formData.value.timeIntervalPreset, 10) || Number(formData.value.timeInterval) || 90
+  const days = parseInt(formData.value.timeIntervalPreset, 10) || 30
   const date = new Date()
   date.setDate(date.getDate() + days)
   return date.toISOString().split('T')[0]
 })
+
+function getDefaultDueDate() {
+  const date = new Date()
+  date.setDate(date.getDate() + 30)
+  return date.toISOString().split('T')[0]
+}
 
 const calculatedDueKm = computed(() => {
   const vehicleId = formData.value.vehicleId || props.vehicleId
@@ -129,22 +115,10 @@ const calculatedDueKm = computed(() => {
   return currentKm.value + formData.value.kmInterval
 })
 
-// Watch for preset changes
-watch(() => formData.value.timeIntervalPreset, (newVal) => {
-  if (newVal !== 'custom') {
-    formData.value.timeInterval = parseInt(newVal)
-    formData.value.dueDate = null // Clear custom date when preset is selected
-  }
+// وقتی preset عوض شد، فیلد تاریخ را با تاریخ محاسبه‌شده پر می‌کنیم (همیشه قابل ویرایش بعداً)
+watch(() => formData.value.timeIntervalPreset, () => {
+  formData.value.dueDate = calculatedDueDate.value
 })
-
-watch(
-  () => [formData.value.timeInterval, formData.value.timeIntervalType, formData.value.timeIntervalPreset],
-  () => {
-    if (formData.value.timeIntervalPreset === 'custom') {
-      formData.value.dueDate = calculatedDueDate.value
-    }
-  }
-)
 
 // Initialize form
 onMounted(() => {
@@ -155,7 +129,9 @@ onMounted(() => {
   
   // Set default values
   if (props.defaultInterval) {
-    formData.value.timeInterval = props.defaultInterval.days || 90
+    const days = props.defaultInterval.days || 30
+    const presetMap = { 1: '1', 2: '2', 7: '7', 30: '30', 60: '60', 90: '90', 180: '180', 365: '365' }
+    formData.value.timeIntervalPreset = presetMap[days] || '30'
     formData.value.kmInterval = props.defaultInterval.km || 5000
   }
   
@@ -174,8 +150,9 @@ onMounted(() => {
     formData.value.warningDaysBefore = props.initialData.warningDaysBefore || 7
     formData.value.warningKmBefore = props.initialData.warningKmBefore || 500
     formData.value.type = props.initialData.type || null
+    formData.value.timeIntervalPreset = 'custom' // ویرایش: تاریخ ذخیره‌شده در فیلد نمایش داده می‌شود
   } else {
-    // Set default due date
+    if (!props.defaultInterval) formData.value.timeIntervalPreset = '30'
     formData.value.dueDate = calculatedDueDate.value
   }
 })
@@ -186,6 +163,8 @@ const handleSubmit = () => {
     return
   }
   
+  const dueDateForSubmit = formData.value.dueDate || calculatedDueDate.value
+
   const reminderData = {
     title: formData.value.title.trim(),
     description: formData.value.description?.trim() || null,
@@ -196,7 +175,7 @@ const handleSubmit = () => {
     
     // بازه زمانی
     ...(reminderType.value === 'time' || reminderType.value === 'both' ? {
-      dueDate: calculatedDueDate.value
+      dueDate: dueDateForSubmit
     } : {}),
     
     // بازه کیلومتری
@@ -234,15 +213,17 @@ const handleCancel = () => {
         />
       </div>
 
-      <!-- Vehicle Selection -->
+      <!-- Vehicle Selection (فیلتر انتخاب خودرو) -->
       <div>
         <label class="block text-xs font-medium mb-1.5 text-[#121317] dark:text-white">
           {{ t('vehicles.selectVehicle') }}
         </label>
-        <Select 
-          v-model="formData.vehicleId" 
-          :options="vehicleOptions"
-          class="w-full text-sm"
+        <VehicleFilterSelect
+          :model-value="formData.vehicleId ?? ''"
+          :show-all-option="false"
+          :placeholder="t('vehicles.selectVehicle')"
+          wrapper-class="w-full text-sm"
+          @update:model-value="formData.vehicleId = $event || null"
         />
       </div>
     </div>
@@ -257,41 +238,31 @@ const handleCancel = () => {
           </span>
         </div>
 
-        <!-- Preset Dropdown and Due Date in one row -->
+        <!-- بازه زمانی + تاریخ محاسبه‌شده در یک سطر (مانند کیلومتر موعد) -->
         <div class="flex gap-2 items-center">
-          <div class="flex-1">
+          <div class="flex-1 min-w-0">
             <Select 
               v-model="formData.timeIntervalPreset" 
               :options="timePresets"
               class="w-full text-sm"
             />
           </div>
-          <div class="flex items-center justify-between text-xs py-1.5 px-2 bg-white dark:bg-[#1e293b] rounded border border-gray-200 dark:border-gray-700 min-w-[140px]">
-            <span class="text-gray-600 dark:text-gray-400 mr-1">
-              {{ t('reminders.form.calculatedDate') }}
+          <div class="flex flex-1 min-w-[140px] items-center gap-2">
+            <span class="text-xs font-medium text-[#121317] dark:text-white whitespace-nowrap">
+              {{ t('reminders.form.calculatedDateLabel') }}
             </span>
-            <span class="font-semibold text-primary">
-              {{ calculatedDueDate }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Custom Interval -->
-        <div v-if="formData.timeIntervalPreset === 'custom'" class="flex gap-2">
-          <div class="flex-1">
-            <Input
-              v-model.number="formData.timeInterval"
-              type="number"
-              min="1"
-              class="w-full text-sm"
-              :placeholder="t('reminders.form.timeInterval')"
+            <PersianDatePicker
+              v-if="isPersianLocale"
+              :model-value="isoToJalaliStr(formData.dueDate) || ''"
+              :placeholder="t('reminders.form.dueDatePlaceholder', '۱۴۰۳/۰۱/۰۱')"
+              @update:model-value="(v) => { formData.dueDate = jalaliToIso(v) || v }"
+              class="w-full text-sm min-w-0"
             />
-          </div>
-          <div class="w-28">
-            <Select 
-              v-model="formData.timeIntervalType" 
-              :options="timeUnitOptions"
-              class="w-full text-sm"
+            <Input
+              v-else
+              v-model="formData.dueDate"
+              type="date"
+              class="w-full text-sm min-w-0"
             />
           </div>
         </div>
@@ -383,41 +354,31 @@ const handleCancel = () => {
         </span>
       </div>
 
-      <!-- Preset Dropdown and Due Date in one row -->
+      <!-- بازه زمانی + تاریخ محاسبه‌شده در یک سطر -->
       <div class="flex gap-2 items-center">
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
           <Select 
             v-model="formData.timeIntervalPreset" 
             :options="timePresets"
             class="w-full text-sm"
           />
         </div>
-        <div class="flex items-center justify-between text-xs py-1.5 px-2 bg-white dark:bg-[#1e293b] rounded border border-gray-200 dark:border-gray-700 min-w-[140px]">
-          <span class="text-gray-600 dark:text-gray-400 mr-1">
-            {{ t('reminders.form.calculatedDate') }}
+        <div class="flex flex-1 min-w-[140px] items-center gap-2">
+          <span class="text-xs font-medium text-[#121317] dark:text-white whitespace-nowrap">
+            {{ t('reminders.form.calculatedDateLabel') }}
           </span>
-          <span class="font-semibold text-primary">
-            {{ calculatedDueDate }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Custom Interval -->
-      <div v-if="formData.timeIntervalPreset === 'custom'" class="flex gap-2">
-        <div class="flex-1">
-          <Input
-            v-model.number="formData.timeInterval"
-            type="number"
-            min="1"
-            class="w-full text-sm"
-            :placeholder="t('reminders.form.timeInterval')"
+          <PersianDatePicker
+            v-if="isPersianLocale"
+            :model-value="isoToJalaliStr(formData.dueDate) || ''"
+            :placeholder="t('reminders.form.dueDatePlaceholder', '۱۴۰۳/۰۱/۰۱')"
+            @update:model-value="(v) => { formData.dueDate = jalaliToIso(v) || v }"
+            class="w-full text-sm min-w-0"
           />
-        </div>
-        <div class="w-28">
-          <Select 
-            v-model="formData.timeIntervalType" 
-            :options="timeUnitOptions"
-            class="w-full text-sm"
+          <Input
+            v-else
+            v-model="formData.dueDate"
+            type="date"
+            class="w-full text-sm min-w-0"
           />
         </div>
       </div>

@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 from datetime import timedelta
 from django.contrib.auth.models import User
 
@@ -9,7 +10,8 @@ from khodroban.models import ReminderSetting, Vehicle, UserProfile, Notification
 
 class HueyReminderTaskTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="huey", password="pass")
+        self._huey_password = get_random_string(12)
+        self.user = User.objects.create_user(username="huey", password=self._huey_password)
         self.profile, _ = UserProfile.objects.get_or_create(
             user=self.user, defaults={"email": "h@t.com"}
         )

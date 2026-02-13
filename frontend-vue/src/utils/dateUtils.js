@@ -51,3 +51,23 @@ export function isoToJalaliStr(dateStr) {
   }
   return ''
 }
+
+/**
+ * تبدیل رشته شمسی YYYY/MM/DD به ISO YYYY-MM-DD برای API
+ * @param {string} jalaliStr - رشته شمسی (YYYY/MM/DD یا YYYY-MM-DD)
+ * @returns {string} ISO YYYY-MM-DD یا '' برای نامعتبر
+ */
+export function jalaliToIso(jalaliStr) {
+  if (!jalaliStr || typeof jalaliStr !== 'string') return ''
+  const parts = jalaliStr.trim().split(/[/-]/).map((p) => parseInt(p, 10))
+  if (parts.length < 3 || parts[0] < 1300 || parts[0] > 1500) return ''
+  try {
+    const [y, m, day] = parts
+    const pd = new PersianDate([y, m, day])
+    const dateObj = pd.toDate()
+    if (!dateObj || isNaN(dateObj.getTime())) return ''
+    return dateObj.toISOString().split('T')[0]
+  } catch (e) {
+    return ''
+  }
+}

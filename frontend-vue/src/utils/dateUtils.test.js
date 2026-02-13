@@ -2,7 +2,7 @@
  * Unit tests for dateUtils (شمسی: getTodayJalaliStr, isoToJalaliStr)
  */
 import { describe, it, expect } from 'vitest'
-import { getTodayJalaliStr, isoToJalaliStr } from './dateUtils'
+import { getTodayJalaliStr, isoToJalaliStr, jalaliToIso } from './dateUtils'
 
 describe('dateUtils', () => {
   describe('getTodayJalaliStr', () => {
@@ -68,6 +68,30 @@ describe('dateUtils', () => {
 
     it('accepts Jalali with slash only (contract: YYYY/MM/DD)', () => {
       expect(isoToJalaliStr('1403/06/16')).toBe('1403/06/16')
+    })
+  })
+
+  describe('jalaliToIso', () => {
+    it('returns empty string for null, undefined, empty', () => {
+      expect(jalaliToIso(null)).toBe('')
+      expect(jalaliToIso(undefined)).toBe('')
+      expect(jalaliToIso('')).toBe('')
+    })
+
+    it('converts Jalali YYYY/MM/DD to ISO YYYY-MM-DD', () => {
+      const result = jalaliToIso('1403/06/16')
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      expect(new Date(result).getTime()).not.toBeNaN()
+    })
+
+    it('accepts Jalali with dashes', () => {
+      const result = jalaliToIso('1403-07-15')
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    })
+
+    it('returns empty string for invalid or non-Jalali string', () => {
+      expect(jalaliToIso('invalid')).toBe('')
+      expect(jalaliToIso('2024-01-15')).toBe('')
     })
   })
 })

@@ -189,3 +189,33 @@ class ReminderAPITests(APITestCase):
             reverse("reminder-detail", kwargs={"pk": other_reminder.id})
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_create_reminder_minimal_payload(self):
+        """Create with only required fields (title + vehicleId)."""
+        payload = {
+            "title": "یادآور کمینه",
+            "vehicleId": str(self.vehicle.id),
+        }
+        response = self.client.post(reverse("reminder-list"), payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        out = response.json().get("data", response.json())
+        self.assertEqual(out["title"], "یادآور کمینه")
+        self.assertEqual(out["vehicleId"], str(self.vehicle.id))
+
+    def test_retrieve_returns_404_for_nonexistent_id(self):
+        response = self.client.get(
+            reverse("reminder-detail", kwargs={"pk": "00000000-0000-0000-0000-000000000000"})
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_by_vehicle_invalid_vehicle_returns_empty(self):
+        """When vehicle_id is not owned by user, by_vehicle returns empty list."""
+        response = self.client.get(
+            reverse(
+                "reminder-by-vehicle",
+                kwargs={"vehicle_id": "99999"},
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json().get("data", response.json())
+        self.assertEqual(data, [])

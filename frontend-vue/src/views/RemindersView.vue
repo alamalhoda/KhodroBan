@@ -9,6 +9,7 @@ import Modal from '../components/ui/Modal.vue'
 import Button from '../components/ui/Button.vue'
 import LoadingSpinner from '../components/ui/LoadingSpinner.vue'
 import { useFormatDate } from '../composables/useFormatDate'
+import { getDaysRemaining as getDaysRemainingUtil } from '../utils/reminderDateUtils'
 import { useReminderStore } from '../stores/reminder'
 import { useVehicleStore } from '../stores/vehicle'
 import { useUIStore } from '../stores/ui'
@@ -100,6 +101,15 @@ const handleMarkCompleted = async (reminderId) => {
   }
 }
 
+const handleRetry = async () => {
+  reminderStore.clearError()
+  try {
+    await reminderStore.fetchReminders(selectedVehicleId.value || undefined)
+  } catch (error) {
+    uiStore.error(error.message || t('reminders.loadingError'))
+  }
+}
+
 const getStatusColor = (status) => {
   switch (status) {
     case 'overdue':
@@ -166,17 +176,8 @@ const getDaysRemainingTextClass = (days) => {
   return 'text-blue-600 dark:text-blue-400'
 }
 
-// Calculate days remaining for date-based reminders
-const getDaysRemaining = (reminder) => {
-  if (!reminder.dueDate) return null
-  const dueDate = new Date(reminder.dueDate)
-  if (isNaN(dueDate.getTime())) return null
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  dueDate.setHours(0, 0, 0, 0)
-  const diff = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-  return diff
-}
+// محاسبه روز باقی‌مانده تا موعد (منطق تست‌شده در utils/reminderDateUtils)
+const getDaysRemaining = (reminder) => getDaysRemainingUtil(reminder?.dueDate)
 
 // Format days remaining text (i18n)
 const formatDaysRemaining = (days) => {
@@ -372,17 +373,25 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Error Message -->
-      <div v-if="reminderStore.error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
-        <span>{{ reminderStore.error }}</span>
-        <button @click="reminderStore.clearError()" class="text-red-500 hover:text-red-700">
-          <span class="material-symbols-outlined text-sm">close</span>
-        </button>
+      <!-- Error State with Retry -->
+      <div v-if="reminderStore.error" class="flex flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800">
+        <span class="material-symbols-outlined text-red-500 text-5xl mb-3">error</span>
+        <p class="text-red-700 dark:text-red-400 font-medium mb-2">{{ reminderStore.error }}</p>
+        <div class="flex gap-3 items-center">
+          <Button @click="handleRetry" class="bg-red-500 text-white hover:bg-red-600">
+            <span class="material-symbols-outlined text-[18px]">refresh</span>
+            {{ t('reminders.retry') }}
+          </Button>
+          <button @click="reminderStore.clearError()" class="text-sm text-red-600 dark:text-red-400 hover:underline">
+            {{ t('common.cancel') }}
+          </button>
+        </div>
       </div>
 
       <!-- Loading State -->
-      <div v-if="reminderStore.isLoading && filteredReminders.length === 0" class="flex justify-center items-center py-12">
+      <div v-else-if="reminderStore.isLoading && filteredReminders.length === 0" class="flex flex-col justify-center items-center py-12 gap-3">
         <LoadingSpinner />
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('reminders.loading') }}</p>
       </div>
 
       <!-- Empty State -->

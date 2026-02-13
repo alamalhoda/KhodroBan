@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 from django.contrib.auth.models import User
 from datetime import timedelta
 
@@ -8,7 +9,8 @@ from khodroban.models import Reminder, Vehicle, UserProfile
 
 class ReminderModelTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="test", password="pass")
+        self._pwd = get_random_string(12)
+        self.user = User.objects.create_user(username="test", password=self._pwd)
         self.profile, _ = UserProfile.objects.get_or_create(
             user=self.user, defaults={"email": "a@b.com"}
         )
@@ -41,7 +43,8 @@ class ReminderModelTests(TestCase):
 
 class ReminderStatusTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="tester", password="pass")
+        self._pwd = get_random_string(12)
+        self.user = User.objects.create_user(username="tester", password=self._pwd)
         self.profile, _ = UserProfile.objects.get_or_create(
             user=self.user, defaults={"email": "t@e.com"}
         )

@@ -2,6 +2,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
 
 from khodroban.models import Vehicle, UserProfile, VehicleKmHistory, VehicleImage
 
@@ -9,7 +10,8 @@ from khodroban.models import Vehicle, UserProfile, VehicleKmHistory, VehicleImag
 class VehicleAPITests(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username="apiuser", password="apipass")
+        self._test_password = get_random_string(12)
+        self.user = User.objects.create_user(username="apiuser", password=self._test_password)
         self.profile, _ = UserProfile.objects.get_or_create(
             user=self.user, defaults={"email": "api@test.com"}
         )
@@ -52,8 +54,9 @@ class VehicleAPITests(APITestCase):
         self.assertEqual(payload.get("iconColor"), "#FF5733")
 
     def test_list_vehicles_only_own(self):
+        other_pass = get_random_string(12)
         other_user = User.objects.create_user(
-            username="other", password="pass", email="other@test.com"
+            username="other", password=other_pass, email="other@test.com"
         )
         other_profile = UserProfile.objects.get(user=other_user)
         Vehicle.objects.create(user_profile=other_profile, model="سمند", year=1400, plate_number="99ج999")
@@ -81,8 +84,9 @@ class VehicleAPITests(APITestCase):
         self.assertEqual(vehicle.current_km, 15000)
 
     def test_cannot_update_other_vehicle(self):
+        other2_pass = get_random_string(12)
         other_user = User.objects.create_user(
-            username="other2", password="pass", email="o2@test.com"
+            username="other2", password=other2_pass, email="o2@test.com"
         )
         other_profile = UserProfile.objects.get(user=other_user)
         other_vehicle = Vehicle.objects.create(
