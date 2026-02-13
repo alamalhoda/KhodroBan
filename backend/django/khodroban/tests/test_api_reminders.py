@@ -5,6 +5,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
 
 from khodroban.models import Reminder, Vehicle, UserProfile
 
@@ -12,7 +13,10 @@ from khodroban.models import Reminder, Vehicle, UserProfile
 class ReminderAPITests(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username="remuser", password="rempass")
+        self._test_password = get_random_string(12)
+        self.user = User.objects.create_user(
+            username="remuser", password=self._test_password
+        )
         self.profile, _ = UserProfile.objects.get_or_create(
             user=self.user, defaults={"email": "rem@test.com"}
         )
@@ -164,8 +168,9 @@ class ReminderAPITests(APITestCase):
         self.assertEqual(len(data), 2)
 
     def test_cannot_access_other_user_reminder(self):
+        other_password = get_random_string(12)
         other_user = User.objects.create_user(
-            username="otherrem", password="pass", email="otherrem@test.com"
+            username="otherrem", password=other_password, email="otherrem@test.com"
         )
         other_profile = UserProfile.objects.get(user=other_user)
         other_vehicle = Vehicle.objects.create(
