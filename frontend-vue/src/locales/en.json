@@ -526,6 +526,13 @@
       "30days": "30 days later",
       "90days": "90 days later",
       "custom": "Custom"
+    },
+    "daysRemaining": {
+      "daysAgo": "{count} days ago",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "daysLater": "{count} days later",
+      "daysPastDue": "{count} days past due"
     }
   },
   "notifications": {

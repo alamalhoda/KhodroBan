@@ -411,6 +411,7 @@ class ReminderApiSerializer(ReminderSerializer):
             'dueDate': instance.due_date.isoformat() if instance.due_date else None,
             'dueKm': instance.due_km,
             'warningDaysBefore': instance.warning_days_before,
+            'warningKmBefore': getattr(instance, 'warning_km_before', None),
             'status': instance.status or 'ok',
             'message': instance.message or instance.title,
             'source': instance.source or 'manual',
@@ -422,7 +423,8 @@ class ReminderApiSerializer(ReminderSerializer):
     def to_internal_value(self, data):
         key_map = [
             ('vehicle_id', 'vehicleId'), ('title', 'title'), ('description', 'description'),
-            ('due_date', 'dueDate'), ('due_km', 'dueKm'), ('warning_days_before', 'warningDaysBefore'),
+            ('due_date', 'dueDate'), ('due_km', 'dueKm'),
+            ('warning_days_before', 'warningDaysBefore'), ('warning_km_before', 'warningKmBefore'),
             ('source', 'source'), ('type', 'type'),
         ]
         internal = {}

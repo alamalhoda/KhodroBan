@@ -484,6 +484,13 @@
       "30days": "30 يوماً قادماً",
       "90days": "90 يوماً قادماً",
       "custom": "مخصص"
+    },
+    "daysRemaining": {
+      "daysAgo": "قبل {count} يوم",
+      "today": "اليوم",
+      "tomorrow": "غداً",
+      "daysLater": "بعد {count} يوم",
+      "daysPastDue": "{count} يوم بعد الموعد"
     }
   },
   "notifications": {
