@@ -5,6 +5,7 @@ from .models import (
     UserProfile,
     UserSubscription,
     Vehicle,
+    VehicleImage,
     ServiceType,
     ServicePreset,
     ExpenseCategory,
@@ -114,6 +115,13 @@ class UserSubscriptionAdmin(admin.ModelAdmin):
 
 # ─── Vehicles & Services ─────────────────────────────────────────────────────
 
+class VehicleImageInline(admin.TabularInline):
+    model = VehicleImage
+    extra = 0
+    fields = ("image", "display_order", "is_default", "created_at")
+    readonly_fields = ("created_at",)
+
+
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
     list_display = (
@@ -122,6 +130,9 @@ class VehicleAdmin(admin.ModelAdmin):
         "plate_number",
         "year",
         "current_km",
+        "icon_name",
+        "icon_style",
+        "icon_color",
         "user_profile",
         "updated_at",
     )
@@ -129,8 +140,16 @@ class VehicleAdmin(admin.ModelAdmin):
     search_fields = ("model", "plate_number", "user_profile__user__username")
     raw_id_fields = ("user_profile",)
     readonly_fields = ("created_at", "updated_at")
-    inlines = (ReminderSettingInline,)
+    inlines = (VehicleImageInline, ReminderSettingInline,)
     list_per_page = 25
+
+
+@admin.register(VehicleImage)
+class VehicleImageAdmin(admin.ModelAdmin):
+    list_display = ("id", "vehicle", "display_order", "is_default", "created_at")
+    list_filter = ("is_default",)
+    raw_id_fields = ("vehicle",)
+    readonly_fields = ("created_at",)
 
 
 @admin.register(ServiceType)

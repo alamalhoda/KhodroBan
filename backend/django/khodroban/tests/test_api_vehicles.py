@@ -3,7 +3,7 @@ from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth.models import User
 
-from khodroban.models import Vehicle, UserProfile, VehicleKmHistory
+from khodroban.models import Vehicle, UserProfile, VehicleKmHistory, VehicleImage
 
 
 class VehicleAPITests(APITestCase):
@@ -30,6 +30,26 @@ class VehicleAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Vehicle.objects.count(), 1)
         self.assertEqual(Vehicle.objects.first().plate_number, "12ب34567")
+
+    def test_create_vehicle_with_icon_and_color(self):
+        data = {
+            "model": "پژو 206",
+            "year": 1398,
+            "plateNumber": "12ب34567",
+            "currentKm": 85000,
+            "iconName": "car",
+            "iconStyle": "solid",
+            "iconColor": "#FF5733",
+        }
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        vehicle = Vehicle.objects.first()
+        self.assertEqual(vehicle.icon_name, "car")
+        self.assertEqual(vehicle.icon_style, "solid")
+        self.assertEqual(vehicle.icon_color, "#FF5733")
+        payload = response.json().get("data", {})
+        self.assertEqual(payload.get("iconName"), "car")
+        self.assertEqual(payload.get("iconColor"), "#FF5733")
 
     def test_list_vehicles_only_own(self):
         other_user = User.objects.create_user(
@@ -118,3 +138,18 @@ class VehicleAPITests(APITestCase):
         self.assertEqual(len(data_list), 1)
         self.assertEqual(data_list[0]['km'], 12000)
         self.assertEqual(data_list[0]['sourceType'], 'manual')
+
+    def test_vehicle_images_list_empty(self):
+        vehicle = Vehicle.objects.create(
+            user_profile=self.profile,
+            model="ImgTest",
+            year=1400,
+            plate_number="44ث444",
+            current_km=0,
+        )
+        url = f'/api/vehicles/{vehicle.id}/images/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        payload = response.json()
+        self.assertTrue(payload.get('success'))
+        self.assertEqual(payload.get('data', []), [])

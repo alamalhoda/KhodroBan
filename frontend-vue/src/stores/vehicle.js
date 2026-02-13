@@ -36,10 +36,12 @@ export const useVehicleStore = defineStore('vehicle', () => {
     
     try {
       const vehicle = await vehicleService.getById(id)
-      // Update in list if exists
       const index = vehicles.value.findIndex(v => v.id === id)
       if (index !== -1) {
         vehicles.value[index] = vehicle
+      } else {
+        // ورود مستقیم یا رفرش: خودرو در لیست نبود، اضافه کن تا vehicleById آن را برگرداند
+        vehicles.value.push(vehicle)
       }
       return vehicle
     } catch (err) {
@@ -83,6 +85,27 @@ export const useVehicleStore = defineStore('vehicle', () => {
       return updatedVehicle
     } catch (err) {
       error.value = err.message || 'خطا در به‌روزرسانی خودرو'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateKm = async (id, km) => {
+    isLoading.value = true
+    error.value = null
+    try {
+      const updatedVehicle = await vehicleService.updateKm(id, Number(km))
+      const index = vehicles.value.findIndex(v => v.id === id)
+      if (index !== -1) {
+        vehicles.value[index] = updatedVehicle
+      }
+      if (selectedVehicle.value?.id === id) {
+        selectedVehicle.value = updatedVehicle
+      }
+      return updatedVehicle
+    } catch (err) {
+      error.value = err.message || 'خطا در به‌روزرسانی کیلومتر'
       throw err
     } finally {
       isLoading.value = false
@@ -133,6 +156,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
     getVehicleById,
     createVehicle,
     updateVehicle,
+    updateKm,
     deleteVehicle,
     selectVehicle,
     clearError

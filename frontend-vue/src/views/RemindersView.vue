@@ -3,17 +3,19 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import MainLayout from '../components/MainLayout.vue'
+import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
 import Card from '../components/ui/Card.vue'
 import Modal from '../components/ui/Modal.vue'
 import Button from '../components/ui/Button.vue'
 import LoadingSpinner from '../components/ui/LoadingSpinner.vue'
-import { formatDate } from '@/utils/formatters'
+import { useFormatDate } from '../composables/useFormatDate'
 import { useReminderStore } from '../stores/reminder'
 import { useVehicleStore } from '../stores/vehicle'
 import { useUIStore } from '../stores/ui'
 
 const router = useRouter()
 const { t } = useI18n()
+const formatDate = useFormatDate()
 const reminderStore = useReminderStore()
 const vehicleStore = useVehicleStore()
 const uiStore = useUIStore()
@@ -48,8 +50,6 @@ const filteredReminders = computed(() => {
     return statusOrder[a.status] - statusOrder[b.status]
   })
 })
-
-const vehicles = computed(() => vehicleStore.vehicles)
 
 // Methods
 const handleFilterChange = (filter) => {
@@ -306,23 +306,11 @@ onMounted(async () => {
 
         <!-- Vehicle Filter and Add Button -->
         <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-          <div class="relative min-w-[160px]">
-            <select
-              v-model="selectedVehicleId"
-              @change="handleVehicleChange(selectedVehicleId)"
-              class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-white dark:bg-[#1e293b] border border-gray-100 dark:border-gray-700 text-[#121317] dark:text-white text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-800 transition-all appearance-none pr-10"
-            >
-              <option :value="null">{{ t('services.allVehicles') }}</option>
-              <option
-                v-for="vehicle in vehicles"
-                :key="vehicle.id"
-                :value="vehicle.id"
-              >
-                {{ vehicle.model }} - {{ vehicle.plateNumber }}
-              </option>
-            </select>
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none material-symbols-outlined text-gray-400 text-sm">expand_more</span>
-          </div>
+          <VehicleFilterSelect
+            :model-value="selectedVehicleId ?? ''"
+            :show-all-option="true"
+            @update:model-value="handleVehicleChange"
+          />
           <Button
             @click="handleAddReminder"
             class="px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary-light transition-all shadow-lg shadow-primary/20 whitespace-nowrap"

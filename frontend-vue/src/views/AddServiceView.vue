@@ -11,12 +11,15 @@ import { useExpenseStore } from '../stores/expense'
 import { useReminderStore } from '../stores/reminder'
 import { useToast } from '../composables/useToast'
 import MainLayout from '../components/MainLayout.vue'
-import { Button, Input, Select, Card, LoadingSpinner, Modal } from '../components/ui'
+import { Button, Input, Select, Card, LoadingSpinner, Modal, PersianDatePicker } from '../components/ui'
+import { getTodayJalaliStr, isoToJalaliStr } from '../utils/dateUtils'
+import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
 import ServiceTypeSelector from '../components/ServiceTypeSelector.vue'
 
 const router = useRouter()
 const route = useRoute()
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const isPersianLocale = computed(() => locale.value === 'fa')
 const serviceStore = useServiceStore()
 const vehicleStore = useVehicleStore()
 const serviceTypeStore = useServiceTypeStore()
@@ -25,10 +28,11 @@ const expenseStore = useExpenseStore()
 const reminderStore = useReminderStore()
 const toast = useToast()
 
-// Form state
+// Form state — تاریخ: فارسی = شمسی YYYY/MM/DD، غیرفارسی = ISO YYYY-MM-DD (backend هر دو را قبول می‌کند)
+const getInitialDate = () => (locale.value === 'fa' ? getTodayJalaliStr() : new Date().toISOString().split('T')[0])
 const formData = ref({
   vehicleId: '',
-  date: new Date().toISOString().split('T')[0], // Today's date
+  date: getInitialDate(),
   km: '',
   cost: '',
   type: '',
@@ -156,13 +160,6 @@ const selectedVehicle = computed(() => {
   return vehicleStore.vehicles.find(v => v.id === formData.value.vehicleId)
 })
 
-const vehicleOptions = computed(() => {
-  return vehicleStore.vehicles.map(v => ({
-    value: v.id,
-    label: `${v.model} - ${v.year}`
-  }))
-})
-
 const isFormValid = computed(() => {
   const hasBasicFields = formData.value.vehicleId && 
          formData.value.date && 
@@ -215,6 +212,14 @@ const validateForm = () => {
   return Object.keys(errors).length === 0
 }
 
+/** تاریخ سرویس از API را به ISO YYYY-MM-DD نرمال می‌کند (برای نمایش در فرم) */
+async function normalizeApiDateToIso(raw) {
+  if (raw == null || raw === '') return ''
+  const s = String(raw).trim()
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
+  return await toDateInputValue(s) || ''
+}
+
 const loadServiceForEdit = async () => {
   const id = editingServiceId.value
   if (!id) return
@@ -222,7 +227,15 @@ const loadServiceForEdit = async () => {
   try {
     const service = await serviceStore.fetchServiceById(id)
     formData.value.vehicleId = String(service.vehicleId)
-    formData.value.date = await toDateInputValue(service.date)
+    const rawDate = service.date ?? service.serviceDate ?? ''
+    const isoDate = await normalizeApiDateToIso(rawDate)
+    if (locale.value === 'fa') {
+      const jalaliStr = isoToJalaliStr(isoDate) || isoToJalaliStr(rawDate) || getTodayJalaliStr()
+      formData.value.date = jalaliStr
+    } else {
+      const enDate = isoDate || (rawDate ? await toDateInputValue(rawDate) : '')
+      formData.value.date = enDate || new Date().toISOString().split('T')[0]
+    }
     formData.value.km = service.km?.toString() ?? ''
     formData.value.cost = service.cost?.toString() ?? ''
     formData.value.types = (service.types && service.types.length) ? [...service.types] : (service.type ? [service.type] : [])
@@ -598,6 +611,10 @@ onMounted(async () => {
     formData.value.vehicleId = route.query.vehicleId
   }
 
+  if (route.query.tab === 'expense') {
+    activeTab.value = 'expense'
+  }
+
   // Set first vehicle as default if available and not set from query
   if (vehicleStore.vehicles.length > 0 && !formData.value.vehicleId) {
     formData.value.vehicleId = vehicleStore.vehicles[0].id
@@ -610,7 +627,7 @@ watch(() => route.query.edit, (newEditId) => {
   } else {
     formData.value = {
       vehicleId: vehicleStore.vehicles.length > 0 ? vehicleStore.vehicles[0].id : '',
-      date: new Date().toISOString().split('T')[0],
+      date: getInitialDate(),
       km: '',
       cost: '',
       type: '',
@@ -632,14 +649,12 @@ watch(() => route.query.edit, (newEditId) => {
             <h1 class="text-[#121317] dark:text-white tracking-tight text-2xl sm:text-[32px] font-bold leading-tight">{{ isEditMode ? $t('services.edit.title') : $t('services.add.title') }}</h1>
             <p class="text-[#666e85] dark:text-gray-400 text-sm font-normal leading-normal">{{ isEditMode ? $t('services.edit.subtitle', 'ویرایش اطلاعات سرویس') : $t('services.add.subtitle') }}</p>
           </header>
-          <Select
+          <VehicleFilterSelect
             v-model="formData.vehicleId"
-            :options="vehicleOptions"
+            :show-all-option="false"
             :placeholder="$t('services.add.selectVehicle')"
-            icon="directions_car"
             :error="formErrors.vehicleId"
-            class="w-full sm:w-auto min-w-[200px]"
-            :aria-label="$t('services.add.selectVehicle')"
+            wrapper-class="w-full sm:w-auto min-w-[200px]"
           />
         </div>
       
@@ -728,7 +743,17 @@ watch(() => route.query.edit, (newEditId) => {
             tabindex="0"
           >
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <PersianDatePicker
+              v-if="isPersianLocale"
+              :model-value="formData.date"
+              @update:model-value="(v) => { formData.date = v }"
+              :label="$t('services.add.serviceDate')"
+              :error="formErrors.date"
+              required
+              :placeholder="$t('services.add.serviceDatePlaceholder', '۱۴۰۳/۰۱/۰۱')"
+            />
             <Input
+              v-else
               v-model="formData.date"
               :label="$t('services.add.serviceDate')"
               type="date"

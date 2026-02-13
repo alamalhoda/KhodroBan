@@ -14,6 +14,7 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.2.0",
     "@google/genai": "^1.34.0",
     "@supabase/supabase-js": "^2.89.0",
     "axios": "^1.13.2",
@@ -22,7 +23,9 @@
     "pinia": "^3.0.4",
     "vue": "^3.5.24",
     "vue-i18n": "^10.0.4",
-    "vue-router": "^4.6.4"
+    "vue-router": "^4.6.4",
+    "vue3-jalali-calendar": "^1.0.8",
+    "vue3-persian-datepicker": "^0.1.9"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.18",

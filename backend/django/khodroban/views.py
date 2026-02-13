@@ -21,13 +21,14 @@ from .serializers import RegisterSerializer, MyTokenObtainPairSerializer
 
 from django.db import transaction
 from .models import (
-    Vehicle, Service, ServiceItem, DailyExpense, ReminderSetting, Reminder,
+    Vehicle, VehicleImage, Service, ServiceItem, DailyExpense, ReminderSetting, Reminder,
     Notification, TelegramSetting, UserProfile, VehicleKmHistory,
     ServiceType, ServicePreset, ExpenseCategory
 )
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from .serializers import (
     VehicleSerializer, VehicleApiSerializer,
+    VehicleImageSerializer, VehicleImageCreateSerializer,
     ServiceSerializer, ServiceApiSerializer,
     DailyExpenseSerializer, DailyExpenseApiSerializer,
     ReminderSettingSerializer, ReminderSerializer, ReminderApiSerializer,
@@ -95,7 +96,9 @@ class VehicleViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Vehicle.objects.filter(user_profile=self.request.user.userprofile)
+        return Vehicle.objects.filter(
+            user_profile=self.request.user.userprofile
+        ).prefetch_related('images')
 
     def perform_create(self, serializer):
         serializer.save(user_profile=self.request.user.userprofile)
@@ -185,6 +188,58 @@ class VehicleViewSet(ApiResponseMixin, viewsets.ModelViewSet):
         vehicle.save(update_fields=['current_km', 'updated_at'])
         serializer = self.get_serializer(vehicle)
         return api_response(serializer.data, status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get', 'post'], url_path='images')
+    def images(self, request, pk=None):
+        """لیست تصاویر خودرو (GET) یا آپلود تصویر جدید (POST)."""
+        vehicle = self.get_object()
+        if request.method == 'GET':
+            images = VehicleImage.objects.filter(vehicle=vehicle).order_by('display_order', 'created_at')
+            serializer = VehicleImageSerializer(images, many=True, context={'request': request})
+            return api_response(serializer.data)
+        # POST: upload
+        count = VehicleImage.objects.filter(vehicle=vehicle).count()
+        if count >= VehicleImage.MAX_IMAGES_PER_VEHICLE:
+            return Response(
+                {'success': False, 'errors': [f'حداکثر {VehicleImage.MAX_IMAGES_PER_VEHICLE} تصویر به‌ازای هر خودرو مجاز است.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer = VehicleImageCreateSerializer(data=request.data, context={'request': request, 'vehicle': vehicle})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        out = VehicleImageSerializer(serializer.instance, context={'request': request})
+        return api_response(out.data, status.HTTP_201_CREATED)
+
+
+class VehicleImageViewSet(ApiResponseMixin, viewsets.ModelViewSet):
+    """مدیریت تصاویر گالری خودرو: لیست، حذف، تنظیم پیش‌فرض. آپلود از طریق POST /api/vehicles/<id>/images/."""
+    serializer_class = VehicleImageSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'head', 'options', 'patch', 'delete']
+
+    def get_queryset(self):
+        qs = VehicleImage.objects.filter(vehicle__user_profile=self.request.user.userprofile)
+        vehicle_id = self.request.query_params.get('vehicle_id') or self.request.query_params.get('vehicleId')
+        if vehicle_id:
+            qs = qs.filter(vehicle_id=vehicle_id)
+        return qs.order_by('display_order', 'created_at')
+
+    def partial_update(self, request, *args, **kwargs):
+        """تنظیم تصویر به‌عنوان پیش‌فرض (isDefault=true)."""
+        instance = self.get_object()
+        is_default = request.data.get('isDefault') or request.data.get('is_default')
+        if is_default:
+            instance.is_default = True
+            instance.save(update_fields=['is_default'])
+        serializer = self.get_serializer(instance)
+        return api_response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.image:
+            instance.image.delete(save=False)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ServiceViewSet(ApiResponseMixin, viewsets.ModelViewSet):
@@ -373,7 +428,11 @@ class DailyExpenseViewSet(ApiResponseMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return DailyExpense.objects.filter(vehicle__user_profile=self.request.user.userprofile)
+        qs = DailyExpense.objects.filter(vehicle__user_profile=self.request.user.userprofile)
+        vehicle_id = self.request.query_params.get('vehicle_id') or self.request.query_params.get('vehicleId')
+        if vehicle_id:
+            qs = qs.filter(vehicle_id=vehicle_id)
+        return qs
 
     def perform_create(self, serializer):
         vehicle_id = self.request.data.get('vehicleId')

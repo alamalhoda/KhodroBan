@@ -6,6 +6,9 @@
 // Toast
 export { useToast } from './useToast'
 
+// Format (locale-aware date)
+export { useFormatDate } from './useFormatDate'
+
 // Accessibility
 export { useKeyboardNavigation } from './useKeyboardNavigation'
 export { useFocusTrap } from './useFocusTrap'

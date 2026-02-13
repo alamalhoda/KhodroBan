@@ -27,12 +27,29 @@
 |-----------|-------------|--------|
 | GET list | GET `/api/vehicles/` | دارد |
 | GET one | GET `/api/vehicles/<id>/` | دارد |
-| POST create | POST `/api/vehicles/` | دارد |
+| POST create | POST `/api/vehicles/` | دارد (شامل iconName, iconStyle, iconColor) |
 | PATCH update | PATCH `/api/vehicles/<id>/` | دارد |
 | DELETE | DELETE `/api/vehicles/<id>/` | دارد |
 | PATCH km | PATCH `/api/vehicles/<id>/km/` | دارد |
 | POST km-history | POST `/api/vehicles/<id>/km-history/` | دارد |
 | GET km-history | GET `/api/vehicles/<id>/km-history/` | دارد |
+| GET images | GET `/api/vehicles/<id>/images/` | دارد |
+| POST image (upload) | POST `/api/vehicles/<id>/images/` (multipart: image, display_order?, is_default?) | دارد |
+
+**Vehicle response:** id, userId, model, year, plateNumber, currentKm, note, **iconName**, **iconStyle**, **iconColor**, createdAt, updatedAt.
+
+---
+
+## Vehicle Images (گالری خودرو)
+
+| انتظار FE | مسیر Django | وضعیت |
+|-----------|-------------|--------|
+| GET list | GET `/api/vehicle-images/` یا `?vehicle_id=<id>` | دارد |
+| GET one | GET `/api/vehicle-images/<id>/` | دارد |
+| PATCH (set default) | PATCH `/api/vehicle-images/<id>/` با `isDefault: true` | دارد |
+| DELETE | DELETE `/api/vehicle-images/<id>/` | دارد |
+
+**پاسخ هر تصویر:** id, vehicleId, url, displayOrder, isDefault, createdAt. حداکثر ۱۵ تصویر به‌ازای هر خودرو؛ JPG/PNG/WebP؛ حداکثر ۵ مگابایت.
 
 ---
 
@@ -54,6 +71,7 @@
 | انتظار FE | مسیر Django | وضعیت |
 |-----------|-------------|--------|
 | GET list | GET `/api/expenses/` | دارد |
+| GET list by vehicle | GET `/api/expenses/?vehicle_id=<id>` یا `?vehicleId=<id>` | دارد |
 | GET one | GET `/api/expenses/<id>/` | دارد |
 | POST create | POST `/api/expenses/` | دارد |
 | PATCH update | PATCH `/api/expenses/<id>/` | دارد |

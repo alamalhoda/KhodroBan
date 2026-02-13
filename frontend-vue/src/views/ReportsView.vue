@@ -1,13 +1,18 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import MainLayout from '../components/MainLayout.vue'
+import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
+import { useI18n } from 'vue-i18n'
 import { useReportStore } from '../stores/report'
 import { useVehicleStore } from '../stores/vehicle'
+import { useFormatDate } from '../composables/useFormatDate'
 import { serviceService, expenseService } from '../services'
-import { formatCurrency, formatDate } from '@/utils/formatters'
+import { formatCurrency } from '@/utils/formatters'
 
+const { t } = useI18n()
 const reportStore = useReportStore()
 const vehicleStore = useVehicleStore()
+const formatDate = useFormatDate()
 
 const recentItems = ref([])
 const recentLoading = ref(false)
@@ -138,18 +143,12 @@ watch(() => reportStore.filters.dateRange, () => {
           <span class="text-[#121317] dark:text-white text-sm font-medium leading-normal">گزارش‌ها</span>
         </div>
         <div class="flex gap-3">
-          <div class="relative">
-            <select
-              :value="reportStore.filters.vehicleId ?? ''"
-              class="appearance-none bg-white dark:bg-[#1e2330] border border-[#dcdfe4] dark:border-[#2a2f3d] text-[#121317] dark:text-white text-sm rounded-lg pl-3 pr-8 py-2 focus:ring-primary focus:border-primary text-right w-full min-w-[160px]"
-              dir="rtl"
-              @change="reportStore.updateFilters({ vehicleId: $event.target.value || null })"
-            >
-              <option value="">همه خودروها</option>
-              <option v-for="v in vehicleStore.vehicles" :key="v.id" :value="v.id">{{ v.model || v.plateNumber || v.id }}</option>
-            </select>
-            <span class="material-symbols-outlined absolute left-2 top-2.5 text-gray-500 pointer-events-none text-[20px]">expand_more</span>
-          </div>
+          <VehicleFilterSelect
+            :model-value="reportStore.filters.vehicleId ?? ''"
+            :show-all-option="true"
+            @update:model-value="(v) => reportStore.updateFilters({ vehicleId: v || null })"
+            min-width="min-w-[160px]"
+          />
           <div class="relative">
             <select
               :value="reportStore.filters.dateRange"

@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 
+from khodroban.serializers import parse_service_date
 from khodroban.models import (
     Vehicle, UserProfile, Service, ServiceItem, ServiceType,
     VehicleKmHistory, ServicePreset,
@@ -133,6 +134,72 @@ class ServiceAPITests(APITestCase):
         service = Service.objects.first()
         self.assertEqual(service.service_date_gregorian, date(2024, 9, 6))
 
+    def test_create_service_jalali_then_get_returns_iso_date(self):
+        """Round-trip: user sends Jalali → DB stores gregorian → GET returns ISO for display."""
+        data = {
+            "vehicleId": str(self.vehicle.id),
+            "date": "1403/06/16",
+            "km": 81000,
+            "cost": 500000,
+            "types": ["oil_change"],
+            "note": "",
+        }
+        create_response = self.client.post(self.list_url, data, format="json")
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+        payload = create_response.data.get("data", create_response.data)
+        service_id = payload.get("id")
+        self.assertIsNotNone(service_id)
+
+        get_response = self.client.get(self.detail_url(service_id))
+        self.assertEqual(get_response.status_code, status.HTTP_200_OK)
+        get_payload = get_response.data.get("data", get_response.data)
+        self.assertIn("date", get_payload)
+        self.assertEqual(get_payload["date"], "2024-09-06")
+
+    def test_create_service_iso_date_parsed(self):
+        """ISO date YYYY-MM-DD is accepted."""
+        data = {
+            "vehicleId": str(self.vehicle.id),
+            "date": "2024-09-06",
+            "km": 81000,
+            "cost": 500000,
+            "types": ["oil_change"],
+            "note": "",
+        }
+        response = self.client.post(self.list_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        service = Service.objects.first()
+        self.assertEqual(service.service_date_gregorian, date(2024, 9, 6))
+
+    def test_create_service_invalid_date_returns_400(self):
+        """Invalid date string returns 400 with date error message."""
+        data = {
+            "vehicleId": str(self.vehicle.id),
+            "date": "not-a-date",
+            "km": 82000,
+            "cost": 500000,
+            "types": ["oil_change"],
+            "note": "",
+        }
+        response = self.client.post(self.list_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("date", response.data.get("errors", response.data))
+        self.assertEqual(Service.objects.count(), 0)
+
+    def test_create_service_invalid_jalali_year_returns_400(self):
+        """Jalali year outside 1300-1500 is rejected."""
+        data = {
+            "vehicleId": str(self.vehicle.id),
+            "date": "1200/06/16",
+            "km": 82000,
+            "cost": 500000,
+            "types": ["oil_change"],
+            "note": "",
+        }
+        response = self.client.post(self.list_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Service.objects.count(), 0)
+
     def test_list_service_presets_returns_active_presets_with_type_codes(self):
         oil = ServiceType.objects.get(code="oil_change")
         filt = ServiceType.objects.get(code="filter")
@@ -158,3 +225,28 @@ class ServiceAPITests(APITestCase):
         response = self.client.get(self.presets_list_url)
         # DRF returns 403 Forbidden for unauthenticated access to authenticated-only views
         self.assertIn(response.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+
+
+class ParseServiceDateTests(APITestCase):
+    """Unit tests for parse_service_date (ISO and Jalali date parsing)."""
+
+    def test_parse_iso_date(self):
+        svc, greg = parse_service_date("2024-09-06")
+        self.assertEqual(greg, date(2024, 9, 6))
+        self.assertEqual(svc, date(2024, 9, 6))
+
+    def test_parse_jalali_date_slash(self):
+        svc, greg = parse_service_date("1403/06/16")
+        self.assertEqual(greg, date(2024, 9, 6))
+        self.assertEqual(svc, date(2024, 9, 6))
+
+    def test_parse_empty_returns_none(self):
+        self.assertEqual(parse_service_date(""), (None, None))
+        self.assertEqual(parse_service_date(None), (None, None))
+
+    def test_parse_invalid_returns_none(self):
+        self.assertEqual(parse_service_date("not-a-date"), (None, None))
+
+    def test_parse_jalali_year_out_of_range_returns_none(self):
+        self.assertEqual(parse_service_date("1200/06/16"), (None, None))
+        self.assertEqual(parse_service_date("1600/01/01"), (None, None))

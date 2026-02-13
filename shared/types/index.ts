@@ -41,6 +41,12 @@ export interface Vehicle {
   plateNumber: string;
   currentKm: number;
   note?: string;
+  /** FontAwesome icon name, e.g. car */
+  iconName?: string | null;
+  /** FontAwesome style: solid, regular, brands */
+  iconStyle?: string | null;
+  /** Hex color, e.g. #FF5733 */
+  iconColor?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -58,6 +64,19 @@ export interface VehicleFormData {
   plateNumber: string;
   currentKm: number;
   note?: string;
+  iconName?: string | null;
+  iconStyle?: string | null;
+  iconColor?: string | null;
+}
+
+/** Single image in vehicle gallery (API response). */
+export interface VehicleImageRecord {
+  id: string;
+  vehicleId: string;
+  url: string;
+  displayOrder: number;
+  isDefault: boolean;
+  createdAt: string | null;
 }
 
 // ========================================

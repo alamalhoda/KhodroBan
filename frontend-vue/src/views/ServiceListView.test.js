@@ -4,6 +4,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
+import { ref } from 'vue'
 import ServiceListView from './ServiceListView.vue'
 import Button from '../components/ui/Button.vue'
 import Modal from '../components/ui/Modal.vue'
@@ -20,7 +21,7 @@ vi.mock('vue-i18n', async (importOriginal) => {
   const actual = await importOriginal()
   return {
     ...actual,
-    useI18n: () => ({ t: (key) => key })
+    useI18n: () => ({ t: (key) => key, locale: ref('fa') })
   }
 })
 

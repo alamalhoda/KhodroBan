@@ -11,9 +11,12 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '../stores/service'
 import { useVehicleStore } from '../stores/vehicle'
 import { useToast } from '../composables/useToast'
+import { useFormatDate } from '../composables/useFormatDate'
 import MainLayout from '../components/MainLayout.vue'
-import { Button, Select, Card, LoadingSpinner, Modal } from '../components/ui'
-import { formatCurrency, formatDate } from '@/utils/formatters'
+import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
+import { Button, Card, LoadingSpinner, Modal } from '../components/ui'
+import { formatCurrency } from '@/utils/formatters'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '../config/vehicleIcons'
 
 const router = useRouter()
 const route = useRoute()
@@ -21,6 +24,7 @@ const { t } = useI18n()
 const serviceStore = useServiceStore()
 const vehicleStore = useVehicleStore()
 const toast = useToast()
+const formatDate = useFormatDate()
 
 // آیکون نوع سرویس برای نمایش در جدول (Material Symbols)
 const SERVICE_TYPE_ICONS = {
@@ -37,15 +41,6 @@ const isLoading = ref(false)
 const showDeleteModal = ref(false)
 const serviceToDelete = ref(null)
 
-// گزینه‌های فیلتر خودرو
-const vehicleOptions = computed(() => [
-  { value: '', label: t('services.allVehicles') },
-  ...vehicleStore.vehicles.map(v => ({
-    value: v.id,
-    label: `${v.model} - ${v.year}`
-  }))
-])
-
 // لیست سرویس‌های صفحه‌بندی‌شده از store
 const displayedServices = computed(() => serviceStore.paginatedServices)
 
@@ -59,6 +54,25 @@ function getVehicleLabel(vehicleId) {
   if (!vehicleId) return '—'
   const v = vehicleStore.vehicles.find(v => String(v.id) === String(vehicleId))
   return v ? `${v.model} - ${v.year}` : '—'
+}
+
+/** خودرو از روی id (برای آیکون و رنگ) */
+function getVehicleById(vehicleId) {
+  if (!vehicleId) return null
+  return vehicleStore.vehicles.find(v => String(v.id) === String(vehicleId)) || null
+}
+
+/** کلاس آیکون FontAwesome برای خودرو */
+function vehicleIconClass(vehicle) {
+  if (!vehicle) return `fa fa-${DEFAULT_VEHICLE_ICON_STYLE} fa-${DEFAULT_VEHICLE_ICON}`
+  const style = vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE
+  const name = vehicle.iconName || DEFAULT_VEHICLE_ICON
+  return `fa fa-${style} fa-${name}`
+}
+
+/** رنگ آیکون خودرو */
+function vehicleIconColor(vehicle) {
+  return vehicle?.iconColor || DEFAULT_VEHICLE_ICON_COLOR
 }
 
 /** آیکون نوع سرویس */
@@ -172,6 +186,7 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
     fetchServices(undefined)
   }
 }, { immediate: false })
+
 </script>
 
 <template>
@@ -183,13 +198,10 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
           <p class="text-[#666e85] dark:text-gray-400 text-sm font-normal leading-normal">{{ $t('services.selectDetails.subtitle') }}</p>
         </div>
         <div class="flex flex-wrap items-center gap-4">
-          <Select
+          <VehicleFilterSelect
             :model-value="serviceStore.filterVehicleId ?? ''"
+            :show-all-option="true"
             @update:model-value="handleVehicleChange"
-            :options="vehicleOptions"
-            icon="directions_car"
-            class="w-full sm:w-auto min-w-[200px]"
-            :aria-label="$t('services.allVehicles')"
           />
           <Button
             @click="handleAddService"
@@ -248,7 +260,25 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
                 class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
               >
                 <td class="px-4 sm:px-6 py-4 text-sm text-gray-900 dark:text-white">{{ formatDate(service.date) }}</td>
-                <td class="px-4 sm:px-6 py-4 text-sm text-gray-700 dark:text-gray-300 hidden sm:table-cell">{{ getVehicleLabel(service.vehicleId) }}</td>
+                <td class="px-4 sm:px-6 py-4 text-sm text-gray-700 dark:text-gray-300 hidden sm:table-cell">
+                  <span class="inline-flex items-center gap-2">
+                    <span
+                      v-if="getVehicleById(service.vehicleId)"
+                      class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 shrink-0"
+                      aria-hidden="true"
+                    >
+                      <i
+                        :class="vehicleIconClass(getVehicleById(service.vehicleId))"
+                        class="text-base"
+                        :style="{ color: vehicleIconColor(getVehicleById(service.vehicleId)) }"
+                      ></i>
+                    </span>
+                    <span v-else class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 shrink-0">
+                      <span class="material-symbols-outlined text-base text-gray-500">directions_car</span>
+                    </span>
+                    {{ getVehicleLabel(service.vehicleId) }}
+                  </span>
+                </td>
                 <td class="px-4 sm:px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                   <span class="inline-flex items-center gap-2">
                     <span class="material-symbols-outlined text-lg text-gray-500 dark:text-gray-400" aria-hidden="true">{{ getServiceTypeIcon(service.type) }}</span>
@@ -324,8 +354,22 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
           >
             <div class="flex justify-between items-start">
               <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-gray-500 dark:text-gray-400" aria-hidden="true">{{ getServiceTypeIcon(service.type) }}</span>
-                <div>
+                <span class="material-symbols-outlined text-gray-500 dark:text-gray-400 shrink-0" aria-hidden="true">{{ getServiceTypeIcon(service.type) }}</span>
+                <span
+                  v-if="getVehicleById(service.vehicleId)"
+                  class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 shrink-0"
+                  aria-hidden="true"
+                >
+                  <i
+                    :class="vehicleIconClass(getVehicleById(service.vehicleId))"
+                    class="text-sm"
+                    :style="{ color: vehicleIconColor(getVehicleById(service.vehicleId)) }"
+                  ></i>
+                </span>
+                <span v-else class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 shrink-0">
+                  <span class="material-symbols-outlined text-sm text-gray-500">directions_car</span>
+                </span>
+                <div class="min-w-0">
                   <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $t(`services.types.${service.type}`, service.type) }}</h3>
                   <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ formatDate(service.date) }} · {{ getVehicleLabel(service.vehicleId) }}</p>
                 </div>
@@ -419,4 +463,10 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
     </Modal>
   </MainLayout>
 </template>
+
+<style scoped>
+.vehicle-filter-wrap .rotate-180 {
+  transform: rotate(180deg);
+}
+</style>
 
