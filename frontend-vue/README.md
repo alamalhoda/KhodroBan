@@ -1,65 +1,76 @@
-# 🎨 Vue UI - خودروبان
+# 🎨 Frontend Vue - KhodroBan
 
-نسخه جدید واسط کاربری با Vue 3 برای پروژه خودروبان.
+نسخه اصلی UI پروژه با `Vue 3 + Vite + Pinia + Vue Router`.
 
-## ✨ ویژگی‌ها
+---
 
-- ✅ Vue 3 + Vite
-- ✅ Pinia برای State Management
-- ✅ Vue Router برای Routing
-- ✅ Tailwind CSS برای Styling
-- ✅ SPA Mode (بدون SSR)
-- ✅ استفاده از Shared Services
+## وضعیت فعلی
 
-## 🏗️ ساختار
+بر اساس PRهای اخیر:
 
-```
-frontend-vue/
-├── src/
-│   ├── components/     # Vue Components
-│   ├── views/          # Page Views
-│   ├── stores/         # Pinia Stores
-│   ├── services/       # Service Wrappers (از shared استفاده می‌کند)
-│   └── router/         # Vue Router
-└── package.json
-```
+- صفحات اصلی `Auth`, `Dashboard`, `Vehicles`, `Services`, `Reminders`, `Reports` به backend Django متصل هستند.
+- بهبودهای مهم UX در reminders/service list اعمال شده‌اند (Date Picker شمسی، فیلتر خودرو، pagination، retry states).
+- i18n (fa/en/ar) فعال است.
+- زیرساخت تست (Vitest) فعال و برای چند view/component/store پوشش مناسب دارد.
 
-## 🚀 شروع
+---
+
+## اجرا
 
 ```bash
-# نصب dependencies
+cd frontend-vue
 npm install
-
-# اجرای development server
 npm run dev
-
-# Build برای production
-npm run build
 ```
 
-## 📦 وابستگی‌ها
+پورت پیش‌فرض: `5174`
 
-- **Vue 3**: Framework اصلی
-- **Pinia**: State Management
-- **Vue Router**: Routing
-- **Tailwind CSS**: Styling
-- **Shared Services**: از پوشه `../shared` استفاده می‌کند
+---
 
-## 🔗 اتصال به Shared
+## تنظیم Backend
 
-این پروژه از بخش `shared/` برای:
-- Services (API calls)
-- Types (TypeScript types)
-- Utils (Helper functions)
+در `.env.local`:
 
-استفاده می‌کند.
+```env
+VITE_BACKEND_TYPE=django
+VITE_API_URL=http://127.0.0.1:8000/api
+```
 
-## 🌐 Port
+گزینه‌های معمول:
 
-Development server روی پورت **5174** اجرا می‌شود (متفاوت از SvelteKit که روی 5173 است).
+- `VITE_BACKEND_TYPE=django`
+- `VITE_BACKEND_TYPE=supabase`
 
-## 📝 نکات
+---
 
-- این پروژه **SPA** است و SSR ندارد
-- از Shared Services استفاده می‌کند
-- مستقل از پروژه اصلی (frontend) است
+## اسکریپت‌های مهم
+
+- `npm run dev` اجرای محیط توسعه
+- `npm run build` بیلد production
+- `npm run preview` پیش‌نمایش بیلد
+- `npm run test:run` اجرای تست‌ها یک‌باره
+- `npm run test:watch` اجرای تست در حالت watch
+
+---
+
+## ساختار کلیدی
+
+```text
+frontend-vue/
+├── src/components/
+├── src/views/
+├── src/stores/
+├── src/services/
+├── src/composables/
+├── src/locales/
+└── docs/
+```
+
+---
+
+## وضعیت برنامه‌ریزی
+
+- Roadmap اصلی: `frontend-vue/IMPLEMENTATION_PLAN.md`
+- TODO اجرایی فرانت: `frontend-vue/TODO.md`
+- TODO مرکزی پروژه: `../TODO.md`
+- TODOهای موضوعی فرانت: `frontend-vue/docs/*.md`

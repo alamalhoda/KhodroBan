@@ -4,6 +4,14 @@
 
 ---
 
+## آخرین همگام‌سازی
+
+- **تاریخ:** 2026-02-14
+- **مبنای بازبینی:** PRهای `#21` تا `#30`
+- **تمرکز:** Services, Reminders, Reports, API contract consistency
+
+---
+
 ## Login
 
 - **۱. ساختار:** مطابق قوانین (View + store + service)
@@ -135,15 +143,15 @@
 ## Service List
 
 - **۱. ساختار:** مطابق (ServiceListView + service store)
-- **۲. تست frontend:** ناقص
+- **۲. تست frontend:** دارد — `ServiceListView.test.js` + تست store
 - **۳. ارتباط با backend:** فقط Django — GET /api/services/
 - **۴. زیرساخت Django:** ServiceViewSet — کافی
-- **۵. تست backend:** ناقص
+- **۵. تست backend:** دارد — `test_api_services.py`
 - **۶. مدیریت خطا:** یکپارچه
 - **۷. i18n:** ناقص
 - **۸. a11y:** نیاز به بهبود
 - **۹. قرارداد API:** ثبت شده
-- **وضعیت flow:** بدون باگ بحرانی
+- **وضعیت flow:** پایدار؛ فیلتر خودرو + pagination + edit/delete تکمیل شده
 - **اقدامات بعدی:** —
 
 ---
@@ -151,15 +159,15 @@
 ## Reminders
 
 - **۱. ساختار:** مطابق (RemindersView + reminder store)
-- **۲. تست frontend:** ناقص
+- **۲. تست frontend:** دارد — `RemindersView.test.js`, `ReminderForm.test.js`, `reminder.test.js`
 - **۳. ارتباط با backend:** فقط Django — GET /api/reminders/، GET /api/reminders/user/
 - **۴. زیرساخت Django:** ReminderViewSet + dismiss, by_vehicle, user — کافی
-- **۵. تست backend:** ناقص
+- **۵. تست backend:** دارد — `test_api_reminders.py` (CRUD + dismiss + by_vehicle + user)
 - **۶. مدیریت خطا:** یکپارچه
 - **۷. i18n:** ناقص
 - **۸. a11y:** نیاز به بهبود
 - **۹. قرارداد API:** ثبت شده
-- **وضعیت flow:** بدون باگ بحرانی
+- **وضعیت flow:** پایدار؛ فاز ۱/۲ باگ‌فیکس و Date Picker شمسی تکمیل شده
 - **اقدامات بعدی:** —
 
 ---
@@ -167,10 +175,10 @@
 ## Reminder Management
 
 - **۱. ساختار:** مطابق (ReminderManagementView + reminder store)
-- **۲. تست frontend:** ناقص
+- **۲. تست frontend:** نسبی — تست store/form دارد، تست مستقیم view هنوز محدود است
 - **۳. ارتباط با backend:** فقط Django — POST/PATCH/DELETE /api/reminders/، POST dismiss
 - **۴. زیرساخت Django:** ReminderViewSet — کافی
-- **۵. تست backend:** ناقص
+- **۵. تست backend:** دارد — `test_api_reminders.py`
 - **۶. مدیریت خطا:** یکپارچه
 - **۷. i18n:** ناقص
 - **۸. a11y:** نیاز به بهبود

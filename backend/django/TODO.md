@@ -1,41 +1,42 @@
-# TODO - خودروبان (KhodroBan)
+# TODO - Backend Django (KhodroBan)
 
-## اولویت بالا (قبل از MVP)
+به‌روزرسانی‌شده بر اساس وضعیت فعلی کد و PRهای اخیر (`#21` تا `#30`).
 
-- [ ] تکمیل و تست کامل بخش اتصال تلگرام
+---
 
-  - [ ] نمایش connection_code در پروفایل کاربر (API + frontend ساده)
-  - [ ] تست واقعی webhook و ذخیره chat_id
-  - [ ] invalidate کد بعد از استفاده موفق
-- [ ] نوشتن تست‌های بیشتر
+## ✅ انجام‌شده‌های اخیر
 
-  - [ ] تست CRUD کامل برای Notification و ReminderSetting
-  - [ ] تست ارسال تلگرام با mock requests
-  - [ ] تست retry و error handling در Huey tasks
-- [ ] تولید requirements.txt دقیق و freeze
-- [ ] تنظیم logging مناسب (فایل + console + سطح DEBUG/INFO)
-- [ ] اضافه کردن custom exception handler در DRF (پاسخ‌های خواناتر)
+- تست‌های API مربوط به `reports` تکمیل و پایدار شد.
+- API و تست‌های `reminders` گسترش یافت (CRUD، dismiss، by_vehicle، user list).
+- `ServicePreset` و endpoint مربوط اضافه شد.
+- ساختار مدل‌ها برای PK/related_name نرمال شد (`id`, `ServiceItem`).
+- مسیر ثبت سرویس با `types/items` و ثبت `VehicleKmHistory` تکمیل شد.
 
-## اولویت متوسط (بعد از MVP اولیه)
+---
 
-- [ ] اضافه کردن تأیید ایمیل بعد از ثبت‌نام
-- [ ] پیاده‌سازی reset password (فراموشی رمز عبور)
-- [ ] اضافه کردن فیلتر و جستجو در لیست خودروها و سرویس‌ها
-- [ ] محاسبه و نمایش آمار کلی (میانگین هزینه ماهانه، کیلومتر سالانه و ...)
-- [ ] مستندسازی API با drf-spectacular یا swagger
+## 🔴 اولویت بالا
 
-## اولویت پایین / آینده
+- [ ] تکمیل تست‌های API برای `telegram-settings` و webhook با سناریوهای خطا
+- [ ] تکمیل تست‌های امنیتی/سخت‌گیری برای CORS و auth error flows
+- [ ] اضافه‌کردن health check endpoint ساده برای مانیتورینگ
+- [ ] تعریف regression suite سریع برای endpointهای بحرانی (`auth`, `vehicles`, `services`, `reminders`, `reports`)
 
-- [ ] اضافه کردن کانال‌های دیگر اعلان (ایمیل، SMS، push notification)
-- [ ] پیاده‌سازی export به CSV/PDF (فقط پلن Pro)
-- [ ] داشبورد ادمین سفارشی‌تر
-- [ ] نسخه موبایل (PWA یا اپ native)
-- [ ] قابلیت چندکاربره / اشتراک‌گذاری خودرو (خانواده/شرکت)
-- [ ] اضافه کردن Realtime (اگر نیاز واقعی ایجاد شد)
+---
 
-## نکات فنی باز
+## 🟡 اولویت متوسط
 
-- [ ] بررسی دقیق امنیت CSRF + CORS در تولید
-- [ ] تنظیم rate limiting برای APIها
-- [ ] بررسی و بهینه‌سازی queryها (select_related/prefetch_related)
-- [ ] اضافه کردن health check endpoint برای مانیتورینگ
+- [ ] مستندسازی OpenAPI/Swagger (drf-spectacular یا معادل)
+- [ ] rate limiting برای endpointهای حساس
+- [ ] بهبود logging ساختاریافته (request id / error context)
+- [ ] آماده‌سازی سناریوهای تست export/report در صورت اضافه شدن PDF
+
+---
+
+## 🟢 آینده
+
+- [ ] کانال‌های اعلان تکمیلی (SMS/Push) در backend
+- [ ] endpointهای پرداخت/اشتراک برای Upgrade (در صورت نهایی شدن scope)
+
+---
+
+**آخرین به‌روزرسانی:** 2026-02-14

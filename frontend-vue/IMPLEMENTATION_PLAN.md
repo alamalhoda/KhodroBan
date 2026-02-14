@@ -1,5 +1,24 @@
 # برنامه عملیاتی اجرایی‌سازی واسط کاربری جدید
 
+## 🔄 به‌روزرسانی وضعیت (2026-02-14)
+
+این سند با بررسی ۱۰ PR اخیر (`#21` تا `#30`) همگام شده است.
+
+### ✅ تغییرات تایید شده در PRهای اخیر
+
+- `Reminders` (PR #29, #30): رفع باگ‌های فاز ۱، Date Picker شمسی، Retry/Error/Loading state، تست view/form/util و پوشش API
+- `Services` (PR #25, #26): تکمیل add-service در Django (types/items + VehicleKmHistory + seed)، Service Presets، pagination و فیلتر خودرو در لیست سرویس
+- `Reports` (PR #24): صفحه گزارش با داده واقعی، فیلتر بازه/خودرو و CSV
+- `Vehicles + Date` (PR #28): بهبود نمایش جزئیات خودرو، آیکون/تصویر و پشتیبانی تاریخ شمسی
+- `DB Contract` (PR #27): نرمال‌سازی PK/related_name و همگام‌سازی API
+- `Workflow` (PR #22): تثبیت مسیر PR-only برای ادغام به `develop`
+
+### 🎯 تمرکز اجرایی پیشنهادی (دو اسپرینت بعدی)
+
+1. تکمیل Expense Management در فرانت + تست جریان کامل
+2. تکمیل Multi-channel reminder settings (Telegram/SMS/Push به‌صورت مرحله‌ای)
+3. تکمیل PWA release readiness (icons واقعی + Lighthouse + Add to Home Screen)
+
 ## 📋 خلاصه وضعیت فعلی
 
 ### ✅ کارهای انجام شده
@@ -104,7 +123,7 @@
 #### Features
 - [ ] تکمیل ترجمه‌های باقی‌مانده در صفحات Service، Expense، Settings
 - [ ] بهبود UX ایجاد یادآور پس از ثبت سرویس/هزینه
-- [ ] بهبود فرم یادآور - تبدیل فیلد تاریخ محاسبه شده به Date Picker قابل ویرایش
+- [x] بهبود فرم یادآور - تبدیل فیلد تاریخ محاسبه شده به Date Picker قابل ویرایش (PR #30)
 - [ ] پیاده‌سازی کانال‌های یادآوری چندگانه (SMS، Telegram، Push Notification)
 
 #### PWA

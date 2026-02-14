@@ -4,6 +4,8 @@
 
 پایه URL API (Django): `/api/` (مثلاً `http://localhost:8000/api`).
 
+**آخرین همگام‌سازی:** 2026-02-14 (بر اساس PRهای `#21` تا `#30`)
+
 ---
 
 ## Auth
@@ -63,6 +65,9 @@
 | PATCH update | PATCH `/api/services/<id>/` | دارد (پشتیبانی از `types` و `items`) |
 | DELETE | DELETE `/api/services/<id>/` | دارد |
 | GET latest for vehicle | GET `/api/services/latest/<vehicleId>/` | دارد |
+| GET presets | GET `/api/service-presets/` | دارد |
+
+**نکته فیلتر:** لیست سرویس از `vehicle_id`/`vehicleId` برای فیلتر خودرو پشتیبانی می‌کند.
 
 ---
 
@@ -92,6 +97,12 @@
 | GET by vehicle | GET `/api/reminders/vehicle/<vehicleId>/` | دارد |
 | GET/PATCH settings | `/api/reminder-settings/` (per-vehicle) | دارد (ساختار متفاوت) |
 | GET user reminders | GET `/api/reminders/user/` | دارد |
+
+**فیلدهای کلیدی در payload یادآور (camelCase):**
+- `dueDate`, `dueKm`
+- `warningDaysBefore`, `warningKmBefore`
+- `timeInterval`, `timeIntervalType`
+- `isCompleted`, `dismissed`
 
 ---
 
@@ -130,11 +141,12 @@
 
 ---
 
-## Service Types / Expense Categories
+## Service Types / Service Presets / Expense Categories
 
 | انتظار FE | مسیر Django | وضعیت |
 |-----------|-------------|--------|
 | service_types list | GET `/api/service-types/` | دارد |
+| service_presets list | GET `/api/service-presets/` | دارد |
 | expense_categories list | GET `/api/expense-categories/` | دارد |
 
 ---

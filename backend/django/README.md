@@ -1,206 +1,129 @@
-# 🔧 Backend - KhodroBan (خودروبان)
+# 🔧 Backend Django - KhodroBan
 
-Backend API برای اپلیکیشن KhodroBan (خودروبان) با Django
-
----
-
-## 📋 درباره
-
-این بخش شامل کدهای Backend برای API و منطق سمت سرور پروژه است که با **Django** و **Django REST Framework** توسعه داده می‌شود.
-
-در این پروژه دو Backend در دسترس هستند:
-- **Supabase** (پیش‌فرض): دیتابیس و Auth در Supabase
-- **Django**: API و دیتابیس روی سرور خودتان (PostgreSQL + JWT)
-
-با تنظیم `VITE_BACKEND_TYPE=django` در فرانت‌اند، تمام درخواست‌ها به این Django API ارسال می‌شوند.
+Backend اصلی پروژه با Django + DRF که API مورد استفاده `frontend-vue` را ارائه می‌کند.
 
 ---
 
-## 🚀 شروع کار
+## وضعیت فعلی
 
-### پیش‌نیازها
+بر اساس PRهای اخیر:
 
-- Python 3.9+
-- PostgreSQL / MySQL (یا SQLite برای توسعه)
-- pip و virtualenv
+- APIهای `Auth`, `Vehicles`, `Services`, `Expenses`, `Reminders`, `Reports` فعال هستند.
+- `ServicePreset` و `ServiceItem` اضافه شده‌اند.
+- قرارداد تاریخ (ISO/شمسی) در سرویس‌ها و یادآورها پایدارتر شده است.
+- تست‌های backend برای بخش‌های کلیدی افزایش یافته‌اند (خصوصا reminders/reports/services).
 
-### نصب
+---
+
+## پیش‌نیازها
+
+- Python 3.11+ (یا نسخه سازگار پروژه)
+- Virtual environment پروژه (الزامی)
+- SQLite برای توسعه محلی (یا PostgreSQL برای محیط واقعی)
+
+---
+
+## راه‌اندازی سریع
+
+از ریشه پروژه:
 
 ```bash
-# ایجاد محیط مجازی
-python -m venv venv
-
-# فعال کردن محیط مجازی
-# در macOS/Linux:
-source venv/bin/activate
-# در Windows:
-venv\Scripts\activate
-
-# نصب وابستگی‌ها
+source backend/django/venv/bin/activate
+cd backend/django
 pip install -r requirements.txt
-
-# اجرای migrations
 python manage.py migrate
-
-# ایجاد superuser (برای دسترسی به admin)
-python manage.py createsuperuser
-
-# اجرای سرور توسعه
 python manage.py runserver
 ```
 
-سرور در آدرس `http://127.0.0.1:8000` اجرا می‌شود.
+Backend روی `http://127.0.0.1:8000` اجرا می‌شود.
 
-### بارگذاری داده‌های نمونه (تست نمایشی)
+---
 
-برای پر کردن دیتابیس با کاربر نمونه، خودرو، سرویس، هزینه و یادآور:
+## اجرای تست‌ها
 
 ```bash
+source backend/django/venv/bin/activate
+cd backend/django
+python manage.py test
+```
+
+اجرای یک ماژول خاص:
+
+```bash
+source backend/django/venv/bin/activate
+cd backend/django
+python manage.py test khodroban.tests.test_api_reminders
+```
+
+---
+
+## داده نمونه
+
+```bash
+source backend/django/venv/bin/activate
+cd backend/django
 python manage.py load_sample_data
 ```
 
-ورود با کاربر نمونه: **sample_user** / **sample123**
-
-SAMPLE_USERNAME = "sample_user"
-SAMPLE_EMAIL = "sample@khodroban.local"
-SAMPLE_PASSWORD = "abc*1234"
-
-برای ایجاد مجدد خودروها و سرویس‌ها (بدون حذف طرح‌ها و انواع سرویس):  
-`python manage.py load_sample_data --force`
-
----
-
-## 📁 ساختار Django (پروژه و اپ)
-
-ساختار مطابق استاندارد Django: یک **پروژه** (`khodroban_prj`) و یک **اپ** (`khodroban`).
-
-```
-backend/django/
-├── manage.py                    # فایل مدیریت Django (اجرا از این پوشه)
-├── requirements.txt
-├── pytest.ini
-├── khodroban_prj/               # پروژه (Project) – تنظیمات و URL ریشه
-│   ├── __init__.py
-│   ├── settings.py              # تنظیمات پروژه
-│   ├── urls.py                  # URL ریشه (شامل اپ khodroban)
-│   ├── wsgi.py
-│   └── asgi.py
-├── khodroban/                   # اپ (App) – مدل‌ها، ویوها، API
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── models.py
-│   ├── views.py
-│   ├── urls.py                  # مسیرهای API (api/vehicles/, api/token/, ...)
-│   ├── serializers.py
-│   ├── signals.py
-│   ├── huey_tasks.py
-│   ├── migrations/
-│   └── tests/
-│       ├── test_models.py
-│       ├── test_auth.py
-│       ├── test_api_vehicles.py
-│       └── test_huey_tasks.py
-├── docs/
-└── README.md
-```
-
----
-
-## 🔌 API Endpoints
-
-API با استفاده از Django REST Framework ساخته می‌شود.
-
-[مستندات کامل API در اینجا قرار می‌گیرد](./../docs/technical/api/)
-
-### Endpoint های اصلی (پیشنهادی)
-
-- `/api/auth/` - احراز هویت
-- `/api/vehicles/` - مدیریت خودروها
-- `/api/services/` - ثبت و مدیریت سرویس‌ها
-- `/api/notifications/` - مدیریت یادآوری‌ها
-
----
-
-## 🧪 تست
+برای بازسازی داده‌ها:
 
 ```bash
-# اجرای تمام تست‌ها
-python manage.py test
-
-# اجرای تست‌های اپ khodroban
-python manage.py test khodroban
-
-# اجرای یک تست خاص
-python manage.py test khodroban.tests.test_models.ReminderModelTests
-
-# با pytest (از پوشه backend/django)
-pytest khodroban -v
-```
-
-**دادهٔ نمونه و تست‌ها:** تست‌های فعلی در `setUp` خودشان داده می‌سازند (ایزوله). اگر بخواهید همان ساختار دادهٔ نمایشی را در تست داشته باشید، از ماژول `khodroban.sample_data` استفاده کنید (مثلاً `make_sample_user_and_vehicle()` یا `ensure_plans()` / `ensure_service_types()`). اجرای تست‌ها به‌صورت پیش‌فرض به دادهٔ بارگذاری‌شده توسط `load_sample_data` وابسته نیست.
-
----
-
-## 🗄️ دیتابیس
-
-### ایجاد Migration
-
-```bash
-# پس از تغییر مدل‌ها
-python manage.py makemigrations
-
-# اعمال migrations
-python manage.py migrate
-```
-
-### دسترسی به Django Admin
-
-```
-http://127.0.0.1:8000/admin/
+python manage.py load_sample_data --force
 ```
 
 ---
 
-## 📝 نکات توسعه
+## Endpointهای مهم
 
-- از `flake8` یا `pylint` برای کد کیفیت استفاده کنید
-- تست‌های واحد را برای هر ویژگی بنویسید (Django TestCase)
-- از Django REST Framework برای ساخت API استفاده کنید
-- مستندات API را به‌روز نگه دارید
-- از `.env` برای متغیرهای محیطی استفاده کنید (python-decouple)
-- از Django Admin برای مدیریت داده‌ها استفاده کنید
+Base URL: `/api/`
+
+- Auth:
+  - `POST /api/token/`
+  - `POST /api/token/refresh/`
+  - `POST /api/register/`
+  - `GET/PATCH /api/me/`
+- Vehicles:
+  - `GET/POST /api/vehicles/`
+  - `GET/PATCH/DELETE /api/vehicles/<id>/`
+  - `PATCH /api/vehicles/<id>/km/`
+  - `GET/POST /api/vehicles/<id>/km-history/`
+- Services:
+  - `GET/POST /api/services/`
+  - `GET/PATCH/DELETE /api/services/<id>/`
+  - `GET /api/services/latest/<vehicleId>/`
+  - `GET /api/service-presets/`
+- Expenses:
+  - `GET/POST /api/expenses/`
+  - `GET/PATCH/DELETE /api/expenses/<id>/`
+- Reminders:
+  - `GET/POST /api/reminders/`
+  - `GET/PATCH/DELETE /api/reminders/<id>/`
+  - `POST /api/reminders/<id>/dismiss/`
+  - `GET /api/reminders/vehicle/<vehicleId>/`
+  - `GET /api/reminders/user/`
+- Reports:
+  - `GET /api/reports/summary/`
+- Telegram:
+  - `GET/POST /api/telegram-settings/`
+  - `POST /api/telegram-settings/generate_code/`
+  - `POST /telegram/webhook/`
 
 ---
 
-## 🌐 استفاده به عنوان Backend در فرانت‌اند (Vue)
+## اتصال فرانت Vue به Django
 
-برای اینکه فرانت‌اند Vue از این Django به‌جای Supabase استفاده کند:
-
-1. **اجرای Django** (همان مراحل بالا؛ سرور روی `http://127.0.0.1:8000`).
-2. **تنظیم متغیرهای محیطی فرانت‌اند** (در `frontend-vue/.env` یا `.env.local`):
+در `frontend-vue/.env.local`:
 
 ```env
 VITE_BACKEND_TYPE=django
 VITE_API_URL=http://127.0.0.1:8000/api
 ```
 
-3. **CORS**: در Django باید دامنه فرانت‌اند (مثلاً `http://localhost:5173`) در `CORS_ALLOWED_ORIGINS` یا `CORS_ALLOW_ALL_ORIGINS` قرار بگیرد (در `settings.py` با `django-cors-headers`).
-
-4. **Auth**: لاگین با `POST /api/token/` (username + password)، ثبت‌نام با `POST /api/register/`. توکن JWT در هدر `Authorization: Bearer <access>` برای درخواست‌های بعدی استفاده می‌شود.
-
-برای بازگشت به Supabase کافی است `VITE_BACKEND_TYPE=supabase` و `VITE_API_URL` را به آدرس Supabase Rest API تنظیم کنید.
-
 ---
 
-## 🔧 تنظیمات محیط
+## فایل‌های مرجع
 
-برای تنظیمات محیطی از فایل `.env` استفاده کنید:
-
-```env
-SECRET_KEY=your-secret-key
-DEBUG=True
-DATABASE_URL=postgresql://user:password@localhost/oilchenger_db
-```
-
-در `settings.py` از `python-decouple` برای خواندن متغیرها استفاده کنید.
+- `backend/django/khodroban/urls.py`
+- `backend/django/khodroban/views.py`
+- `docs/development/API_CONTRACT_REGISTRY.md`
+- `docs/development/PAGE_REVIEW_LOG.md`

@@ -1,120 +1,78 @@
 # 🚗 KhodroBan (خودروبان)
 
-اپلیکیشن مدیریت و نگهداری خودرو - یادآوری تعویض روغن و سرویس‌های دوره‌ای
+پلتفرم مدیریت نگهداری خودرو شامل ثبت خودرو، سرویس و هزینه، یادآورها، گزارش‌ها و تنظیمات اعلان.
 
 ---
 
-## 📋 درباره پروژه
+## وضعیت فعلی پروژه
 
-KhodroBan (خودروبان) یک وب‌اپلیکیشن واکنش‌گرا برای مدیریت نگهداری خودرو است که به کاربران کمک می‌کند:
+این وضعیت بر اساس بررسی ۱۰ PR اخیر (از `#21` تا `#30`) به‌روز شده است:
 
-- ثبت و مدیریت اطلاعات خودرو
-- یادآوری هوشمند تعویض روغن و سرویس‌های دوره‌ای
-- ثبت هزینه‌ها و پیگیری تاریخچه سرویس‌ها
-- مدیریت چند خودرو
-
-**ویژگی کلیدی**: طراحی کاملاً واکنش‌گرا که روی همه دستگاه‌ها (موبایل اندروید، iOS، تبلت و دسکتاپ) به صورت کامل و دقیق کار می‌کند.
-
-[📖 اطلاعات بیشتر درباره محصول](./docs/product/overview.md)
+- بخش‌های اصلی `Auth`, `Vehicles`, `Services`, `Reminders`, `Reports` در مسیر Django فعال و قابل استفاده هستند.
+- در فرانت `frontend-vue`، بهبودهای مهم UX برای یادآورها، فهرست سرویس، تاریخ شمسی و فیلتر خودرو اعمال شده است.
+- قرارداد API برای بخش‌های اصلی به‌روز است و در `docs/development/API_CONTRACT_REGISTRY.md` ثبت شده است.
+- گزارش‌ها با داده واقعی، فیلتر بازه/خودرو و خروجی CSV کلاینتی فعال هستند.
+- قواعد GitFlow پروژه روی مسیر `feature/*` -> PR -> `develop` تثبیت شده است.
 
 ---
 
-## 🏗️ ساختار پروژه
+## ساختار پروژه (Monorepo)
 
-```
-KhodroBan/
-├── docs/                    # مستندات پروژه
-│   ├── product/            # مستندات محصول
-│   ├── strategy/           # استراتژی و برنامه‌ریزی
-│   ├── research/           # تحقیقات (تحلیل رقبا، کاربری)
-│   └── technical/          # مستندات فنی
-│       ├── backend-setup.md
-│       ├── frontend-setup.md
-│       ├── api/           # مستندات API
-│       └── database/      # طراحی دیتابیس
-├── backend/                # Backend API (Django)
-│   ├── src/
-│   └── tests/
-├── frontend/               # Frontend Web (Vite + Svelte) - واکنش‌گرا
-│   └── src/
-└── scripts/                # اسکریپت‌های کمکی
+```text
+OilChenger/
+├── backend/
+│   └── django/                    # Django + DRF API
+├── frontend-vue/                  # Vue 3 + Vite + Pinia
+├── shared/                        # سرویس‌ها/تایپ‌های مشترک
+├── supabase/                      # functions و تنظیمات Supabase
+├── docs/                          # مستندات توسعه و فنی
+├── scripts/                       # اسکریپت‌های کمکی
+└── TODO.md                        # TODO مرکزی پروژه
 ```
 
 ---
 
-## 📚 مستندات
+## شروع سریع
 
-- [📱 معرفی محصول](./docs/product/overview.md)
-- [📈 استراتژی و برنامه‌ریزی](./docs/strategy/project-plan.md)
-- [🔍 تحلیل رقبا](./docs/research/competitors/list.md)
-- [🔧 راهنمای Backend](./docs/technical/backend-setup.md)
-- [🌐 راهنمای Frontend](./docs/technical/frontend-setup.md) (نقشه راه)
-
----
-
-## 🚀 شروع کار
-
-### پیش‌نیازها
-
-- Python 3.9+ (برای Backend با Django)
-- PostgreSQL / MySQL (یا SQLite برای توسعه)
-- Node.js 18+ و npm (برای Frontend)
-- Git
-
-### نصب
+### 1) Backend (Django)
 
 ```bash
-# کلون کردن پروژه
-git clone <repository-url>
-cd KhodroBan
-
-# نصب وابستگی‌های Backend
-cd backend
-python -m venv venv
-source venv/bin/activate  # در Windows: venv\Scripts\activate
+# از ریشه پروژه
+source backend/django/venv/bin/activate
+cd backend/django
 pip install -r requirements.txt
 python manage.py migrate
-
-# نصب وابستگی‌های Frontend
-cd ../frontend
-npm install
+python manage.py runserver
 ```
 
-برای راهنمای کامل:
+### 2) Frontend (Vue)
 
-- **Backend**: [backend/README.md](./backend/README.md) و [مستندات فنی Backend](./docs/technical/backend-setup.md)
-- **Frontend**: [مستندات فنی Frontend](./docs/technical/frontend-setup.md) - وب‌اپلیکیشن واکنش‌گرا
+```bash
+# از ریشه پروژه
+cd frontend-vue
+npm install
+npm run dev
+```
 
----
-
-## 📝 وضعیت پروژه
-
-- [X] تعریف پروژه
-- [X] تحلیل رقبا
-- [X] استراتژی و برنامه‌ریزی
-- [ ] طراحی MVP
-- [ ] توسعه Backend
-- [ ] توسعه Frontend (وب‌اپلیکیشن واکنش‌گرا)
-- [ ] تست و انتشار
-- [ ] تبدیل به PWA (فاز ۲)
+پیش‌فرض فرانت روی `http://localhost:5174` اجرا می‌شود.
 
 ---
 
-## 👥 تیم
+## مستندات کلیدی
 
-- توسعه‌دهنده اصلی
+- `TODO.md` - لیست مرکزی کارها و اولویت‌ها
+- `backend/django/README.md` - راهنمای کامل بک‌اند
+- `backend/django/TODO.md` - کارهای باز بک‌اند
+- `frontend-vue/README.md` - راهنمای فرانت Vue
+- `frontend-vue/IMPLEMENTATION_PLAN.md` - نقشه راه اجرایی فرانت
+- `docs/development/PAGE_REVIEW_LOG.md` - وضعیت بررسی صفحات
+- `docs/development/API_CONTRACT_REGISTRY.md` - رجیستری قرارداد API
 
 ---
 
-## 📄 لایسنس
+## Workflow توسعه (خلاصه)
 
-[لایسنس پروژه را اینجا قرار دهید]
+- توسعه روزمره روی `feature/*` یا `bugfix/*` انجام می‌شود.
+- ادغام به `develop` فقط از طریق Pull Request انجام می‌شود.
+- قبل از PR، همگام‌سازی با `origin/develop` اجباری است.
 
----
-
-## 🔗 لینک‌های مفید
-
-- [استراتژی پروژه](./docs/strategy/project-plan.md)
-- [تحلیل رقبا](./docs/research/competitors/list.md)
-- [📋 TODO List](./TODO.md) - کارهای باقی‌مانده
-- [📖 راهنمای مدیریت TODO](./.github/TODO_MANAGEMENT.md)
