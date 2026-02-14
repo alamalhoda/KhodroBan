@@ -1,15 +1,20 @@
 <template>
   <header class="h-20 flex items-center justify-between px-8 py-4 z-10 sticky top-0 bg-background-light dark:bg-background-dark border-b border-gray-100 dark:border-gray-800">
-    <button class="md:hidden p-2 text-[#666e85]">
+    <button class="md:hidden p-2 text-[#666e85]" type="button" aria-label="منو">
       <span class="material-symbols-outlined">menu</span>
     </button>
     <div class="hidden md:flex flex-col">
-      <h2 class="text-xl font-bold text-[#121317] dark:text-white">{{ t('dashboard.title') }}</h2>
+      <h2 class="text-xl font-bold text-[#121317] dark:text-white">{{ pageTitle }}</h2>
       <p class="text-sm text-[#666e85]">{{ currentDate }}</p>
     </div>
     <div class="flex items-center gap-4">
       <LanguageSwitcher />
-      <button class="flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-[#1e293b] text-[#666e85] hover:text-primary shadow-sm transition-colors border border-gray-100 dark:border-gray-700">
+      <button
+        type="button"
+        class="flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-[#1e293b] text-[#666e85] hover:text-primary shadow-sm transition-colors border border-gray-100 dark:border-gray-700"
+        :aria-label="t('common.search')"
+        @click="openSearch"
+      >
         <span class="material-symbols-outlined text-[20px]">search</span>
       </button>
       <NotificationBell />
@@ -58,23 +63,93 @@
       </div>
     </div>
   </header>
+
+  <!-- Search overlay -->
+  <Teleport to="body">
+    <div
+      v-if="showSearchPanel"
+      class="fixed inset-0 z-[100] flex items-start justify-center pt-[20vh] px-4 bg-black/50"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('common.search')"
+      @click.self="closeSearch"
+      @keydown.escape="closeSearch"
+    >
+      <div class="w-full max-w-xl bg-white dark:bg-[#1e293b] rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="flex items-center gap-2 p-3 border-b border-gray-100 dark:border-gray-700">
+          <span class="material-symbols-outlined text-[#666e85] text-[22px]">search</span>
+          <input
+            ref="searchInputRef"
+            type="search"
+            :placeholder="t('common.searchPlaceholder')"
+            :aria-label="t('common.searchPlaceholder')"
+            autocomplete="off"
+            class="flex-1 bg-transparent text-[#121317] dark:text-white placeholder-[#666e85] focus:outline-none text-base"
+            @keydown.escape="closeSearch"
+          />
+          <button
+            type="button"
+            class="p-2 rounded-full text-[#666e85] hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            :aria-label="t('common.close')"
+            @click="closeSearch"
+          >
+            <span class="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+        <p class="p-4 text-sm text-[#666e85] dark:text-gray-400 border-t border-gray-100 dark:border-gray-700">
+          {{ t('common.searchComingSoon') }}
+        </p>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from './LanguageSwitcher.vue'
 import NotificationBell from './NotificationBell.vue'
 import { useAuthStore } from '../stores/auth'
 import { useUIStore } from '../stores/ui'
 
+const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const authStore = useAuthStore()
 const uiStore = useUIStore()
 
 const showUserMenu = ref(false)
+const showSearchPanel = ref(false)
+const searchInputRef = ref(null)
+
+/** عنوان صفحه بر اساس route فعلی */
+const PAGE_TITLE_KEYS = {
+  dashboard: 'dashboard.title',
+  'vehicle-list': 'vehicles.vehicleList',
+  'vehicle-details': 'vehicles.details.title',
+  'vehicle-management': 'vehicles.management.title',
+  'service-list': 'services.title',
+  'add-service': 'services.add.title',
+  'select-service': 'services.selectType.title',
+  reports: 'reports.title',
+  expenses: 'expenses.title',
+  reminders: 'reminders.title',
+  'reminder-management': 'reminders.title',
+  'smart-assistant': 'smartAssistant.title',
+  settings: 'settings.title',
+  calendar: 'calendar.title',
+  'upgrade-pro': 'subscription.upgradeProTitle',
+  'dashboard-variant-3': 'dashboard.title',
+  'dashboard-variant-16': 'dashboard.title',
+  'select-service-variant-5': 'services.selectType.title',
+  'select-service-details-variant-15': 'services.selectType.title'
+}
+
+const pageTitle = computed(() => {
+  const key = PAGE_TITLE_KEYS[route.name]
+  return key ? t(key) : t('dashboard.title')
+})
 
 // Computed properties
 const displayName = computed(() => {
@@ -126,6 +201,21 @@ const currentDate = computed(() => {
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
 }
+
+const openSearch = () => {
+  showUserMenu.value = false
+  showSearchPanel.value = true
+  nextTick(() => searchInputRef.value?.focus())
+}
+
+const closeSearch = () => {
+  showSearchPanel.value = false
+}
+
+// Focus search input when panel opens (for keyboard)
+watch(showSearchPanel, (open) => {
+  if (open) nextTick(() => searchInputRef.value?.focus())
+})
 
 const handleLogout = async () => {
   try {
