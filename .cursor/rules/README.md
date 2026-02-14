@@ -23,6 +23,7 @@
 │   ├── engineering-principles.mdc
 │   ├── code-quality-baseline.mdc
 │   ├── rule-precedence.mdc
+│   ├── documentation-sync-policy.mdc
 │   ├── rule-authoring-standard.mdc
 │   └── rules-audit-checklist.mdc
 ├── frontend/           # همه قوانین واسط کاربری
