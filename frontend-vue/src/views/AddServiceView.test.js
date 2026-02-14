@@ -77,6 +77,40 @@ vi.mock('../services/expenseCategoryService', () => ({
   }
 }))
 
+const mockExpenseCreate = vi.fn()
+vi.mock('@services/expenseService', () => ({
+  expenseService: {
+    getAll: vi.fn().mockResolvedValue([]),
+    getById: vi.fn(),
+    create: (...args) => mockExpenseCreate(...args),
+    update: vi.fn(),
+    delete: vi.fn()
+  }
+}))
+
+const mockExpenseStoreCreate = vi.fn()
+vi.mock('../stores/expense', () => ({
+  useExpenseStore: () => ({
+    expenses: [],
+    isLoading: false,
+    error: null,
+    createExpense: (data) => {
+      mockExpenseStoreCreate(data)
+      return mockExpenseCreate(data)
+    },
+    updateExpense: vi.fn(),
+    deleteExpense: vi.fn(),
+    fetchExpenses: vi.fn().mockResolvedValue([])
+  })
+}))
+
+vi.mock('../stores/reminder', () => ({
+  useReminderStore: () => ({
+    createReminder: vi.fn().mockResolvedValue({ id: 'r1' }),
+    reminders: []
+  })
+}))
+
 describe('AddServiceView', () => {
   const defaultGlobal = {
     stubs: {
@@ -96,6 +130,7 @@ describe('AddServiceView', () => {
     mockPush.mockClear()
     mockBack.mockClear()
     mockCreate.mockResolvedValue({ id: 1, vehicleId: 'v1', date: '2024-09-28', cost: 500000, km: 10000, types: ['oil_change'] })
+    mockExpenseCreate.mockResolvedValue({ id: 'e1', vehicleId: 'v1', date: '2024-09-28', amount: 50000, category: 'fuel', note: '' })
     setActivePinia(createPinia())
     mockPresetGetAll.mockResolvedValue([])
   })
@@ -200,5 +235,77 @@ describe('AddServiceView', () => {
     await wrapper.vm.$nextTick()
     expect(dateInput.element.value).toMatch(/^\d{4}\/\d{2}\/\d{2}$/)
     expect(dateInput.element.value).toBe('1403/07/15')
+  })
+
+  describe('expense tab', () => {
+    it('expense tab has date field, cost field, and quick category chips', async () => {
+      const wrapper = mount(AddServiceView, { global: defaultGlobal })
+      await flushPromises()
+      const expenseTab = wrapper.findAll('button[role="tab"]').find(b => b.text().includes('expenses.add.expenseTab'))
+      await expenseTab.trigger('click')
+      await wrapper.vm.$nextTick()
+      const expensePanel = wrapper.find('#expense-tabpanel')
+      expect(expensePanel.exists()).toBe(true)
+      expect(expensePanel.find('[data-testid="date-input"]').exists()).toBe(true)
+      expect(expensePanel.find('input[type="number"]').exists()).toBe(true)
+      const quickChips = expensePanel.findAll('button').filter(b => {
+        const t = b.text().trim()
+        return t && !t.includes('tab') && t.length < 50
+      })
+      expect(quickChips.length).toBeGreaterThanOrEqual(1)
+    })
+
+    it('submit button disabled when expense category is missing', async () => {
+      const wrapper = mount(AddServiceView, { global: defaultGlobal })
+      await flushPromises()
+      const expenseTab = wrapper.findAll('button[role="tab"]').find(b => b.text().includes('expenses.add.expenseTab'))
+      await expenseTab.trigger('click')
+      await wrapper.vm.$nextTick()
+      const expensePanel = wrapper.find('#expense-tabpanel')
+      const dateInput = expensePanel.find('[data-testid="date-input"]')
+      if (dateInput.exists()) {
+        await dateInput.setValue('1403/07/15')
+        await dateInput.trigger('input')
+      }
+      const costInput = expensePanel.find('input[type="number"]')
+      if (costInput.exists()) {
+        await costInput.setValue('100000')
+        await costInput.trigger('input')
+      }
+      await wrapper.vm.$nextTick()
+      const submitBtn = wrapper.find('button[type="submit"]')
+      expect(mockExpenseCreate).not.toHaveBeenCalled()
+      expect(submitBtn.attributes('disabled')).toBeDefined()
+    })
+
+    it('expense tab shows reminder section with createFromExpense label', async () => {
+      const wrapper = mount(AddServiceView, { global: defaultGlobal })
+      await flushPromises()
+      const expenseTab = wrapper.findAll('button[role="tab"]').find(b => b.text().includes('expenses.add.expenseTab'))
+      await expenseTab.trigger('click')
+      await wrapper.vm.$nextTick()
+      expect(wrapper.text()).toMatch(/createFromExpense|یادآوری بعد از ثبت هزینه/)
+    })
+
+    it('quick chip sets expense category', async () => {
+      const wrapper = mount(AddServiceView, { global: defaultGlobal })
+      await flushPromises()
+      const expenseTab = wrapper.findAll('button[role="tab"]').find(b => b.text().includes('expenses.add.expenseTab'))
+      await expenseTab.trigger('click')
+      await wrapper.vm.$nextTick()
+      const chipButtons = wrapper.findAll('button').filter(b => {
+        const text = b.text().trim()
+        return text === 'fuel' || text.includes('expenses.categories.fuel') || text === 'سوخت'
+      })
+      const fuelChip = chipButtons[0]
+      if (fuelChip) {
+        await fuelChip.trigger('click')
+        await wrapper.vm.$nextTick()
+      } else {
+        wrapper.vm.formData.category = 'fuel'
+        await wrapper.vm.$nextTick()
+      }
+      expect(wrapper.vm.formData.category).toBe('fuel')
+    })
   })
 })

@@ -29,7 +29,8 @@
     "to": "to",
     "of": "of",
     "previousPage": "Previous page",
-    "nextPage": "Next page"
+    "nextPage": "Next page",
+    "maxFilesReached": "Maximum {{max}} files allowed."
   },
   "auth": {
     "login": "Login",
@@ -296,6 +297,7 @@
       "cancel": "Cancel",
       "helpText": "Having trouble choosing a category?",
       "helpLink": "View Guide",
+      "attachments": "Attachments (receipt / invoice)",
       "success": "Service recorded successfully",
       "error": "Error recording service",
       "validation": {
@@ -388,11 +390,21 @@
     "amount": "Amount",
     "add": {
       "expenseTab": "Additional Expense",
+      "expenseDate": "Expense date",
+      "currentKm": "Current mileage (km)",
       "success": "Expense recorded successfully",
       "error": "Error recording expense",
       "validation": {
         "categoryRequired": "Category selection is required"
-      }
+      },
+      "receiptInvalidType": "Only image (JPEG, PNG, WebP) or PDF allowed.",
+      "receiptTooLarge": "Maximum file size is 5 MB.",
+      "receipt": "Receipt / Invoice"
+    },
+    "recurring": {
+      "insurance": "Insurance",
+      "inspection": "Inspection",
+      "contractual": "Contractual service"
     },
     "date": "Date",
     "description": "Description",
@@ -484,6 +496,8 @@
     "markCompletedError": "Error marking reminder as completed",
     "createFromService": "Create reminder for this service",
     "createFromServiceDescription": "Automatic reminder will be created for next service",
+    "createFromExpense": "Create reminder after this expense",
+    "createFromExpenseDescription": "After saving this expense, a reminder will be created with the chosen interval.",
     "autoReminder": "Auto Reminder",
     "filter": {
       "all": "All",

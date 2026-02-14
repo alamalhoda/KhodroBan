@@ -30,7 +30,8 @@
     "of": "از",
     "previousPage": "صفحه قبل",
     "nextPage": "صفحه بعد",
-    "retry": "تلاش مجدد"
+    "retry": "تلاش مجدد",
+    "maxFilesReached": "حداکثر {{max}} فایل مجاز است."
   },
   "auth": {
     "login": "ورود",
@@ -297,6 +298,7 @@
       "cancel": "انصراف",
       "helpText": "در انتخاب دسته‌بندی مشکل دارید؟",
       "helpLink": "مشاهده راهنما",
+      "attachments": "پیوست‌ها (رسید / فاکتور)",
       "success": "سرویس با موفقیت ثبت شد",
       "error": "خطا در ثبت سرویس",
       "validation": {
@@ -445,11 +447,21 @@
       "title": "ثبت هزینه جدید",
       "subtitle": "ثبت هزینه جدید برای خودروی شما",
       "expenseTab": "هزینه جانبی",
+      "expenseDate": "تاریخ هزینه",
+      "currentKm": "کارکرد فعلی (کیلومتر)",
       "success": "هزینه با موفقیت ثبت شد",
       "error": "خطا در ثبت هزینه",
       "validation": {
         "categoryRequired": "انتخاب دسته‌بندی الزامی است"
-      }
+      },
+      "receiptInvalidType": "فقط تصویر (JPEG, PNG, WebP) یا PDF مجاز است.",
+      "receiptTooLarge": "حداکثر حجم فایل ۵ مگابایت.",
+      "receipt": "رسید / فاکتور"
+    },
+    "recurring": {
+      "insurance": "بیمه",
+      "inspection": "معاینه فنی",
+      "contractual": "سرویس قراردادی"
     },
     "error": "خطا در دریافت دسته‌بندی هزینه‌ها"
   },
@@ -539,6 +551,8 @@
     "markCompletedError": "خطا در علامت‌گذاری یادآور",
     "createFromService": "ایجاد یادآور برای این سرویس",
     "createFromServiceDescription": "یادآور خودکار برای سرویس بعدی ایجاد می‌شود",
+    "createFromExpense": "یادآوری بعد از ثبت هزینه",
+    "createFromExpenseDescription": "بعد از ثبت این هزینه، یک یادآوری با بازه زمانی مشخص ایجاد می‌شود.",
     "autoReminder": "یادآور خودکار",
     "filter": {
       "all": "همه",

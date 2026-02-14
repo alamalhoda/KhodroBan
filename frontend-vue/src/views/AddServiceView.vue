@@ -12,9 +12,11 @@ import { useReminderStore } from '../stores/reminder'
 import { useToast } from '../composables/useToast'
 import MainLayout from '../components/MainLayout.vue'
 import { Button, Input, Select, Card, LoadingSpinner, Modal, PersianDatePicker } from '../components/ui'
-import { getTodayJalaliStr, isoToJalaliStr } from '../utils/dateUtils'
+import { getTodayJalaliStr, isoToJalaliStr, jalaliToIso } from '../utils/dateUtils'
 import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
 import ServiceTypeSelector from '../components/ServiceTypeSelector.vue'
+import ReminderTimeIntervalFields from '../components/ReminderTimeIntervalFields.vue'
+import ReminderKmIntervalFields from '../components/ReminderKmIntervalFields.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -42,9 +44,38 @@ const formData = ref({
   shopName: ''
 })
 
-// Reminder state
+// Reminder state (reusable interval components)
 const createReminderAfterService = ref(false)
-const reminderInterval = ref({ days: 90, km: 5000 })
+const reminderTimeFields = ref({
+  timeIntervalPreset: '90',
+  dueDate: null,
+  warningDaysBefore: 7
+})
+const reminderKmFields = ref({
+  kmInterval: 5000,
+  warningKmBefore: 500
+})
+
+// Quick category chips for expense tab (plan: fuel, parking, toll, wash)
+const EXPENSE_QUICK_CHIP_CODES = ['fuel', 'parking', 'toll', 'wash']
+
+// Attachments: multiple files per tab (gallery-like)
+const MAX_ATTACHMENTS = 10
+const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_ATTACHMENT_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+
+const receiptFiles = ref([]) // expense tab: { file, previewUrl? }
+const receiptError = ref('')
+
+const serviceAttachments = ref([]) // service tab: { file, previewUrl? }
+const serviceAttachmentError = ref('')
+
+// Recurring expense presets: insurance, inspection, contractual (plan: پریست‌های رایج)
+const RECURRING_PRESETS = [
+  { key: 'insurance', days: 365, labelKey: 'expenses.recurring.insurance' },
+  { key: 'inspection', days: 365, labelKey: 'expenses.recurring.inspection' },
+  { key: 'contractual', days: 90, labelKey: 'expenses.recurring.contractual' }
+]
 
 const formErrors = ref({})
 const isSubmitting = ref(false)
@@ -291,6 +322,7 @@ const handleSubmit = async () => {
           // Get default intervals based on service type
           const defaultIntervals = getDefaultIntervalsForServiceType(serviceType)
           
+          const baseKm = parseInt(serviceData.km, 10) || 0
           const reminderData = {
             title: t('reminders.autoReminder') + ': ' + serviceTypeLabel,
             description: serviceData.note || null,
@@ -298,10 +330,10 @@ const handleSubmit = async () => {
             serviceId: createdService.id,
             source: 'auto',
             type: serviceType,
-            dueDate: calculateDueDate(reminderInterval.value.days),
-            dueKm: calculateDueKm(serviceData.km, reminderInterval.value.km),
-            warningDaysBefore: 7,
-            warningKmBefore: 500
+            dueDate: getDueDateFromTimeFields(),
+            dueKm: baseKm + (reminderKmFields.value.kmInterval || 0),
+            warningDaysBefore: reminderTimeFields.value.warningDaysBefore ?? 7,
+            warningKmBefore: reminderKmFields.value.warningKmBefore ?? 500
           }
           
           await reminderStore.createReminder(reminderData)
@@ -315,10 +347,13 @@ const handleSubmit = async () => {
       // Create expense
       const expenseData = {
         vehicleId: formData.value.vehicleId,
-        date: formData.value.date, // Will be converted in service layer
+        date: formData.value.date,
         amount: parseInt(formData.value.cost),
         category: formData.value.category,
-        description: formData.value.note || undefined
+        note: formData.value.note || undefined
+      }
+      if (formData.value.km && !isNaN(parseInt(formData.value.km))) {
+        expenseData.km = parseInt(formData.value.km)
       }
       
       const createdExpense = await expenseStore.createExpense(expenseData)
@@ -333,16 +368,17 @@ const handleSubmit = async () => {
           const selectedVehicle = vehicleStore.vehicles.find(v => v.id === formData.value.vehicleId)
           const currentKm = selectedVehicle?.currentKm || 0
           
+          const dueKmVal = currentKm > 0 ? currentKm + (reminderKmFields.value.kmInterval || 0) : null
           const reminderData = {
             title: t('reminders.autoReminder') + ': ' + expenseCategoryLabel,
-            description: formData.value.note || undefined,
+            description: formData.value.note ?? undefined,
             vehicleId: formData.value.vehicleId,
             serviceId: null,
             source: 'auto',
-            dueDate: calculateDueDate(reminderInterval.value.days),
-            dueKm: currentKm > 0 ? calculateDueKm(currentKm.toString(), reminderInterval.value.km) : null,
-            warningDaysBefore: 7,
-            warningKmBefore: 500
+            dueDate: getDueDateFromTimeFields(),
+            dueKm: dueKmVal,
+            warningDaysBefore: reminderTimeFields.value.warningDaysBefore ?? 7,
+            warningKmBefore: reminderKmFields.value.warningKmBefore ?? 500
           }
           
           await reminderStore.createReminder(reminderData)
@@ -397,22 +433,41 @@ const getDefaultIntervalsForServiceType = (serviceType) => {
   return defaults[serviceType] || defaults['other']
 }
 
-const calculateDueDate = (days) => {
-  const date = new Date()
-  date.setDate(date.getDate() + days)
-  return date.toISOString().split('T')[0]
+/** Ensures dueDate is ISO YYYY-MM-DD (backend accepts both; store sends ISO) */
+function ensureDueDateIso(val) {
+  if (!val) return null
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(val))) return val
+  return jalaliToIso(String(val)) || val
 }
 
-const calculateDueKm = (currentKm, intervalKm) => {
-  return parseInt(currentKm) + parseInt(intervalKm)
+/** Fallback: compute due date from preset when component has not yet synced dueDate */
+function getDueDateFromTimeFields() {
+  const tf = reminderTimeFields.value
+  const iso = ensureDueDateIso(tf.dueDate)
+  if (iso) return iso
+  const preset = tf.timeIntervalPreset
+  if (preset && preset !== 'custom') {
+    const days = parseInt(preset, 10)
+    if (!Number.isNaN(days)) {
+      const d = new Date()
+      d.setDate(d.getDate() + days)
+      return d.toISOString().split('T')[0]
+    }
+  }
+  return null
 }
 
-// Watch service type to update reminder intervals
+// Watch service type to sync reminder interval presets (time + km)
 watch(() => formData.value.types, (newTypes) => {
   if (newTypes.length > 0 && createReminderAfterService.value) {
     const serviceType = newTypes[0]
     const intervals = getDefaultIntervalsForServiceType(serviceType)
-    reminderInterval.value = intervals
+    const presetMap = { 1: '1', 2: '2', 7: '7', 30: '30', 60: '60', 90: '90', 180: '180', 365: '365' }
+    reminderTimeFields.value = {
+      ...reminderTimeFields.value,
+      timeIntervalPreset: presetMap[intervals.days] || '90'
+    }
+    reminderKmFields.value = { ...reminderKmFields.value, kmInterval: intervals.km }
   }
 }, { immediate: true })
 
@@ -438,10 +493,11 @@ const switchTab = (tab) => {
   // Reset form data when switching tabs
   if (tab === 'service') {
     formData.value.category = ''
+    clearAllReceipts()
   } else {
     formData.value.types = []
     formData.value.type = ''
-    formData.value.km = ''
+    clearServiceAttachments()
   }
   autocompleteQuery.value = ''
   showAutocompleteDropdown.value = false
@@ -513,6 +569,97 @@ const removeServiceType = (value) => {
 
 const removeExpenseCategory = () => {
   formData.value.category = ''
+}
+
+/** Quick chip: set expense category and keep autocomplete in sync */
+const applyExpenseQuickChip = (code) => {
+  formData.value.category = code
+  autocompleteQuery.value = ''
+  showAutocompleteDropdown.value = false
+}
+
+/** Recurring preset: set time interval preset and enable create reminder */
+const applyRecurringPreset = (preset) => {
+  const presetMap = { 1: '1', 2: '2', 7: '7', 30: '30', 60: '60', 90: '90', 180: '180', 365: '365' }
+  reminderTimeFields.value = {
+    ...reminderTimeFields.value,
+    timeIntervalPreset: presetMap[preset.days] || '90'
+  }
+  createReminderAfterService.value = true
+}
+
+function validateAttachmentFile(file) {
+  if (!ALLOWED_ATTACHMENT_TYPES.includes(file.type)) {
+    return t('expenses.add.receiptInvalidType', 'فقط تصویر (JPEG, PNG, WebP) یا PDF مجاز است.')
+  }
+  if (file.size > MAX_ATTACHMENT_SIZE) {
+    return t('expenses.add.receiptTooLarge', 'حداکثر حجم فایل ۵ مگابایت.')
+  }
+  return null
+}
+
+/** Expense tab: add receipt/attachment */
+const handleReceiptSelect = (event) => {
+  receiptError.value = ''
+  const file = event.target.files?.[0]
+  if (!file) return
+  const err = validateAttachmentFile(file)
+  if (err) {
+    receiptError.value = err
+    return
+  }
+  if (receiptFiles.value.length >= MAX_ATTACHMENTS) {
+    receiptError.value = t('common.maxFilesReached', 'حداکثر {{max}} فایل مجاز است.', { max: MAX_ATTACHMENTS })
+    return
+  }
+  const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+  receiptFiles.value.push({ file, previewUrl })
+  event.target.value = ''
+}
+const removeReceiptFile = (index) => {
+  const item = receiptFiles.value[index]
+  if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  receiptFiles.value.splice(index, 1)
+  receiptError.value = ''
+}
+const clearAllReceipts = () => {
+  receiptFiles.value.forEach(item => {
+    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  })
+  receiptFiles.value = []
+  receiptError.value = ''
+}
+
+/** Service tab: add attachment */
+const handleServiceAttachmentSelect = (event) => {
+  serviceAttachmentError.value = ''
+  const file = event.target.files?.[0]
+  if (!file) return
+  const err = validateAttachmentFile(file)
+  if (err) {
+    serviceAttachmentError.value = err
+    return
+  }
+  if (serviceAttachments.value.length >= MAX_ATTACHMENTS) {
+    serviceAttachmentError.value = t('common.maxFilesReached', 'حداکثر {{max}} فایل مجاز است.', { max: MAX_ATTACHMENTS })
+    return
+  }
+  const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+  serviceAttachments.value.push({ file, previewUrl })
+  event.target.value = ''
+}
+const removeServiceAttachment = (index) => {
+  const item = serviceAttachments.value[index]
+  if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  serviceAttachments.value.splice(index, 1)
+  serviceAttachmentError.value = ''
+}
+const clearServiceAttachments = () => {
+  serviceAttachments.value.forEach(item => {
+    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  })
+  serviceAttachments.value = []
+  serviceAttachmentError.value = ''
 }
 
 const handleAutocompleteKeydown = (event) => {
@@ -927,39 +1074,61 @@ watch(() => route.query.edit, (newEditId) => {
                     {{ t('reminders.createFromServiceDescription') }}
                   </p>
                   
-                  <!-- Reminder intervals (shown when checkbox is checked) -->
+                  <!-- Reminder intervals: same reusable components as Add Reminder page -->
                   <div v-if="createReminderAfterService" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                        {{ t('reminders.form.timeInterval') }}
-                      </label>
-                      <div class="flex gap-2">
-                        <Input
-                          v-model.number="reminderInterval.days"
-                          type="number"
-                          min="1"
-                          class="flex-1"
-                        />
-                        <span class="text-xs text-gray-500 self-center">{{ t('reminders.form.days') }}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                        {{ t('reminders.form.kmInterval') }}
-                      </label>
-                      <div class="flex gap-2">
-                        <Input
-                          v-model.number="reminderInterval.km"
-                          type="number"
-                          min="1"
-                          class="flex-1"
-                        />
-                        <span class="text-xs text-gray-500 self-center">{{ t('common.km') }}</span>
-                      </div>
-                    </div>
+                    <ReminderTimeIntervalFields v-model="reminderTimeFields" />
+                    <ReminderKmIntervalFields
+                      :vehicle-id="formData.vehicleId"
+                      v-model="reminderKmFields"
+                    />
                   </div>
                 </div>
               </div>
+            </div>
+            
+            <!-- Service attachments (gallery-like) -->
+            <div v-if="activeTab === 'service'" class="mt-6">
+              <label class="block text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal mb-2">
+                {{ $t('services.add.attachments', 'پیوست‌ها (رسید / فاکتور)') }} ({{ $t('common.optional') }})
+              </label>
+              <div class="flex flex-wrap gap-3 items-start">
+                <div
+                  v-for="(item, index) in serviceAttachments"
+                  :key="index"
+                  class="relative group w-20 h-20 shrink-0 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden bg-gray-50 dark:bg-gray-800"
+                >
+                  <img
+                    v-if="item.previewUrl"
+                    :src="item.previewUrl"
+                    alt=""
+                    class="w-full h-full object-cover"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center p-1">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate text-center">{{ item.file.name }}</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="absolute top-0.5 right-0.5 p-1 rounded bg-black/50 text-white hover:bg-red-500 transition-colors"
+                    :aria-label="$t('common.close')"
+                    @click="removeServiceAttachment(index)"
+                  >
+                    <span class="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+                <label
+                  v-if="serviceAttachments.length < MAX_ATTACHMENTS"
+                  class="w-20 h-20 shrink-0 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                >
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                    class="hidden"
+                    @change="handleServiceAttachmentSelect"
+                  />
+                  <span class="material-symbols-outlined text-3xl text-gray-400">add_photo_alternate</span>
+                </label>
+              </div>
+              <p v-if="serviceAttachmentError" class="text-red-500 text-xs mt-1" role="alert">{{ serviceAttachmentError }}</p>
             </div>
             
           </div>
@@ -971,6 +1140,53 @@ watch(() => route.query.edit, (newEditId) => {
             :aria-labelledby="'expense-tab'"
             tabindex="0"
           >
+            <!-- Expense date and optional km -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
+              <PersianDatePicker
+                v-if="isPersianLocale"
+                :model-value="formData.date"
+                @update:model-value="(v) => { formData.date = v }"
+                :label="$t('expenses.add.expenseDate', 'تاریخ هزینه')"
+                :error="formErrors.date"
+                required
+                :placeholder="$t('services.add.serviceDatePlaceholder', '۱۴۰۳/۰۱/۰۱')"
+              />
+              <Input
+                v-else
+                v-model="formData.date"
+                :label="$t('expenses.add.expenseDate', 'تاریخ هزینه')"
+                type="date"
+                :error="formErrors.date"
+                required
+                :aria-required="true"
+              />
+              <div class="flex flex-col gap-2">
+                <Input
+                  v-model="formData.km"
+                  :label="$t('expenses.add.currentKm', 'کارکرد فعلی (کیلومتر)') + ' (' + $t('common.optional') + ')'"
+                  type="number"
+                  :placeholder="$t('services.add.currentKmPlaceholder')"
+                  dir="ltr"
+                  class="text-right"
+                  min="0"
+                />
+              </div>
+            </div>
+            <!-- Quick category chips (plan: fuel, parking, toll, wash) -->
+            <div class="flex flex-wrap gap-2 mb-2">
+              <button
+                v-for="code in EXPENSE_QUICK_CHIP_CODES"
+                :key="code"
+                type="button"
+                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full border text-xs font-medium transition-colors"
+                :class="formData.category === code
+                  ? 'bg-primary text-white border-primary dark:bg-blue-500 dark:border-blue-500'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                @click="applyExpenseQuickChip(code)"
+              >
+                <span>{{ getLabel(code) }}</span>
+              </button>
+            </div>
             <!-- Expense Category (for expense tab) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <label class="flex flex-col gap-2 md:col-span-2">
@@ -1060,6 +1276,50 @@ watch(() => route.query.edit, (newEditId) => {
                 </div>
               </div>
             </div>
+            <!-- Expense attachments (gallery-like) -->
+            <div v-if="activeTab === 'expense'" class="mt-6">
+              <label class="block text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal mb-2">
+                {{ $t('expenses.add.receipt', 'رسید / فاکتور') }} ({{ $t('common.optional') }})
+              </label>
+              <div class="flex flex-wrap gap-3 items-start">
+                <div
+                  v-for="(item, index) in receiptFiles"
+                  :key="index"
+                  class="relative group w-20 h-20 shrink-0 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden bg-gray-50 dark:bg-gray-800"
+                >
+                  <img
+                    v-if="item.previewUrl"
+                    :src="item.previewUrl"
+                    alt=""
+                    class="w-full h-full object-cover"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center p-1">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate text-center">{{ item.file.name }}</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="absolute top-0.5 right-0.5 p-1 rounded bg-black/50 text-white hover:bg-red-500 transition-colors"
+                    :aria-label="$t('common.close')"
+                    @click="removeReceiptFile(index)"
+                  >
+                    <span class="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+                <label
+                  v-if="receiptFiles.length < MAX_ATTACHMENTS"
+                  class="w-20 h-20 shrink-0 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                >
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                    class="hidden"
+                    @change="handleReceiptSelect"
+                  />
+                  <span class="material-symbols-outlined text-3xl text-gray-400">add_photo_alternate</span>
+                </label>
+              </div>
+              <p v-if="receiptError" class="text-red-500 text-xs mt-1" role="alert">{{ receiptError }}</p>
+            </div>
           </div>
             
           <div class="space-y-6">
@@ -1090,42 +1350,33 @@ watch(() => route.query.edit, (newEditId) => {
               />
               <div class="flex-1">
                 <label for="create-reminder-expense" class="text-sm font-medium text-[#121317] dark:text-white cursor-pointer">
-                  {{ t('reminders.createFromService') }}
+                  {{ t('reminders.createFromExpense', 'یادآوری بعد از ثبت هزینه') }}
                 </label>
                 <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  {{ t('reminders.createFromServiceDescription') }}
+                  {{ t('reminders.createFromExpenseDescription', 'بعد از ثبت این هزینه، یک یادآوری با بازه زمانی مشخص ایجاد می‌شود.') }}
                 </p>
-                
-                <!-- Reminder intervals (shown when checkbox is checked) -->
+                <!-- Recurring presets: insurance, inspection, contractual -->
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <button
+                    v-for="preset in RECURRING_PRESETS"
+                    :key="preset.key"
+                    type="button"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs transition-colors"
+                    :class="createReminderAfterService && reminderTimeFields.timeIntervalPreset === String(preset.days)
+                      ? 'bg-primary/20 text-primary dark:text-blue-400 border-primary dark:border-blue-500'
+                      : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                    @click="applyRecurringPreset(preset)"
+                  >
+                    {{ t(preset.labelKey) }}
+                  </button>
+                </div>
+                <!-- Reminder intervals: same reusable components as Add Reminder page -->
                 <div v-if="createReminderAfterService" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                      {{ t('reminders.form.timeInterval') }}
-                    </label>
-                    <div class="flex gap-2">
-                      <Input
-                        v-model.number="reminderInterval.days"
-                        type="number"
-                        min="1"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-gray-500 self-center">{{ t('reminders.form.days') }}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                      {{ t('reminders.form.kmInterval') }}
-                    </label>
-                    <div class="flex gap-2">
-                      <Input
-                        v-model.number="reminderInterval.km"
-                        type="number"
-                        min="1"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-gray-500 self-center">{{ t('common.km') }}</span>
-                    </div>
-                  </div>
+                  <ReminderTimeIntervalFields v-model="reminderTimeFields" />
+                  <ReminderKmIntervalFields
+                    :vehicle-id="formData.vehicleId"
+                    v-model="reminderKmFields"
+                  />
                 </div>
               </div>
             </div>

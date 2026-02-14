@@ -353,10 +353,19 @@ class DailyExpenseApiSerializer(DailyExpenseSerializer):
         for snake, camel in key_map:
             if camel in data or snake in data:
                 internal[snake] = data.get(camel) or data.get(snake)
-        if 'date' in data and 'expense_date' not in internal:
-            internal['expense_date'] = data['date']
-        if 'date' in data:
-            internal['expense_date_gregorian'] = data['date']
+        # Parse date: ISO or Jalali (same as service) for locale consistency
+        date_raw = data.get('date') or internal.get('expense_date')
+        if date_raw is not None:
+            expense_date, expense_date_gregorian = parse_service_date(
+                date_raw if isinstance(date_raw, str) else str(date_raw)
+            )
+            if expense_date is not None and expense_date_gregorian is not None:
+                internal['expense_date'] = expense_date
+                internal['expense_date_gregorian'] = expense_date_gregorian
+            else:
+                raise serializers.ValidationError(
+                    {'date': 'فرمت تاریخ نامعتبر است. از YYYY-MM-DD (میلادی) یا YYYY/MM/DD (شمسی) استفاده کنید.'}
+                )
         # فرانت category را به صورت کد (رشته) می‌فرستد؛ به id برای FK تبدیل می‌کنیم
         if 'category' in internal and isinstance(internal['category'], str):
             code = (internal['category'] or '').strip() or None

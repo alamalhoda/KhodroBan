@@ -29,7 +29,8 @@
     "to": "إلى",
     "of": "من",
     "previousPage": "الصفحة السابقة",
-    "nextPage": "الصفحة التالية"
+    "nextPage": "الصفحة التالية",
+    "maxFilesReached": "الحد الأقصى {{max}} ملف."
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -260,6 +261,7 @@
       "cancel": "إلغاء",
       "helpText": "تواجه مشكلة في اختيار الفئة؟",
       "helpLink": "عرض الدليل",
+      "attachments": "المرفقات (إيصال / فاتورة)",
       "success": "تم تسجيل الخدمة بنجاح",
       "error": "خطأ في تسجيل الخدمة",
       "validation": {
@@ -352,11 +354,21 @@
     "amount": "المبلغ",
     "add": {
       "expenseTab": "مصروف إضافي",
+      "expenseDate": "تاريخ المصروف",
+      "currentKm": "الكيلومترات الحالية",
       "success": "تم تسجيل المصروف بنجاح",
       "error": "خطأ في تسجيل المصروف",
       "validation": {
         "categoryRequired": "اختيار الفئة مطلوب"
-      }
+      },
+      "receiptInvalidType": "الصور (JPEG, PNG, WebP) أو PDF فقط.",
+      "receiptTooLarge": "الحد الأقصى لحجم الملف 5 ميجابايت.",
+      "receipt": "إيصال / فاتورة"
+    },
+    "recurring": {
+      "insurance": "التأمين",
+      "inspection": "الفحص الفني",
+      "contractual": "خدمة تعاقدية"
     },
     "date": "التاريخ",
     "description": "الوصف",
@@ -442,6 +454,8 @@
     "markCompletedError": "خطأ في تعليم التذكير كمكتمل",
     "createFromService": "إنشاء تذكير لهذه الخدمة",
     "createFromServiceDescription": "سيتم إنشاء تذكير تلقائي للخدمة التالية",
+    "createFromExpense": "تذكير بعد تسجيل المصروف",
+    "createFromExpenseDescription": "بعد حفظ هذا المصروف، سيتم إنشاء تذكير بالفاصل الزمني المحدد.",
     "autoReminder": "تذكير تلقائي",
     "filter": {
       "all": "الكل",
