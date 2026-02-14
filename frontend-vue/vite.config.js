@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 let VitePWA
 try {
@@ -111,6 +112,13 @@ export default defineConfig({
         type: 'module'
       }
     })] : []),
+    // Bundle analysis: generates dist/stats.html after build (npm run build)
+    visualizer({
+      filename: './dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
   resolve: {
     alias: {
@@ -119,6 +127,10 @@ export default defineConfig({
       '@services': path.resolve(__dirname, '../shared/services'),
       '@types': path.resolve(__dirname, '../shared/types'),
       '@utils': path.resolve(__dirname, '../shared/utils'),
+      // Resolve from frontend-vue node_modules when shared/* is loaded (CI build)
+      axios: path.resolve(__dirname, 'node_modules/axios'),
+      '@supabase/supabase-js': path.resolve(__dirname, 'node_modules/@supabase/supabase-js'),
+      'persian-date': path.resolve(__dirname, 'node_modules/persian-date'),
     },
   },
   server: {

@@ -3,6 +3,9 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVehicleStore } from '../stores/vehicle'
 import { Input, Select, Button } from './ui'
+import VehicleFilterSelect from './VehicleFilterSelect.vue'
+import ReminderTimeIntervalFields from './ReminderTimeIntervalFields.vue'
+import ReminderKmIntervalFields from './ReminderKmIntervalFields.vue'
 
 const props = defineProps({
   vehicleId: {
@@ -38,10 +41,8 @@ const formData = ref({
   description: '',
   vehicleId: null,
   
-  // بازه زمانی
-  timeIntervalPreset: 'custom', // '10', '30', '90', 'custom'
-  timeInterval: 90,
-  timeIntervalType: 'days', // 'days' | 'weeks' | 'months'
+  // بازه زمانی — فقط preset و تاریخ موعد (بدون فیلد تعداد/نوع)
+  timeIntervalPreset: '30', // '1'|'2'|'7'|'30'|'60'|'90'|'180'|'365'|'custom'
   dueDate: null,
   
   // بازه کیلومتری
@@ -56,30 +57,6 @@ const formData = ref({
   type: null
 })
 
-// Preset options
-const timePresets = computed(() => [
-  { value: '10', label: t('reminders.presets.10days') },
-  { value: '30', label: t('reminders.presets.30days') },
-  { value: '90', label: t('reminders.presets.90days') },
-  { value: 'custom', label: t('reminders.presets.custom') }
-])
-
-// Vehicle options
-const vehicleOptions = computed(() => {
-  const options = vehicleStore.vehicles.map(v => ({
-    value: v.id,
-    label: `${v.model} - ${v.year}`
-  }))
-  return [{ value: '', label: t('vehicles.selectVehicle') }, ...options]
-})
-
-// Time unit options
-const timeUnitOptions = computed(() => [
-  { value: 'days', label: t('reminders.form.days') },
-  { value: 'weeks', label: t('reminders.form.weeks') },
-  { value: 'months', label: t('reminders.form.months') }
-])
-
 // Computed
 const selectedVehicle = computed(() => {
   const vehicleId = formData.value.vehicleId || props.vehicleId
@@ -93,42 +70,31 @@ const currentKm = computed(() => {
 
 // Determine reminder type automatically based on filled fields
 const reminderType = computed(() => {
-  const hasTime = formData.value.timeIntervalPreset && formData.value.timeInterval
+  const hasTime = !!formData.value.timeIntervalPreset
   const hasKm = formData.value.kmInterval && formData.value.vehicleId
-  
+
   if (hasTime && hasKm) return 'both'
   if (hasTime) return 'time'
   if (hasKm) return 'km'
   return 'both' // default
 })
 
+// تاریخ موعد بر اساس preset: عدد = امروز + N روز؛ custom = همان formData.dueDate یا پیش‌فرض
 const calculatedDueDate = computed(() => {
-  if (formData.value.timeIntervalPreset === 'custom' && formData.value.dueDate) {
-    return formData.value.dueDate
-  }
-  
   if (formData.value.timeIntervalPreset === 'custom') {
-    // Calculate from interval
-    const date = new Date()
-    const interval = formData.value.timeInterval
-    
-    if (formData.value.timeIntervalType === 'days') {
-      date.setDate(date.getDate() + interval)
-    } else if (formData.value.timeIntervalType === 'weeks') {
-      date.setDate(date.getDate() + (interval * 7))
-    } else if (formData.value.timeIntervalType === 'months') {
-      date.setMonth(date.getMonth() + interval)
-    }
-    
-    return date.toISOString().split('T')[0]
+    return formData.value.dueDate || getDefaultDueDate()
   }
-  
-  // Use preset
-  const days = parseInt(formData.value.timeIntervalPreset) || formData.value.timeInterval
+  const days = parseInt(formData.value.timeIntervalPreset, 10) || 30
   const date = new Date()
   date.setDate(date.getDate() + days)
   return date.toISOString().split('T')[0]
 })
+
+function getDefaultDueDate() {
+  const date = new Date()
+  date.setDate(date.getDate() + 30)
+  return date.toISOString().split('T')[0]
+}
 
 const calculatedDueKm = computed(() => {
   const vehicleId = formData.value.vehicleId || props.vehicleId
@@ -136,23 +102,28 @@ const calculatedDueKm = computed(() => {
   return currentKm.value + formData.value.kmInterval
 })
 
-// Watch for preset changes
-watch(() => formData.value.timeIntervalPreset, (newVal) => {
-  if (newVal !== 'custom') {
-    formData.value.timeInterval = parseInt(newVal)
-    formData.value.dueDate = null // Clear custom date when preset is selected
+// Two-way binding for reusable interval components
+const timeIntervalModel = computed({
+  get: () => ({
+    timeIntervalPreset: formData.value.timeIntervalPreset,
+    dueDate: formData.value.dueDate,
+    warningDaysBefore: formData.value.warningDaysBefore
+  }),
+  set: (v) => {
+    if (v.timeIntervalPreset != null) formData.value.timeIntervalPreset = v.timeIntervalPreset
+    if (v.dueDate != null) formData.value.dueDate = v.dueDate
+    if (v.warningDaysBefore != null) formData.value.warningDaysBefore = v.warningDaysBefore
   }
 })
 
-watch(() => formData.value.timeInterval, () => {
-  if (formData.value.timeIntervalPreset === 'custom') {
-    formData.value.dueDate = calculatedDueDate.value
-  }
-})
-
-watch(() => formData.value.timeIntervalType, () => {
-  if (formData.value.timeIntervalPreset === 'custom') {
-    formData.value.dueDate = calculatedDueDate.value
+const kmIntervalModel = computed({
+  get: () => ({
+    kmInterval: formData.value.kmInterval,
+    warningKmBefore: formData.value.warningKmBefore
+  }),
+  set: (v) => {
+    if (v.kmInterval != null) formData.value.kmInterval = v.kmInterval
+    if (v.warningKmBefore != null) formData.value.warningKmBefore = v.warningKmBefore
   }
 })
 
@@ -165,7 +136,9 @@ onMounted(() => {
   
   // Set default values
   if (props.defaultInterval) {
-    formData.value.timeInterval = props.defaultInterval.days || 90
+    const days = props.defaultInterval.days || 30
+    const presetMap = { 1: '1', 2: '2', 7: '7', 30: '30', 60: '60', 90: '90', 180: '180', 365: '365' }
+    formData.value.timeIntervalPreset = presetMap[days] || '30'
     formData.value.kmInterval = props.defaultInterval.km || 5000
   }
   
@@ -184,8 +157,9 @@ onMounted(() => {
     formData.value.warningDaysBefore = props.initialData.warningDaysBefore || 7
     formData.value.warningKmBefore = props.initialData.warningKmBefore || 500
     formData.value.type = props.initialData.type || null
+    formData.value.timeIntervalPreset = 'custom' // ویرایش: تاریخ ذخیره‌شده در فیلد نمایش داده می‌شود
   } else {
-    // Set default due date
+    if (!props.defaultInterval) formData.value.timeIntervalPreset = '30'
     formData.value.dueDate = calculatedDueDate.value
   }
 })
@@ -196,6 +170,8 @@ const handleSubmit = () => {
     return
   }
   
+  const dueDateForSubmit = formData.value.dueDate || calculatedDueDate.value
+
   const reminderData = {
     title: formData.value.title.trim(),
     description: formData.value.description?.trim() || null,
@@ -206,7 +182,7 @@ const handleSubmit = () => {
     
     // بازه زمانی
     ...(reminderType.value === 'time' || reminderType.value === 'both' ? {
-      dueDate: calculatedDueDate.value
+      dueDate: dueDateForSubmit
     } : {}),
     
     // بازه کیلومتری
@@ -244,270 +220,41 @@ const handleCancel = () => {
         />
       </div>
 
-      <!-- Vehicle Selection -->
+      <!-- Vehicle Selection (فیلتر انتخاب خودرو) -->
       <div>
         <label class="block text-xs font-medium mb-1.5 text-[#121317] dark:text-white">
           {{ t('vehicles.selectVehicle') }}
         </label>
-        <Select 
-          v-model="formData.vehicleId" 
-          :options="vehicleOptions"
-          class="w-full text-sm"
+        <VehicleFilterSelect
+          :model-value="formData.vehicleId ?? ''"
+          :show-all-option="false"
+          :placeholder="t('vehicles.selectVehicle')"
+          wrapper-class="w-full text-sm"
+          @update:model-value="formData.vehicleId = $event || null"
         />
       </div>
     </div>
 
-    <!-- Intervals Section - Two Columns -->
+    <!-- Intervals Section: reusable time + km components -->
     <div v-if="reminderType === 'both'" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <!-- Time Interval Section -->
       <div class="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-3 space-y-2.5 border border-gray-100 dark:border-gray-700">
-        <div class="flex items-center justify-between pb-1.5 border-b border-gray-200 dark:border-gray-700">
-          <span class="text-xs font-semibold text-[#121317] dark:text-white">
-            {{ t('reminders.form.timeInterval') }}
-          </span>
-        </div>
-
-        <!-- Preset Dropdown and Due Date in one row -->
-        <div class="flex gap-2 items-center">
-          <div class="flex-1">
-            <Select 
-              v-model="formData.timeIntervalPreset" 
-              :options="timePresets"
-              class="w-full text-sm"
-            />
-          </div>
-          <div class="flex items-center justify-between text-xs py-1.5 px-2 bg-white dark:bg-[#1e293b] rounded border border-gray-200 dark:border-gray-700 min-w-[140px]">
-            <span class="text-gray-600 dark:text-gray-400 mr-1">
-              {{ t('reminders.form.calculatedDate') }}
-            </span>
-            <span class="font-semibold text-primary">
-              {{ calculatedDueDate }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Custom Interval -->
-        <div v-if="formData.timeIntervalPreset === 'custom'" class="flex gap-2">
-          <div class="flex-1">
-            <Input
-              v-model.number="formData.timeInterval"
-              type="number"
-              min="1"
-              class="w-full text-sm"
-              :placeholder="t('reminders.form.timeInterval')"
-            />
-          </div>
-          <div class="w-28">
-            <Select 
-              v-model="formData.timeIntervalType" 
-              :options="timeUnitOptions"
-              class="w-full text-sm"
-            />
-          </div>
-        </div>
-
-        <!-- Warning Days -->
-        <div>
-          <label class="block text-xs font-medium mb-1 text-[#121317] dark:text-white">
-            {{ t('reminders.form.warningDaysBefore') }}
-          </label>
-          <Input
-            v-model.number="formData.warningDaysBefore"
-            type="number"
-            min="0"
-            class="w-full text-sm"
-          />
-        </div>
+        <ReminderTimeIntervalFields v-model="timeIntervalModel" />
       </div>
-
-      <!-- Distance Interval Section -->
       <div class="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-3 space-y-2.5 border border-gray-100 dark:border-gray-700">
-        <div class="flex items-center justify-between pb-1.5 border-b border-gray-200 dark:border-gray-700">
-          <span class="text-xs font-semibold text-[#121317] dark:text-white">
-            {{ t('reminders.form.kmInterval') }}
-          </span>
-        </div>
-
-        <!-- Current Km Display -->
-        <div v-if="formData.vehicleId && currentKm > 0" class="flex items-center justify-between text-xs py-1.5 px-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
-          <span class="text-blue-700 dark:text-blue-300">
-            {{ t('reminders.form.currentKm') }}
-          </span>
-          <span class="font-semibold text-blue-600 dark:text-blue-400">
-            {{ currentKm.toLocaleString('fa-IR') }} {{ t('common.km') }}
-          </span>
-        </div>
-
-        <!-- Interval Input and Due Km in one row -->
-        <div class="flex gap-2 items-center">
-          <div class="flex gap-2 flex-1">
-            <div class="flex-1">
-              <Input
-                v-model.number="formData.kmInterval"
-                type="number"
-                min="1"
-                class="w-full text-sm"
-                :placeholder="t('reminders.form.kmIntervalPlaceholder')"
-                :disabled="!formData.vehicleId"
-              />
-            </div>
-            <span class="px-2.5 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 self-center whitespace-nowrap">
-              {{ t('common.km') }}
-            </span>
-          </div>
-          <div v-if="calculatedDueKm" class="flex items-center justify-between text-xs py-1.5 px-2 bg-white dark:bg-[#1e293b] rounded border border-gray-200 dark:border-gray-700 min-w-[140px]">
-            <span class="text-gray-600 dark:text-gray-400 mr-1">
-              {{ t('reminders.form.calculatedKm') }}
-            </span>
-            <span class="font-semibold text-primary">
-              {{ calculatedDueKm.toLocaleString('fa-IR') }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Warning Km -->
-        <div>
-          <label class="block text-xs font-medium mb-1 text-[#121317] dark:text-white">
-            {{ t('reminders.form.warningKmBefore') }}
-          </label>
-          <Input
-            v-model.number="formData.warningKmBefore"
-            type="number"
-            min="0"
-            class="w-full text-sm"
-          />
-        </div>
-
-        <!-- Vehicle Selection Hint -->
-        <p v-if="!formData.vehicleId" class="text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 p-1.5 rounded border border-orange-200 dark:border-orange-800">
-          {{ t('reminders.form.selectVehicleForKm') }}
-        </p>
+        <ReminderKmIntervalFields
+          :vehicle-id="formData.vehicleId || vehicleId"
+          v-model="kmIntervalModel"
+        />
       </div>
     </div>
-
-    <!-- Time Only Section -->
     <div v-else-if="reminderType === 'time'" class="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-3 space-y-2.5 border border-gray-100 dark:border-gray-700">
-      <div class="flex items-center justify-between pb-1.5 border-b border-gray-200 dark:border-gray-700">
-        <span class="text-xs font-semibold text-[#121317] dark:text-white">
-          {{ t('reminders.form.timeInterval') }}
-        </span>
-      </div>
-
-      <!-- Preset Dropdown and Due Date in one row -->
-      <div class="flex gap-2 items-center">
-        <div class="flex-1">
-          <Select 
-            v-model="formData.timeIntervalPreset" 
-            :options="timePresets"
-            class="w-full text-sm"
-          />
-        </div>
-        <div class="flex items-center justify-between text-xs py-1.5 px-2 bg-white dark:bg-[#1e293b] rounded border border-gray-200 dark:border-gray-700 min-w-[140px]">
-          <span class="text-gray-600 dark:text-gray-400 mr-1">
-            {{ t('reminders.form.calculatedDate') }}
-          </span>
-          <span class="font-semibold text-primary">
-            {{ calculatedDueDate }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Custom Interval -->
-      <div v-if="formData.timeIntervalPreset === 'custom'" class="flex gap-2">
-        <div class="flex-1">
-          <Input
-            v-model.number="formData.timeInterval"
-            type="number"
-            min="1"
-            class="w-full text-sm"
-            :placeholder="t('reminders.form.timeInterval')"
-          />
-        </div>
-        <div class="w-28">
-          <Select 
-            v-model="formData.timeIntervalType" 
-            :options="timeUnitOptions"
-            class="w-full text-sm"
-          />
-        </div>
-      </div>
-
-      <!-- Warning Days -->
-      <div>
-        <label class="block text-xs font-medium mb-1 text-[#121317] dark:text-white">
-          {{ t('reminders.form.warningDaysBefore') }}
-        </label>
-        <Input
-          v-model.number="formData.warningDaysBefore"
-          type="number"
-          min="0"
-          class="w-full text-sm"
-        />
-      </div>
+      <ReminderTimeIntervalFields v-model="timeIntervalModel" />
     </div>
-
-    <!-- Distance Only Section -->
     <div v-else-if="reminderType === 'km'" class="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-3 space-y-2.5 border border-gray-100 dark:border-gray-700">
-      <div class="flex items-center justify-between pb-1.5 border-b border-gray-200 dark:border-gray-700">
-        <span class="text-xs font-semibold text-[#121317] dark:text-white">
-          {{ t('reminders.form.kmInterval') }}
-        </span>
-      </div>
-
-      <!-- Current Km Display -->
-      <div v-if="formData.vehicleId && currentKm > 0" class="flex items-center justify-between text-xs py-1.5 px-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
-        <span class="text-blue-700 dark:text-blue-300">
-          {{ t('reminders.form.currentKm') }}
-        </span>
-        <span class="font-semibold text-blue-600 dark:text-blue-400">
-          {{ currentKm.toLocaleString('fa-IR') }} {{ t('common.km') }}
-        </span>
-      </div>
-
-      <!-- Interval Input and Due Km in one row -->
-      <div class="flex gap-2 items-center">
-        <div class="flex gap-2 flex-1">
-          <div class="flex-1">
-            <Input
-              v-model.number="formData.kmInterval"
-              type="number"
-              min="1"
-              class="w-full text-sm"
-              :placeholder="t('reminders.form.kmIntervalPlaceholder')"
-              :disabled="!formData.vehicleId"
-            />
-          </div>
-          <span class="px-2.5 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 self-center whitespace-nowrap">
-            {{ t('common.km') }}
-          </span>
-        </div>
-        <div v-if="calculatedDueKm" class="flex items-center justify-between text-xs py-1.5 px-2 bg-white dark:bg-[#1e293b] rounded border border-gray-200 dark:border-gray-700 min-w-[140px]">
-          <span class="text-gray-600 dark:text-gray-400 mr-1">
-            {{ t('reminders.form.calculatedKm') }}
-          </span>
-          <span class="font-semibold text-primary">
-            {{ calculatedDueKm.toLocaleString('fa-IR') }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Warning Km -->
-      <div>
-        <label class="block text-xs font-medium mb-1 text-[#121317] dark:text-white">
-          {{ t('reminders.form.warningKmBefore') }}
-        </label>
-        <Input
-          v-model.number="formData.warningKmBefore"
-          type="number"
-          min="0"
-          class="w-full text-sm"
-        />
-      </div>
-
-      <!-- Vehicle Selection Hint -->
-      <p v-if="!formData.vehicleId" class="text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 p-1.5 rounded border border-orange-200 dark:border-orange-800">
-        {{ t('reminders.form.selectVehicleForKm') }}
-      </p>
+      <ReminderKmIntervalFields
+        :vehicle-id="formData.vehicleId || vehicleId"
+        v-model="kmIntervalModel"
+      />
     </div>
 
     <!-- Description -->

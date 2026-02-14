@@ -79,96 +79,127 @@
 </template>
 
 <script setup>
+/**
+ * فیلد ورودی با label، خطا، hint و پشتیبانی از v-model
+ *
+ * @component Input
+ * @emits {string|number} update:modelValue - مقدار جدید
+ * @emits {FocusEvent} blur - هنگام از دست دادن focus
+ * @emits {FocusEvent} focus - هنگام دریافت focus
+ * @emits {} clear - هنگام پاک کردن مقدار (دکمه clear)
+ */
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
+  /** مقدار دوطرفه (v-model) */
   modelValue: {
     type: [String, Number],
     default: ''
   },
+  /** برچسب فیلد */
   label: {
     type: String,
     default: ''
   },
+  /** نام فیلد (برای form و id) */
   name: {
     type: String,
     default: ''
   },
+  /** نوع input: text | email | password | number و غیره */
   type: {
     type: String,
     default: 'text'
   },
+  /** متن placeholder */
   placeholder: {
     type: String,
     default: ''
   },
+  /** پیام خطای اعتبارسنجی */
   error: {
     type: String,
     default: ''
   },
+  /** متن راهنما زیر فیلد */
   hint: {
     type: String,
     default: ''
   },
+  /** غیرفعال بودن فیلد */
   disabled: {
     type: Boolean,
     default: false
   },
+  /** الزامی بودن فیلد */
   required: {
     type: Boolean,
     default: false
   },
+  /** فقط خواندنی */
   readonly: {
     type: Boolean,
     default: false
   },
+  /** نام آیکون Material Symbols */
   icon: {
     type: String,
     default: ''
   },
+  /** نمایش دکمه پاک کردن */
   clearable: {
     type: Boolean,
     default: false
   },
+  /** حداقل مقدار (برای number/date) */
   min: {
     type: [String, Number],
     default: undefined
   },
+  /** حداکثر مقدار (برای number/date) */
   max: {
     type: [String, Number],
     default: undefined
   },
+  /** حداقل طول */
   minLength: {
     type: Number,
     default: undefined
   },
+  /** حداکثر طول */
   maxLength: {
     type: Number,
     default: undefined
   },
+  /** الگوی regex برای validation */
   pattern: {
     type: String,
     default: undefined
   },
+  /** مقدار autocomplete مرورگر */
   autocomplete: {
     type: String,
     default: undefined
   },
+  /** جهت متن: ltr | rtl */
   dir: {
     type: String,
     default: undefined
   },
+  /** کلاس wrapper */
   wrapperClass: {
     type: String,
     default: ''
   },
+  /** کلاس input */
   inputClass: {
     type: String,
     default: ''
   }
 })
 
+/** @emits update:modelValue - مقدار جدید | @emits blur - FocusEvent | @emits focus - FocusEvent | @emits clear */
 const emit = defineEmits(['update:modelValue', 'blur', 'focus', 'clear'])
 
 const { t } = useI18n()

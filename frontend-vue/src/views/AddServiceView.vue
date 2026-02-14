@@ -5,17 +5,23 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '../stores/service'
 import { useVehicleStore } from '../stores/vehicle'
 import { useServiceTypeStore } from '../stores/serviceType'
+import { servicePresetService } from '../services/servicePresetService'
 import { useExpenseCategoryStore } from '../stores/expenseCategory'
 import { useExpenseStore } from '../stores/expense'
 import { useReminderStore } from '../stores/reminder'
 import { useToast } from '../composables/useToast'
 import MainLayout from '../components/MainLayout.vue'
-import { Button, Input, Select, Card, LoadingSpinner, Modal } from '../components/ui'
+import { Button, Input, Select, Card, LoadingSpinner, Modal, PersianDatePicker } from '../components/ui'
+import { getTodayJalaliStr, isoToJalaliStr, jalaliToIso } from '../utils/dateUtils'
+import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
 import ServiceTypeSelector from '../components/ServiceTypeSelector.vue'
+import ReminderTimeIntervalFields from '../components/ReminderTimeIntervalFields.vue'
+import ReminderKmIntervalFields from '../components/ReminderKmIntervalFields.vue'
 
 const router = useRouter()
 const route = useRoute()
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const isPersianLocale = computed(() => locale.value === 'fa')
 const serviceStore = useServiceStore()
 const vehicleStore = useVehicleStore()
 const serviceTypeStore = useServiceTypeStore()
@@ -24,10 +30,11 @@ const expenseStore = useExpenseStore()
 const reminderStore = useReminderStore()
 const toast = useToast()
 
-// Form state
+// Form state — تاریخ: فارسی = شمسی YYYY/MM/DD، غیرفارسی = ISO YYYY-MM-DD (backend هر دو را قبول می‌کند)
+const getInitialDate = () => (locale.value === 'fa' ? getTodayJalaliStr() : new Date().toISOString().split('T')[0])
 const formData = ref({
   vehicleId: '',
-  date: new Date().toISOString().split('T')[0], // Today's date
+  date: getInitialDate(),
   km: '',
   cost: '',
   type: '',
@@ -37,14 +44,49 @@ const formData = ref({
   shopName: ''
 })
 
-// Reminder state
+// Reminder state (reusable interval components)
 const createReminderAfterService = ref(false)
-const reminderInterval = ref({ days: 90, km: 5000 })
+const reminderTimeFields = ref({
+  timeIntervalPreset: '90',
+  dueDate: null,
+  warningDaysBefore: 7
+})
+const reminderKmFields = ref({
+  kmInterval: 5000,
+  warningKmBefore: 500
+})
+
+// Quick category chips for expense tab (plan: fuel, parking, toll, wash)
+const EXPENSE_QUICK_CHIP_CODES = ['fuel', 'parking', 'toll', 'wash']
+
+// Attachments: multiple files per tab (gallery-like)
+const MAX_ATTACHMENTS = 10
+const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_ATTACHMENT_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+
+const receiptFiles = ref([]) // expense tab: { file, previewUrl? }
+const receiptError = ref('')
+
+const serviceAttachments = ref([]) // service tab: { file, previewUrl? }
+const serviceAttachmentError = ref('')
+
+// Recurring expense presets: insurance, inspection, contractual (plan: پریست‌های رایج)
+const RECURRING_PRESETS = [
+  { key: 'insurance', days: 365, labelKey: 'expenses.recurring.insurance' },
+  { key: 'inspection', days: 365, labelKey: 'expenses.recurring.inspection' },
+  { key: 'contractual', days: 90, labelKey: 'expenses.recurring.contractual' }
+]
 
 const formErrors = ref({})
 const isSubmitting = ref(false)
+const isLoadingEdit = ref(false)
 const activeTab = ref('service') // 'service' or 'expense'
 const showServiceTypeModal = ref(false)
+const serviceTypeSelectorKey = ref(0)
+
+// حالت ویرایش سرویس (از لیست سرویس‌ها با query edit=id)
+const editingServiceId = computed(() => route.query.edit || null)
+const isEditMode = computed(() => !!editingServiceId.value)
 
 // Autocomplete state
 const autocompleteQuery = ref('')
@@ -83,6 +125,36 @@ const filteredOptions = computed(() => {
   )
 })
 
+// گروه‌بندی گزینه‌های فیلترشده (برای تب سرویس)
+const groupedFilteredOptions = computed(() => {
+  if (activeTab.value !== 'service') {
+    return [
+      {
+        id: 'default',
+        title: '',
+        options: filteredOptions.value
+      }
+    ]
+  }
+
+  const groups = {}
+  filteredOptions.value.forEach((opt) => {
+    const key = opt.category || 'other'
+    if (!groups[key]) {
+      groups[key] = {
+        id: key,
+        title: serviceTypeStore.serviceTypesWithTranslation.find(t => t.group_name === key)?.groupName || key,
+        options: []
+      }
+    }
+    groups[key].options.push(opt)
+  })
+  return Object.values(groups)
+})
+
+// پیش‌تعریف‌های انتخاب سریع (از API، توسط ادمین تعریف شده)
+const servicePresets = ref([])
+
 // Get label by value based on active tab
 const getLabel = (value) => {
   if (activeTab.value === 'service') {
@@ -92,17 +164,31 @@ const getLabel = (value) => {
   }
 }
 
+/** تبدیل رشته تاریخ (شمسی یا میلادی) به YYYY-MM-DD برای input type="date" */
+async function toDateInputValue(dateStr) {
+  if (!dateStr) return ''
+  const s = String(dateStr).trim()
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
+  const parts = s.split(/[\/\-]/)
+  if (parts.length === 3 && parseInt(parts[0], 10) > 1300) {
+    try {
+      const PersianDate = (await import('persian-date')).default
+      const pd = new PersianDate().parse(s.replace(/\//g, '-'))
+      const d = pd.toDate()
+      if (d && !isNaN(d.getTime())) return d.toISOString().split('T')[0]
+    } catch (e) {
+      console.warn('toDateInputValue jalali parse failed:', e)
+    }
+  }
+  const d = new Date(s)
+  if (!isNaN(d.getTime())) return d.toISOString().split('T')[0]
+  return s
+}
+
 // Computed
 const selectedVehicle = computed(() => {
   if (!formData.value.vehicleId) return null
   return vehicleStore.vehicles.find(v => v.id === formData.value.vehicleId)
-})
-
-const vehicleOptions = computed(() => {
-  return vehicleStore.vehicles.map(v => ({
-    value: v.id,
-    label: `${v.model} - ${v.year}`
-  }))
 })
 
 const isFormValid = computed(() => {
@@ -157,6 +243,45 @@ const validateForm = () => {
   return Object.keys(errors).length === 0
 }
 
+/** تاریخ سرویس از API را به ISO YYYY-MM-DD نرمال می‌کند (برای نمایش در فرم) */
+async function normalizeApiDateToIso(raw) {
+  if (raw == null || raw === '') return ''
+  const s = String(raw).trim()
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
+  return await toDateInputValue(s) || ''
+}
+
+const loadServiceForEdit = async () => {
+  const id = editingServiceId.value
+  if (!id) return
+  isLoadingEdit.value = true
+  try {
+    const service = await serviceStore.fetchServiceById(id)
+    formData.value.vehicleId = String(service.vehicleId)
+    const rawDate = service.date ?? service.serviceDate ?? ''
+    const isoDate = await normalizeApiDateToIso(rawDate)
+    if (locale.value === 'fa') {
+      const jalaliStr = isoToJalaliStr(isoDate) || isoToJalaliStr(rawDate) || getTodayJalaliStr()
+      formData.value.date = jalaliStr
+    } else {
+      const enDate = isoDate || (rawDate ? await toDateInputValue(rawDate) : '')
+      formData.value.date = enDate || new Date().toISOString().split('T')[0]
+    }
+    formData.value.km = service.km?.toString() ?? ''
+    formData.value.cost = service.cost?.toString() ?? ''
+    formData.value.types = (service.types && service.types.length) ? [...service.types] : (service.type ? [service.type] : [])
+    formData.value.type = service.type || (formData.value.types[0] || '')
+    formData.value.note = service.note ?? ''
+    activeTab.value = 'service'
+  } catch (error) {
+    console.error('Error loading service for edit:', error)
+    toast.error(t('services.edit.error'))
+    router.push({ name: 'service-list' })
+  } finally {
+    isLoadingEdit.value = false
+  }
+}
+
 const handleSubmit = async () => {
   if (!validateForm()) {
     toast.warning(t('validation.required'))
@@ -167,17 +292,24 @@ const handleSubmit = async () => {
   
   try {
     if (activeTab.value === 'service') {
-      // Create service
       const serviceData = {
         vehicleId: formData.value.vehicleId,
-        date: formData.value.date, // Will be converted in service layer
+        date: formData.value.date,
         km: parseInt(formData.value.km),
         cost: parseInt(formData.value.cost),
-        type: formData.value.types[0] || formData.value.type, // Primary type
+        type: formData.value.types[0] || formData.value.type,
         types: formData.value.types.length > 0 ? formData.value.types : [],
         note: formData.value.note || undefined
       }
-      
+
+      if (isEditMode.value) {
+        await serviceStore.updateService(editingServiceId.value, serviceData)
+        toast.success(t('services.edit.success'))
+        router.push({ name: 'service-list' })
+        return
+      }
+
+      // Create service
       const createdService = await serviceStore.createService(serviceData)
       toast.success(t('services.add.success'))
       
@@ -190,6 +322,7 @@ const handleSubmit = async () => {
           // Get default intervals based on service type
           const defaultIntervals = getDefaultIntervalsForServiceType(serviceType)
           
+          const baseKm = parseInt(serviceData.km, 10) || 0
           const reminderData = {
             title: t('reminders.autoReminder') + ': ' + serviceTypeLabel,
             description: serviceData.note || null,
@@ -197,10 +330,10 @@ const handleSubmit = async () => {
             serviceId: createdService.id,
             source: 'auto',
             type: serviceType,
-            dueDate: calculateDueDate(reminderInterval.value.days),
-            dueKm: calculateDueKm(serviceData.km, reminderInterval.value.km),
-            warningDaysBefore: 7,
-            warningKmBefore: 500
+            dueDate: getDueDateFromTimeFields(),
+            dueKm: baseKm + (reminderKmFields.value.kmInterval || 0),
+            warningDaysBefore: reminderTimeFields.value.warningDaysBefore ?? 7,
+            warningKmBefore: reminderKmFields.value.warningKmBefore ?? 500
           }
           
           await reminderStore.createReminder(reminderData)
@@ -214,10 +347,13 @@ const handleSubmit = async () => {
       // Create expense
       const expenseData = {
         vehicleId: formData.value.vehicleId,
-        date: formData.value.date, // Will be converted in service layer
+        date: formData.value.date,
         amount: parseInt(formData.value.cost),
         category: formData.value.category,
-        description: formData.value.note || undefined
+        note: formData.value.note || undefined
+      }
+      if (formData.value.km && !isNaN(parseInt(formData.value.km))) {
+        expenseData.km = parseInt(formData.value.km)
       }
       
       const createdExpense = await expenseStore.createExpense(expenseData)
@@ -232,16 +368,17 @@ const handleSubmit = async () => {
           const selectedVehicle = vehicleStore.vehicles.find(v => v.id === formData.value.vehicleId)
           const currentKm = selectedVehicle?.currentKm || 0
           
+          const dueKmVal = currentKm > 0 ? currentKm + (reminderKmFields.value.kmInterval || 0) : null
           const reminderData = {
             title: t('reminders.autoReminder') + ': ' + expenseCategoryLabel,
-            description: formData.value.note || undefined,
+            description: formData.value.note ?? undefined,
             vehicleId: formData.value.vehicleId,
             serviceId: null,
             source: 'auto',
-            dueDate: calculateDueDate(reminderInterval.value.days),
-            dueKm: currentKm > 0 ? calculateDueKm(currentKm.toString(), reminderInterval.value.km) : null,
-            warningDaysBefore: 7,
-            warningKmBefore: 500
+            dueDate: getDueDateFromTimeFields(),
+            dueKm: dueKmVal,
+            warningDaysBefore: reminderTimeFields.value.warningDaysBefore ?? 7,
+            warningKmBefore: reminderKmFields.value.warningKmBefore ?? 500
           }
           
           await reminderStore.createReminder(reminderData)
@@ -296,22 +433,41 @@ const getDefaultIntervalsForServiceType = (serviceType) => {
   return defaults[serviceType] || defaults['other']
 }
 
-const calculateDueDate = (days) => {
-  const date = new Date()
-  date.setDate(date.getDate() + days)
-  return date.toISOString().split('T')[0]
+/** Ensures dueDate is ISO YYYY-MM-DD (backend accepts both; store sends ISO) */
+function ensureDueDateIso(val) {
+  if (!val) return null
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(val))) return val
+  return jalaliToIso(String(val)) || val
 }
 
-const calculateDueKm = (currentKm, intervalKm) => {
-  return parseInt(currentKm) + parseInt(intervalKm)
+/** Fallback: compute due date from preset when component has not yet synced dueDate */
+function getDueDateFromTimeFields() {
+  const tf = reminderTimeFields.value
+  const iso = ensureDueDateIso(tf.dueDate)
+  if (iso) return iso
+  const preset = tf.timeIntervalPreset
+  if (preset && preset !== 'custom') {
+    const days = parseInt(preset, 10)
+    if (!Number.isNaN(days)) {
+      const d = new Date()
+      d.setDate(d.getDate() + days)
+      return d.toISOString().split('T')[0]
+    }
+  }
+  return null
 }
 
-// Watch service type to update reminder intervals
+// Watch service type to sync reminder interval presets (time + km)
 watch(() => formData.value.types, (newTypes) => {
   if (newTypes.length > 0 && createReminderAfterService.value) {
     const serviceType = newTypes[0]
     const intervals = getDefaultIntervalsForServiceType(serviceType)
-    reminderInterval.value = intervals
+    const presetMap = { 1: '1', 2: '2', 7: '7', 30: '30', 60: '60', 90: '90', 180: '180', 365: '365' }
+    reminderTimeFields.value = {
+      ...reminderTimeFields.value,
+      timeIntervalPreset: presetMap[intervals.days] || '90'
+    }
+    reminderKmFields.value = { ...reminderKmFields.value, kmInterval: intervals.km }
   }
 }, { immediate: true })
 
@@ -337,16 +493,18 @@ const switchTab = (tab) => {
   // Reset form data when switching tabs
   if (tab === 'service') {
     formData.value.category = ''
+    clearAllReceipts()
   } else {
     formData.value.types = []
     formData.value.type = ''
-    formData.value.km = ''
+    clearServiceAttachments()
   }
   autocompleteQuery.value = ''
   showAutocompleteDropdown.value = false
 }
 
 const openServiceTypeModal = () => {
+  serviceTypeSelectorKey.value++
   showServiceTypeModal.value = true
 }
 
@@ -413,6 +571,97 @@ const removeExpenseCategory = () => {
   formData.value.category = ''
 }
 
+/** Quick chip: set expense category and keep autocomplete in sync */
+const applyExpenseQuickChip = (code) => {
+  formData.value.category = code
+  autocompleteQuery.value = ''
+  showAutocompleteDropdown.value = false
+}
+
+/** Recurring preset: set time interval preset and enable create reminder */
+const applyRecurringPreset = (preset) => {
+  const presetMap = { 1: '1', 2: '2', 7: '7', 30: '30', 60: '60', 90: '90', 180: '180', 365: '365' }
+  reminderTimeFields.value = {
+    ...reminderTimeFields.value,
+    timeIntervalPreset: presetMap[preset.days] || '90'
+  }
+  createReminderAfterService.value = true
+}
+
+function validateAttachmentFile(file) {
+  if (!ALLOWED_ATTACHMENT_TYPES.includes(file.type)) {
+    return t('expenses.add.receiptInvalidType', 'فقط تصویر (JPEG, PNG, WebP) یا PDF مجاز است.')
+  }
+  if (file.size > MAX_ATTACHMENT_SIZE) {
+    return t('expenses.add.receiptTooLarge', 'حداکثر حجم فایل ۵ مگابایت.')
+  }
+  return null
+}
+
+/** Expense tab: add receipt/attachment */
+const handleReceiptSelect = (event) => {
+  receiptError.value = ''
+  const file = event.target.files?.[0]
+  if (!file) return
+  const err = validateAttachmentFile(file)
+  if (err) {
+    receiptError.value = err
+    return
+  }
+  if (receiptFiles.value.length >= MAX_ATTACHMENTS) {
+    receiptError.value = t('common.maxFilesReached', 'حداکثر {{max}} فایل مجاز است.', { max: MAX_ATTACHMENTS })
+    return
+  }
+  const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+  receiptFiles.value.push({ file, previewUrl })
+  event.target.value = ''
+}
+const removeReceiptFile = (index) => {
+  const item = receiptFiles.value[index]
+  if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  receiptFiles.value.splice(index, 1)
+  receiptError.value = ''
+}
+const clearAllReceipts = () => {
+  receiptFiles.value.forEach(item => {
+    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  })
+  receiptFiles.value = []
+  receiptError.value = ''
+}
+
+/** Service tab: add attachment */
+const handleServiceAttachmentSelect = (event) => {
+  serviceAttachmentError.value = ''
+  const file = event.target.files?.[0]
+  if (!file) return
+  const err = validateAttachmentFile(file)
+  if (err) {
+    serviceAttachmentError.value = err
+    return
+  }
+  if (serviceAttachments.value.length >= MAX_ATTACHMENTS) {
+    serviceAttachmentError.value = t('common.maxFilesReached', 'حداکثر {{max}} فایل مجاز است.', { max: MAX_ATTACHMENTS })
+    return
+  }
+  const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+  serviceAttachments.value.push({ file, previewUrl })
+  event.target.value = ''
+}
+const removeServiceAttachment = (index) => {
+  const item = serviceAttachments.value[index]
+  if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  serviceAttachments.value.splice(index, 1)
+  serviceAttachmentError.value = ''
+}
+const clearServiceAttachments = () => {
+  serviceAttachments.value.forEach(item => {
+    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  })
+  serviceAttachments.value = []
+  serviceAttachmentError.value = ''
+}
+
 const handleAutocompleteKeydown = (event) => {
   if (event.key === 'ArrowDown') {
     event.preventDefault()
@@ -436,6 +685,22 @@ const handleAutocompleteKeydown = (event) => {
   }
 }
 
+/** اعمال یک preset انتخاب سریع (سرویس‌های تعریف‌شده توسط ادمین) */
+const applyServicePreset = (preset) => {
+  if (activeTab.value !== 'service' || !preset?.service_type_codes?.length) return
+  formData.value.types = [...preset.service_type_codes]
+  formData.value.type = preset.service_type_codes[0] || ''
+}
+
+/** آیا انتخاب فعلی با این preset یکسان است؟ */
+const presetMatchesSelection = (preset) => {
+  const codes = preset?.service_type_codes ?? []
+  const current = formData.value.types ?? []
+  if (codes.length !== current.length) return false
+  const set = new Set(codes)
+  return current.every((c) => set.has(c))
+}
+
 // Lifecycle
 onMounted(async () => {
   // Fetch service types from database if not already loaded
@@ -447,7 +712,7 @@ onMounted(async () => {
       toast.error(t('services.error', 'خطا در دریافت انواع سرویس'))
     }
   }
-  
+
   // Fetch expense categories from database if not already loaded
   if (expenseCategoryStore.expenseCategories.length === 0) {
     try {
@@ -457,18 +722,7 @@ onMounted(async () => {
       toast.error(t('expenses.error', 'خطا در دریافت دسته‌بندی هزینه‌ها'))
     }
   }
-  
-  // Check for query parameters (from SelectServiceTypeView)
-  if (route.query.types) {
-    const types = route.query.types.split(',')
-    formData.value.types = types
-    formData.value.type = types[0] || '' // Set first type as primary
-  }
-  
-  if (route.query.vehicleId) {
-    formData.value.vehicleId = route.query.vehicleId
-  }
-  
+
   // Fetch vehicles if not already loaded
   if (vehicleStore.vehicles.length === 0) {
     try {
@@ -478,12 +732,60 @@ onMounted(async () => {
       toast.error(t('vehicles.management.error'))
     }
   }
-  
+
+  // پیش‌تعریف‌های انتخاب سریع (فقط وقتی backend Django است)
+  try {
+    servicePresets.value = await servicePresetService.getAll()
+  } catch (error) {
+    console.warn('Could not load service presets:', error)
+    servicePresets.value = []
+  }
+
+  // حالت ویرایش: بارگذاری سرویس از query edit=id
+  if (editingServiceId.value) {
+    await loadServiceForEdit()
+    return
+  }
+
+  // Check for query parameters (from SelectServiceTypeView)
+  if (route.query.types) {
+    const types = route.query.types.split(',')
+    formData.value.types = types
+    formData.value.type = types[0] || ''
+  }
+
+  if (route.query.vehicleId) {
+    formData.value.vehicleId = route.query.vehicleId
+  }
+
+  if (route.query.tab === 'expense') {
+    activeTab.value = 'expense'
+  }
+
   // Set first vehicle as default if available and not set from query
   if (vehicleStore.vehicles.length > 0 && !formData.value.vehicleId) {
     formData.value.vehicleId = vehicleStore.vehicles[0].id
   }
 })
+
+watch(() => route.query.edit, (newEditId) => {
+  if (newEditId) {
+    loadServiceForEdit()
+  } else {
+    formData.value = {
+      vehicleId: vehicleStore.vehicles.length > 0 ? vehicleStore.vehicles[0].id : '',
+      date: getInitialDate(),
+      km: '',
+      cost: '',
+      type: '',
+      types: [],
+      category: '',
+      note: '',
+      shopName: ''
+    }
+    activeTab.value = 'service'
+  }
+}, { immediate: false })
 </script>
 
 <template>
@@ -491,22 +793,20 @@ onMounted(async () => {
     <div class="flex flex-col gap-6">
         <div class="flex flex-wrap justify-between items-end gap-4">
           <header class="flex flex-col gap-1">
-            <h1 class="text-[#121317] dark:text-white tracking-tight text-2xl sm:text-[32px] font-bold leading-tight">{{ $t('services.add.title') }}</h1>
-            <p class="text-[#666e85] dark:text-gray-400 text-sm font-normal leading-normal">{{ $t('services.add.subtitle') }}</p>
+            <h1 class="text-[#121317] dark:text-white tracking-tight text-2xl sm:text-[32px] font-bold leading-tight">{{ isEditMode ? $t('services.edit.title') : $t('services.add.title') }}</h1>
+            <p class="text-[#666e85] dark:text-gray-400 text-sm font-normal leading-normal">{{ isEditMode ? $t('services.edit.subtitle', 'ویرایش اطلاعات سرویس') : $t('services.add.subtitle') }}</p>
           </header>
-          <Select
+          <VehicleFilterSelect
             v-model="formData.vehicleId"
-            :options="vehicleOptions"
+            :show-all-option="false"
             :placeholder="$t('services.add.selectVehicle')"
-            icon="directions_car"
             :error="formErrors.vehicleId"
-            class="w-full sm:w-auto min-w-[200px]"
-            :aria-label="$t('services.add.selectVehicle')"
+            wrapper-class="w-full sm:w-auto min-w-[200px]"
           />
         </div>
       
       <!-- Loading state -->
-      <div v-if="vehicleStore.isLoading || serviceTypeStore.isLoading || expenseCategoryStore.isLoading" class="flex justify-center py-12">
+      <div v-if="vehicleStore.isLoading || serviceTypeStore.isLoading || expenseCategoryStore.isLoading || isLoadingEdit" class="flex justify-center py-12">
         <LoadingSpinner size="lg" :show-text="true" :text="$t('common.loading')" />
       </div>
       
@@ -590,7 +890,17 @@ onMounted(async () => {
             tabindex="0"
           >
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <PersianDatePicker
+              v-if="isPersianLocale"
+              :model-value="formData.date"
+              @update:model-value="(v) => { formData.date = v }"
+              :label="$t('services.add.serviceDate')"
+              :error="formErrors.date"
+              required
+              :placeholder="$t('services.add.serviceDatePlaceholder', '۱۴۰۳/۰۱/۰۱')"
+            />
             <Input
+              v-else
               v-model="formData.date"
               :label="$t('services.add.serviceDate')"
               type="date"
@@ -617,8 +927,25 @@ onMounted(async () => {
             <div v-if="activeTab === 'service'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <label class="flex flex-col gap-2 md:col-span-2">
                 <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ $t('services.add.serviceType') }}</span>
+                <!-- انتخاب سریع (پیش‌تعریف‌های ادمین) -->
+                <div v-if="servicePresets.length > 0" class="flex flex-wrap gap-2 mb-2">
+                  <button
+                    v-for="preset in servicePresets"
+                    :key="preset.preset_id"
+                    type="button"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs transition-colors"
+                    :class="presetMatchesSelection(preset)
+                      ? 'bg-primary text-white border-primary dark:bg-blue-500 dark:border-blue-500'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                    @click="applyServicePreset(preset)"
+                  >
+                    <span class="material-symbols-outlined text-[16px]" aria-hidden="true">build</span>
+                    <span>{{ preset.name }}</span>
+                  </button>
+                </div>
                 <div class="relative">
-                  <div class="flex flex-wrap items-center gap-2 min-h-[48px] p-2 pe-12 rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-shadow"
+                  <div
+                    class="flex flex-wrap items-center gap-2 min-h-[48px] p-2 pe-12 rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-shadow"
                     :class="{ 'border-red-500': formErrors.type }"
                   >
                     <!-- Selected service type tags -->
@@ -644,6 +971,7 @@ onMounted(async () => {
                       @focus="handleAutocompleteFocus"
                       @blur="handleAutocompleteBlur"
                       @keydown="handleAutocompleteKeydown"
+                      role="combobox"
                       :aria-label="$t('services.add.selectServiceType')"
                       :aria-expanded="showAutocompleteDropdown"
                       :aria-controls="showAutocompleteDropdown ? 'service-type-autocomplete' : undefined"
@@ -657,31 +985,54 @@ onMounted(async () => {
                       @click.stop="openServiceTypeModal"
                       type="button"
                       :aria-label="$t('services.add.selectFromModal')"
-                      class="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-gray-400 hover:text-primary dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                      class="absolute left-2 top-1/2 -translate-y-1/2 px-2 py-1.5 rounded-lg text-gray-400 hover:text-primary dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary flex items-center gap-1"
                       :title="$t('services.add.selectFromModal')"
                     >
                       <span class="material-symbols-outlined text-lg" aria-hidden="true">tune</span>
+                      <span class="hidden sm:inline text-xs">{{ $t('services.add.selectFromModal') }}</span>
                     </button>
                   </div>
                   <!-- Autocomplete dropdown -->
                   <Transition name="fade">
                     <div 
                       v-if="showAutocompleteDropdown && filteredOptions.length > 0"
+                      id="service-type-autocomplete"
+                      role="listbox"
                       class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-60 overflow-y-auto"
                       @mousedown.prevent
                     >
-                      <button
-                        v-for="(option, index) in filteredOptions"
-                        :key="option.value"
-                        @click="selectOption(option)"
-                        @mouseenter="autocompleteFocusedIndex = index"
-                        type="button"
-                        class="w-full px-4 py-3 text-right hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
-                        :class="{ 'bg-gray-50 dark:bg-gray-700': autocompleteFocusedIndex === index }"
+                      <div
+                        v-for="group in groupedFilteredOptions"
+                        :key="group.id"
+                        class="border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                       >
-                        <span class="text-sm font-medium text-[#121317] dark:text-white">{{ option.label }}</span>
-                        <span class="material-symbols-outlined text-gray-400 text-lg">add</span>
-                      </button>
+                        <div v-if="group.title" class="px-4 pt-2 pb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                          {{ group.title }}
+                        </div>
+                        <button
+                          v-for="(option, index) in group.options"
+                          :key="option.value"
+                          @click="selectOption(option)"
+                          @mouseenter="autocompleteFocusedIndex = index"
+                          type="button"
+                          role="option"
+                          :aria-selected="autocompleteFocusedIndex === index"
+                          class="w-full px-4 py-3 text-right hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
+                          :class="{ 'bg-gray-50 dark:bg-gray-700': autocompleteFocusedIndex === index }"
+                        >
+                          <div class="flex items-center gap-2">
+                            <span
+                              v-if="option.icon"
+                              class="material-symbols-outlined text-primary/70 dark:text-blue-300 text-lg"
+                              aria-hidden="true"
+                            >
+                              {{ option.icon }}
+                            </span>
+                            <span class="text-sm font-medium text-[#121317] dark:text-white">{{ option.label }}</span>
+                          </div>
+                          <span class="material-symbols-outlined text-gray-400 text-lg">add</span>
+                        </button>
+                      </div>
                     </div>
                   </Transition>
                 </div>
@@ -723,39 +1074,61 @@ onMounted(async () => {
                     {{ t('reminders.createFromServiceDescription') }}
                   </p>
                   
-                  <!-- Reminder intervals (shown when checkbox is checked) -->
+                  <!-- Reminder intervals: same reusable components as Add Reminder page -->
                   <div v-if="createReminderAfterService" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                        {{ t('reminders.form.timeInterval') }}
-                      </label>
-                      <div class="flex gap-2">
-                        <Input
-                          v-model.number="reminderInterval.days"
-                          type="number"
-                          min="1"
-                          class="flex-1"
-                        />
-                        <span class="text-xs text-gray-500 self-center">{{ t('reminders.form.days') }}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                        {{ t('reminders.form.kmInterval') }}
-                      </label>
-                      <div class="flex gap-2">
-                        <Input
-                          v-model.number="reminderInterval.km"
-                          type="number"
-                          min="1"
-                          class="flex-1"
-                        />
-                        <span class="text-xs text-gray-500 self-center">{{ t('common.km') }}</span>
-                      </div>
-                    </div>
+                    <ReminderTimeIntervalFields v-model="reminderTimeFields" />
+                    <ReminderKmIntervalFields
+                      :vehicle-id="formData.vehicleId"
+                      v-model="reminderKmFields"
+                    />
                   </div>
                 </div>
               </div>
+            </div>
+            
+            <!-- Service attachments (gallery-like) -->
+            <div v-if="activeTab === 'service'" class="mt-6">
+              <label class="block text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal mb-2">
+                {{ $t('services.add.attachments', 'پیوست‌ها (رسید / فاکتور)') }} ({{ $t('common.optional') }})
+              </label>
+              <div class="flex flex-wrap gap-3 items-start">
+                <div
+                  v-for="(item, index) in serviceAttachments"
+                  :key="index"
+                  class="relative group w-20 h-20 shrink-0 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden bg-gray-50 dark:bg-gray-800"
+                >
+                  <img
+                    v-if="item.previewUrl"
+                    :src="item.previewUrl"
+                    alt=""
+                    class="w-full h-full object-cover"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center p-1">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate text-center">{{ item.file.name }}</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="absolute top-0.5 right-0.5 p-1 rounded bg-black/50 text-white hover:bg-red-500 transition-colors"
+                    :aria-label="$t('common.close')"
+                    @click="removeServiceAttachment(index)"
+                  >
+                    <span class="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+                <label
+                  v-if="serviceAttachments.length < MAX_ATTACHMENTS"
+                  class="w-20 h-20 shrink-0 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                >
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                    class="hidden"
+                    @change="handleServiceAttachmentSelect"
+                  />
+                  <span class="material-symbols-outlined text-3xl text-gray-400">add_photo_alternate</span>
+                </label>
+              </div>
+              <p v-if="serviceAttachmentError" class="text-red-500 text-xs mt-1" role="alert">{{ serviceAttachmentError }}</p>
             </div>
             
           </div>
@@ -767,6 +1140,53 @@ onMounted(async () => {
             :aria-labelledby="'expense-tab'"
             tabindex="0"
           >
+            <!-- Expense date and optional km -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
+              <PersianDatePicker
+                v-if="isPersianLocale"
+                :model-value="formData.date"
+                @update:model-value="(v) => { formData.date = v }"
+                :label="$t('expenses.add.expenseDate', 'تاریخ هزینه')"
+                :error="formErrors.date"
+                required
+                :placeholder="$t('services.add.serviceDatePlaceholder', '۱۴۰۳/۰۱/۰۱')"
+              />
+              <Input
+                v-else
+                v-model="formData.date"
+                :label="$t('expenses.add.expenseDate', 'تاریخ هزینه')"
+                type="date"
+                :error="formErrors.date"
+                required
+                :aria-required="true"
+              />
+              <div class="flex flex-col gap-2">
+                <Input
+                  v-model="formData.km"
+                  :label="$t('expenses.add.currentKm', 'کارکرد فعلی (کیلومتر)') + ' (' + $t('common.optional') + ')'"
+                  type="number"
+                  :placeholder="$t('services.add.currentKmPlaceholder')"
+                  dir="ltr"
+                  class="text-right"
+                  min="0"
+                />
+              </div>
+            </div>
+            <!-- Quick category chips (plan: fuel, parking, toll, wash) -->
+            <div class="flex flex-wrap gap-2 mb-2">
+              <button
+                v-for="code in EXPENSE_QUICK_CHIP_CODES"
+                :key="code"
+                type="button"
+                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full border text-xs font-medium transition-colors"
+                :class="formData.category === code
+                  ? 'bg-primary text-white border-primary dark:bg-blue-500 dark:border-blue-500'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                @click="applyExpenseQuickChip(code)"
+              >
+                <span>{{ getLabel(code) }}</span>
+              </button>
+            </div>
             <!-- Expense Category (for expense tab) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <label class="flex flex-col gap-2 md:col-span-2">
@@ -856,6 +1276,50 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
+            <!-- Expense attachments (gallery-like) -->
+            <div v-if="activeTab === 'expense'" class="mt-6">
+              <label class="block text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal mb-2">
+                {{ $t('expenses.add.receipt', 'رسید / فاکتور') }} ({{ $t('common.optional') }})
+              </label>
+              <div class="flex flex-wrap gap-3 items-start">
+                <div
+                  v-for="(item, index) in receiptFiles"
+                  :key="index"
+                  class="relative group w-20 h-20 shrink-0 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden bg-gray-50 dark:bg-gray-800"
+                >
+                  <img
+                    v-if="item.previewUrl"
+                    :src="item.previewUrl"
+                    alt=""
+                    class="w-full h-full object-cover"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center p-1">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate text-center">{{ item.file.name }}</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="absolute top-0.5 right-0.5 p-1 rounded bg-black/50 text-white hover:bg-red-500 transition-colors"
+                    :aria-label="$t('common.close')"
+                    @click="removeReceiptFile(index)"
+                  >
+                    <span class="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+                <label
+                  v-if="receiptFiles.length < MAX_ATTACHMENTS"
+                  class="w-20 h-20 shrink-0 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                >
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                    class="hidden"
+                    @change="handleReceiptSelect"
+                  />
+                  <span class="material-symbols-outlined text-3xl text-gray-400">add_photo_alternate</span>
+                </label>
+              </div>
+              <p v-if="receiptError" class="text-red-500 text-xs mt-1" role="alert">{{ receiptError }}</p>
+            </div>
           </div>
             
           <div class="space-y-6">
@@ -886,42 +1350,33 @@ onMounted(async () => {
               />
               <div class="flex-1">
                 <label for="create-reminder-expense" class="text-sm font-medium text-[#121317] dark:text-white cursor-pointer">
-                  {{ t('reminders.createFromService') }}
+                  {{ t('reminders.createFromExpense', 'یادآوری بعد از ثبت هزینه') }}
                 </label>
                 <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  {{ t('reminders.createFromServiceDescription') }}
+                  {{ t('reminders.createFromExpenseDescription', 'بعد از ثبت این هزینه، یک یادآوری با بازه زمانی مشخص ایجاد می‌شود.') }}
                 </p>
-                
-                <!-- Reminder intervals (shown when checkbox is checked) -->
+                <!-- Recurring presets: insurance, inspection, contractual -->
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <button
+                    v-for="preset in RECURRING_PRESETS"
+                    :key="preset.key"
+                    type="button"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs transition-colors"
+                    :class="createReminderAfterService && reminderTimeFields.timeIntervalPreset === String(preset.days)
+                      ? 'bg-primary/20 text-primary dark:text-blue-400 border-primary dark:border-blue-500'
+                      : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                    @click="applyRecurringPreset(preset)"
+                  >
+                    {{ t(preset.labelKey) }}
+                  </button>
+                </div>
+                <!-- Reminder intervals: same reusable components as Add Reminder page -->
                 <div v-if="createReminderAfterService" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                      {{ t('reminders.form.timeInterval') }}
-                    </label>
-                    <div class="flex gap-2">
-                      <Input
-                        v-model.number="reminderInterval.days"
-                        type="number"
-                        min="1"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-gray-500 self-center">{{ t('reminders.form.days') }}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                      {{ t('reminders.form.kmInterval') }}
-                    </label>
-                    <div class="flex gap-2">
-                      <Input
-                        v-model.number="reminderInterval.km"
-                        type="number"
-                        min="1"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-gray-500 self-center">{{ t('common.km') }}</span>
-                    </div>
-                  </div>
+                  <ReminderTimeIntervalFields v-model="reminderTimeFields" />
+                  <ReminderKmIntervalFields
+                    :vehicle-id="formData.vehicleId"
+                    v-model="reminderKmFields"
+                  />
                 </div>
               </div>
             </div>
@@ -946,9 +1401,9 @@ onMounted(async () => {
               :loading="isSubmitting"
               :disabled="!isFormValid || isSubmitting"
               icon="save"
-              :aria-label="isSubmitting ? $t('services.add.submitting') : $t('services.add.submit')"
+              :aria-label="isSubmitting ? (isEditMode ? $t('services.edit.submitting') : $t('services.add.submitting')) : (isEditMode ? $t('services.edit.submit') : $t('services.add.submit'))"
             >
-              {{ isSubmitting ? $t('services.add.submitting') : $t('services.add.submit') }}
+              {{ isSubmitting ? (isEditMode ? $t('services.edit.submitting') : $t('services.add.submitting')) : (isEditMode ? $t('services.edit.submit') : $t('services.add.submit')) }}
             </Button>
           </div>
         </form>
@@ -971,7 +1426,9 @@ onMounted(async () => {
       :title="$t('services.selectType.title')"
     >
       <ServiceTypeSelector
+        :key="serviceTypeSelectorKey"
         :vehicle-id="formData.vehicleId"
+        :selected-types="formData.types"
         @select="handleServiceTypeSelect"
         @cancel="handleServiceTypeCancel"
       />

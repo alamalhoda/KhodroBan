@@ -3,6 +3,7 @@
 export { default as api, getErrorMessage, setErrorHandlers } from '@services/api';
 export { authService } from '@services/authService';
 export { vehicleService } from '@services/vehicleService';
+export { vehicleGalleryService } from '@services/vehicleGalleryService';
 export { serviceService } from '@services/serviceService';
 export { expenseService } from '@services/expenseService';
 export { reminderService } from '@services/reminderService';

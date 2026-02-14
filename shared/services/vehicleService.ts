@@ -17,6 +17,9 @@ const mockVehicles: Vehicle[] = [
     plateNumber: '۱۲ب۳۴۵ - ۷۸',
     currentKm: 85000,
     note: 'خودروی اصلی',
+    iconName: 'car',
+    iconStyle: 'solid',
+    iconColor: '#3b82f6',
     createdAt: '2024-01-01',
     updatedAt: '2024-01-15',
   },
@@ -27,6 +30,9 @@ const mockVehicles: Vehicle[] = [
     year: 1395,
     plateNumber: '۲۲ج۱۱۱ - ۳۳',
     currentKm: 142000,
+    iconName: 'truck',
+    iconStyle: 'solid',
+    iconColor: '#6b7280',
     createdAt: '2024-02-01',
     updatedAt: '2024-02-10',
   },
@@ -165,6 +171,9 @@ const vehicleServiceSupabase: IVehicleService = {
       plateNumber: v.plate_number,
       currentKm: v.current_km,
       note: v.description || undefined,
+      iconName: (v as any).icon_name ?? undefined,
+      iconStyle: (v as any).icon_style ?? undefined,
+      iconColor: (v as any).icon_color ?? undefined,
       createdAt: v.created_at,
       updatedAt: v.updated_at,
     }));
@@ -194,6 +203,9 @@ const vehicleServiceSupabase: IVehicleService = {
       plateNumber: data.plate_number,
       currentKm: data.current_km,
       note: data.description || undefined,
+      iconName: (data as any).icon_name ?? undefined,
+      iconStyle: (data as any).icon_style ?? undefined,
+      iconColor: (data as any).icon_color ?? undefined,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
     };
@@ -215,6 +227,9 @@ const vehicleServiceSupabase: IVehicleService = {
         plate_number: data.plateNumber,
         current_km: data.currentKm,
         description: data.note || null,
+        ...(data.iconName != null && { icon_name: data.iconName }),
+        ...(data.iconStyle != null && { icon_style: data.iconStyle }),
+        ...(data.iconColor != null && { icon_color: data.iconColor }),
       })
       .select()
       .single();
@@ -240,6 +255,9 @@ const vehicleServiceSupabase: IVehicleService = {
       plateNumber: newVehicle.plate_number,
       currentKm: newVehicle.current_km,
       note: newVehicle.description || undefined,
+      iconName: (newVehicle as any).icon_name ?? undefined,
+      iconStyle: (newVehicle as any).icon_style ?? undefined,
+      iconColor: (newVehicle as any).icon_color ?? undefined,
       createdAt: newVehicle.created_at,
       updatedAt: newVehicle.updated_at,
     };
@@ -258,6 +276,9 @@ const vehicleServiceSupabase: IVehicleService = {
     if (data.plateNumber) updates.plate_number = data.plateNumber;
     if (data.currentKm !== undefined) updates.current_km = data.currentKm;
     if (data.note !== undefined) updates.description = data.note;
+    if (data.iconName !== undefined) updates.icon_name = data.iconName;
+    if (data.iconStyle !== undefined) updates.icon_style = data.iconStyle;
+    if (data.iconColor !== undefined) updates.icon_color = data.iconColor;
 
     const { data: updatedVehicle, error } = await supabase
       .from('vehicles')
@@ -277,6 +298,9 @@ const vehicleServiceSupabase: IVehicleService = {
       plateNumber: updatedVehicle.plate_number,
       currentKm: updatedVehicle.current_km,
       note: updatedVehicle.description || undefined,
+      iconName: (updatedVehicle as any).icon_name ?? undefined,
+      iconStyle: (updatedVehicle as any).icon_style ?? undefined,
+      iconColor: (updatedVehicle as any).icon_color ?? undefined,
       createdAt: updatedVehicle.created_at,
       updatedAt: updatedVehicle.updated_at,
     };
@@ -343,6 +367,9 @@ const vehicleServiceSupabase: IVehicleService = {
       plateNumber: updatedVehicle.plate_number,
       currentKm: updatedVehicle.current_km,
       note: updatedVehicle.description || undefined,
+      iconName: (updatedVehicle as any).icon_name ?? undefined,
+      iconStyle: (updatedVehicle as any).icon_style ?? undefined,
+      iconColor: (updatedVehicle as any).icon_color ?? undefined,
       createdAt: updatedVehicle.created_at,
       updatedAt: updatedVehicle.updated_at,
     };

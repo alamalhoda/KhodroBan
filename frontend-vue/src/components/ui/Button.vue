@@ -30,50 +30,66 @@
 </template>
 
 <script setup>
+/**
+ * دکمه قابل استفاده مجدد با انواع، اندازه‌ها و حالت loading
+ *
+ * @component Button
+ * @emits {Event} click - هنگام کلیک روی دکمه (payload: MouseEvent)
+ */
 import { computed } from 'vue'
 
 const props = defineProps({
+  /** نوع ظاهری دکمه: primary | secondary | success | danger | warning | ghost | outline */
   variant: {
     type: String,
     default: 'primary',
     validator: (value) => ['primary', 'secondary', 'success', 'danger', 'warning', 'ghost', 'outline'].includes(value)
   },
+  /** اندازه دکمه: sm | md | lg */
   size: {
     type: String,
     default: 'md',
     validator: (value) => ['sm', 'md', 'lg'].includes(value)
   },
+  /** نوع HTML: button | submit | reset */
   type: {
     type: String,
     default: 'button',
     validator: (value) => ['button', 'submit', 'reset'].includes(value)
   },
+  /** غیرفعال بودن دکمه */
   disabled: {
     type: Boolean,
     default: false
   },
+  /** نمایش حالت در حال بارگذاری */
   loading: {
     type: Boolean,
     default: false
   },
+  /** عرض کامل */
   fullWidth: {
     type: Boolean,
     default: false
   },
+  /** نام آیکون Material Symbols (مثلاً 'add'، 'close') */
   icon: {
     type: String,
     default: ''
   },
+  /** برچسب دسترسی‌پذیری برای screen reader */
   ariaLabel: {
     type: String,
     default: ''
   },
+  /** کلاس‌های CSS اضافی */
   className: {
     type: String,
     default: ''
   }
 })
 
+/** @emits click - هنگام کلیک (event: MouseEvent) */
 const emit = defineEmits(['click'])
 
 const handleClick = (event) => {

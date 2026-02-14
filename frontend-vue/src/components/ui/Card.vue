@@ -35,45 +35,60 @@
 </template>
 
 <script setup>
+/**
+ * کارت با عنوان، زیرعنوان، اسلات‌های header/body/footer و حالت‌های hover/click
+ *
+ * @component Card
+ * @emits {Event} click - هنگام کلیک (فقط وقتی clickable=true)
+ */
 import { computed } from 'vue'
 
 const props = defineProps({
+  /** عنوان کارت */
   title: {
     type: String,
     default: ''
   },
+  /** زیرعنوان کارت */
   subtitle: {
     type: String,
     default: ''
   },
+  /** فاصله داخلی: none | sm | md | lg */
   padding: {
     type: String,
     default: 'md',
     validator: (value) => ['none', 'sm', 'md', 'lg'].includes(value)
   },
+  /** ظاهر کارت: default | solid | outline | glass */
   variant: {
     type: String,
     default: 'default',
     validator: (value) => ['default', 'solid', 'outline', 'glass'].includes(value)
   },
+  /** افکت hover */
   hoverable: {
     type: Boolean,
     default: false
   },
+  /** قابل کلیک و keyboard navigation */
   clickable: {
     type: Boolean,
     default: false
   },
+  /** برچسب دسترسی‌پذیری (وقتی clickable) */
   ariaLabel: {
     type: String,
     default: ''
   },
+  /** کلاس‌های اضافی */
   className: {
     type: String,
     default: ''
   }
 })
 
+/** @emits click - MouseEvent یا KeyboardEvent وقتی clickable */
 const emit = defineEmits(['click'])
 
 const handleClick = (event) => {

@@ -3,16 +3,20 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import MainLayout from '../components/MainLayout.vue'
+import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
 import Card from '../components/ui/Card.vue'
 import Modal from '../components/ui/Modal.vue'
 import Button from '../components/ui/Button.vue'
 import LoadingSpinner from '../components/ui/LoadingSpinner.vue'
+import { useFormatDate } from '../composables/useFormatDate'
+import { getDaysRemaining as getDaysRemainingUtil } from '../utils/reminderDateUtils'
 import { useReminderStore } from '../stores/reminder'
 import { useVehicleStore } from '../stores/vehicle'
 import { useUIStore } from '../stores/ui'
 
 const router = useRouter()
 const { t } = useI18n()
+const formatDate = useFormatDate()
 const reminderStore = useReminderStore()
 const vehicleStore = useVehicleStore()
 const uiStore = useUIStore()
@@ -47,8 +51,6 @@ const filteredReminders = computed(() => {
     return statusOrder[a.status] - statusOrder[b.status]
   })
 })
-
-const vehicles = computed(() => vehicleStore.vehicles)
 
 // Methods
 const handleFilterChange = (filter) => {
@@ -99,6 +101,15 @@ const handleMarkCompleted = async (reminderId) => {
   }
 }
 
+const handleRetry = async () => {
+  reminderStore.clearError()
+  try {
+    await reminderStore.fetchReminders(selectedVehicleId.value || undefined)
+  } catch (error) {
+    uiStore.error(error.message || t('reminders.loadingError'))
+  }
+}
+
 const getStatusColor = (status) => {
   switch (status) {
     case 'overdue':
@@ -112,45 +123,72 @@ const getStatusColor = (status) => {
   }
 }
 
-// Format date for display
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  if (isNaN(date.getTime())) return dateString
-  try {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}/${month}/${day}`
-  } catch {
-    return date.toISOString().split('T')[0]
+// کلاس‌های ثابت برای هر وضعیت تا Tailwind آن‌ها را در خروجی نگه دارد (بدون dynamic class)
+const STATUS_CLASSES = {
+  red: {
+    cardBorder: 'border-r-4 border-r-red-500',
+    iconWrapper: 'w-12 h-12 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400 shadow-inner',
+    statusBox: 'flex items-center gap-2 mb-4 bg-red-50 dark:bg-red-900/10 p-3 rounded-xl border border-red-100 dark:border-red-900/30',
+    statusIcon: 'material-symbols-outlined text-red-500 text-[20px]',
+    statusLabel: 'text-xs text-red-600 dark:text-red-400 font-bold uppercase tracking-wider',
+    progressPercent: 'font-bold text-red-600',
+    progressBar: 'bg-red-500 h-full rounded-full transition-all',
+    actionButton: 'flex-1 bg-red-500 text-white'
+  },
+  yellow: {
+    cardBorder: 'border-r-4 border-r-yellow-500',
+    iconWrapper: 'w-12 h-12 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 flex items-center justify-center text-yellow-600 dark:text-yellow-400 shadow-inner',
+    statusBox: 'flex items-center gap-2 mb-4 bg-yellow-50 dark:bg-yellow-900/10 p-3 rounded-xl border border-yellow-100 dark:border-yellow-900/30',
+    statusIcon: 'material-symbols-outlined text-yellow-500 text-[20px]',
+    statusLabel: 'text-xs text-yellow-600 dark:text-yellow-400 font-bold uppercase tracking-wider',
+    progressPercent: 'font-bold text-yellow-600',
+    progressBar: 'bg-yellow-500 h-full rounded-full transition-all',
+    actionButton: 'flex-1 bg-yellow-500 text-white'
+  },
+  blue: {
+    cardBorder: 'border-r-4 border-r-blue-500',
+    iconWrapper: 'w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-inner',
+    statusBox: 'flex items-center gap-2 mb-4 bg-blue-50 dark:bg-blue-900/10 p-3 rounded-xl border border-blue-100 dark:border-blue-900/30',
+    statusIcon: 'material-symbols-outlined text-blue-500 text-[20px]',
+    statusLabel: 'text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider',
+    progressPercent: 'font-bold text-blue-600',
+    progressBar: 'bg-blue-500 h-full rounded-full transition-all',
+    actionButton: 'flex-1 bg-blue-500 text-white'
+  },
+  gray: {
+    cardBorder: 'border-r-4 border-r-gray-500',
+    iconWrapper: 'w-12 h-12 rounded-xl bg-gray-50 dark:bg-gray-900/20 flex items-center justify-center text-gray-600 dark:text-gray-400 shadow-inner',
+    statusBox: 'flex items-center gap-2 mb-4 bg-gray-50 dark:bg-gray-900/10 p-3 rounded-xl border border-gray-100 dark:border-gray-900/30',
+    statusIcon: 'material-symbols-outlined text-gray-500 text-[20px]',
+    statusLabel: 'text-xs text-gray-600 dark:text-gray-400 font-bold uppercase tracking-wider',
+    progressPercent: 'font-bold text-gray-600',
+    progressBar: 'bg-gray-500 h-full rounded-full transition-all',
+    actionButton: 'flex-1 bg-gray-500 text-white'
   }
 }
 
-// Calculate days remaining for date-based reminders
-const getDaysRemaining = (reminder) => {
-  if (!reminder.dueDate) return null
-  const dueDate = new Date(reminder.dueDate)
-  if (isNaN(dueDate.getTime())) return null
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  dueDate.setHours(0, 0, 0, 0)
-  const diff = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-  return diff
+const getStatusClasses = (status) => STATUS_CLASSES[getStatusColor(status)] || STATUS_CLASSES.gray
+
+const getDaysRemainingTextClass = (days) => {
+  if (days === null || days === undefined) return 'text-gray-600 dark:text-gray-400'
+  if (days < 0) return 'text-red-600 dark:text-red-400'
+  if (days <= 7) return 'text-yellow-600 dark:text-yellow-400'
+  return 'text-blue-600 dark:text-blue-400'
 }
 
-// Format days remaining text
+// محاسبه روز باقی‌مانده تا موعد (منطق تست‌شده در utils/reminderDateUtils)
+const getDaysRemaining = (reminder) => getDaysRemainingUtil(reminder?.dueDate)
+
+// Format days remaining text (i18n)
 const formatDaysRemaining = (days) => {
   if (days === null || days === undefined) return ''
+  const count = Math.abs(days)
   if (days < 0) {
-    return `${Math.abs(days).toLocaleString('fa-IR')} روز گذشته`
-  } else if (days === 0) {
-    return 'امروز'
-  } else if (days === 1) {
-    return 'فردا'
-  } else {
-    return `${days.toLocaleString('fa-IR')} روز دیگر`
+    return t('reminders.daysRemaining.daysAgo', { count: count.toLocaleString('fa-IR') })
   }
+  if (days === 0) return t('reminders.daysRemaining.today')
+  if (days === 1) return t('reminders.daysRemaining.tomorrow')
+  return t('reminders.daysRemaining.daysLater', { count: days.toLocaleString('fa-IR') })
 }
 
 const getStatusInfo = (reminder) => {
@@ -172,7 +210,7 @@ const getStatusInfo = (reminder) => {
     if (reminder.dueDate && daysRemaining !== null && daysRemaining < 0) {
       return {
         label: t('reminders.status.overdue'),
-        message: `${Math.abs(daysRemaining).toLocaleString('fa-IR')} روز گذشته از موعد`,
+        message: t('reminders.daysRemaining.daysPastDue', { count: Math.abs(daysRemaining).toLocaleString('fa-IR') }),
         icon: 'warning',
         color: 'red'
       }
@@ -320,23 +358,11 @@ onMounted(async () => {
 
         <!-- Vehicle Filter and Add Button -->
         <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-          <div class="relative min-w-[160px]">
-            <select
-              v-model="selectedVehicleId"
-              @change="handleVehicleChange(selectedVehicleId)"
-              class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-white dark:bg-[#1e293b] border border-gray-100 dark:border-gray-700 text-[#121317] dark:text-white text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-800 transition-all appearance-none pr-10"
-            >
-              <option :value="null">{{ t('services.allVehicles') }}</option>
-              <option
-                v-for="vehicle in vehicles"
-                :key="vehicle.id"
-                :value="vehicle.id"
-              >
-                {{ vehicle.model }} - {{ vehicle.plateNumber }}
-              </option>
-            </select>
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none material-symbols-outlined text-gray-400 text-sm">expand_more</span>
-          </div>
+          <VehicleFilterSelect
+            :model-value="selectedVehicleId ?? ''"
+            :show-all-option="true"
+            @update:model-value="handleVehicleChange"
+          />
           <Button
             @click="handleAddReminder"
             class="px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary-light transition-all shadow-lg shadow-primary/20 whitespace-nowrap"
@@ -347,17 +373,25 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Error Message -->
-      <div v-if="reminderStore.error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
-        <span>{{ reminderStore.error }}</span>
-        <button @click="reminderStore.clearError()" class="text-red-500 hover:text-red-700">
-          <span class="material-symbols-outlined text-sm">close</span>
-        </button>
+      <!-- Error State with Retry -->
+      <div v-if="reminderStore.error" class="flex flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800">
+        <span class="material-symbols-outlined text-red-500 text-5xl mb-3">error</span>
+        <p class="text-red-700 dark:text-red-400 font-medium mb-2">{{ reminderStore.error }}</p>
+        <div class="flex gap-3 items-center">
+          <Button @click="handleRetry" class="bg-red-500 text-white hover:bg-red-600">
+            <span class="material-symbols-outlined text-[18px]">refresh</span>
+            {{ t('reminders.retry') }}
+          </Button>
+          <button @click="reminderStore.clearError()" class="text-sm text-red-600 dark:text-red-400 hover:underline">
+            {{ t('common.cancel') }}
+          </button>
+        </div>
       </div>
 
       <!-- Loading State -->
-      <div v-if="reminderStore.isLoading && filteredReminders.length === 0" class="flex justify-center items-center py-12">
+      <div v-else-if="reminderStore.isLoading && filteredReminders.length === 0" class="flex flex-col justify-center items-center py-12 gap-3">
         <LoadingSpinner />
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('reminders.loading') }}</p>
       </div>
 
       <!-- Empty State -->
@@ -376,12 +410,12 @@ onMounted(async () => {
         <Card
           v-for="reminder in filteredReminders"
           :key="reminder.id"
-          :class="`border-r-4 border-r-${getStatusColor(reminder.status)}-500`"
+          :class="getStatusClasses(reminder.status).cardBorder"
         >
           <div class="flex justify-between items-start mb-4">
             <div class="flex gap-3">
               <div
-                :class="`w-12 h-12 rounded-xl bg-${getStatusColor(reminder.status)}-50 dark:bg-${getStatusColor(reminder.status)}-900/20 flex items-center justify-center text-${getStatusColor(reminder.status)}-600 dark:text-${getStatusColor(reminder.status)}-400 shadow-inner`"
+                :class="getStatusClasses(reminder.status).iconWrapper"
               >
                 <span class="material-symbols-outlined text-[24px]">
                   {{ reminder.type === 'oil_change' ? 'oil_barrel' : 'build' }}
@@ -407,16 +441,16 @@ onMounted(async () => {
 
           <!-- Status Badge -->
           <div
-            :class="`flex items-center gap-2 mb-4 bg-${getStatusInfo(reminder).color}-50 dark:bg-${getStatusInfo(reminder).color}-900/10 p-3 rounded-xl border border-${getStatusInfo(reminder).color}-100 dark:border-${getStatusInfo(reminder).color}-900/30`"
+            :class="getStatusClasses(reminder.status).statusBox"
           >
             <span
-              :class="`material-symbols-outlined text-${getStatusInfo(reminder).color}-500 text-[20px]`"
+              :class="getStatusClasses(reminder.status).statusIcon"
             >
               {{ getStatusInfo(reminder).icon }}
             </span>
             <div>
               <p
-                :class="`text-xs text-${getStatusInfo(reminder).color}-600 dark:text-${getStatusInfo(reminder).color}-400 font-bold uppercase tracking-wider`"
+                :class="getStatusClasses(reminder.status).statusLabel"
               >
                 {{ getStatusInfo(reminder).label }}
               </p>
@@ -441,13 +475,7 @@ onMounted(async () => {
             </div>
             <div v-if="getDaysRemaining(reminder) !== null" class="flex items-center gap-2">
               <span class="material-symbols-outlined text-sm text-gray-500 dark:text-gray-400">schedule</span>
-              <span :class="`text-xs font-medium ${
-                getDaysRemaining(reminder) < 0 
-                  ? 'text-red-600 dark:text-red-400' 
-                  : getDaysRemaining(reminder) <= 7 
-                    ? 'text-yellow-600 dark:text-yellow-400' 
-                    : 'text-blue-600 dark:text-blue-400'
-              }`">
+              <span :class="['text-xs font-medium', getDaysRemainingTextClass(getDaysRemaining(reminder))]">
                 {{ formatDaysRemaining(getDaysRemaining(reminder)) }}
               </span>
             </div>
@@ -457,13 +485,13 @@ onMounted(async () => {
           <div v-if="reminder.dueKm && reminder.currentKm" class="mb-4">
             <div class="flex justify-between text-xs mb-1.5 text-[#666e85]">
               <span>{{ t('reminders.targetKm', { km: reminder.dueKm.toLocaleString('fa-IR') }) }}</span>
-              <span :class="`font-bold text-${getStatusColor(reminder.status)}-600`">
+              <span :class="getStatusClasses(reminder.status).progressPercent">
                 {{ Math.round(getProgressPercent(reminder)) }}٪
               </span>
             </div>
             <div class="w-full bg-gray-100 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
               <div
-                :class="`bg-${getStatusColor(reminder.status)}-500 h-full rounded-full transition-all`"
+                :class="getStatusClasses(reminder.status).progressBar"
                 :style="{ width: Math.min(getProgressPercent(reminder), 100) + '%' }"
               ></div>
             </div>
@@ -481,7 +509,7 @@ onMounted(async () => {
             </Button>
             <Button
               @click="handleMarkCompleted(reminder.id)"
-              :class="`flex-1 bg-${getStatusColor(reminder.status)} text-white`"
+              :class="getStatusClasses(reminder.status).actionButton"
             >
               <span class="material-symbols-outlined text-[18px]">check</span>
               {{ t('reminders.completed') }}

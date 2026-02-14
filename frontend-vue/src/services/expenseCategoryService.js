@@ -1,9 +1,11 @@
-import { supabase } from './index'
+import { supabase, api } from './index'
+
+const isDjango = () => import.meta.env.VITE_BACKEND_TYPE === 'django'
 
 /**
  * Expense Category Service
- * 
- * دریافت دسته‌بندی هزینه‌ها از دیتابیس
+ *
+ * دریافت دسته‌بندی هزینه‌ها از دیتابیس (Django یا Supabase)
  * کدها و metadata از دیتابیس، ترجمه‌ها از i18n
  */
 
@@ -14,6 +16,16 @@ export const expenseCategoryService = {
    */
   async getAll() {
     try {
+      if (isDjango()) {
+        const response = await api.get('/expense-categories/')
+        const raw = response.data?.data ?? []
+        return raw.map((r) => ({
+          code: r.code,
+          icon: r.icon,
+          group_name: r.group_name,
+          is_active: r.is_active,
+        }))
+      }
       const { data, error } = await supabase
         .from('expense_categories')
         .select('code, icon, group_name, is_active')
@@ -64,6 +76,10 @@ export const expenseCategoryService = {
    */
   async getByCode(code) {
     try {
+      if (isDjango()) {
+        const all = await this.getAll()
+        return all.find((r) => r.code === code) ?? null
+      }
       const { data, error } = await supabase
         .from('expense_categories')
         .select('code, icon, group_name, is_active')
@@ -73,7 +89,6 @@ export const expenseCategoryService = {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // No rows returned
           return null
         }
         console.error('Error fetching expense category:', error)
@@ -85,6 +100,6 @@ export const expenseCategoryService = {
       console.error('Error in expenseCategoryService.getByCode:', error)
       throw error
     }
-  }
+  },
 }
 

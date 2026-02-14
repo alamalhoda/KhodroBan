@@ -21,6 +21,7 @@ const SelectServiceTypeView = () => import('../views/SelectServiceTypeView.vue')
 const ServiceListView = () => import('../views/ServiceListView.vue')
 const SmartAssistantView = () => import('../views/SmartAssistantView.vue')
 const UpgradeProView = () => import('../views/UpgradeProView.vue')
+const CalendarView = () => import('../views/CalendarView.vue')
 
 // Variant views (lazy loaded, lower priority)
 const DashboardVariant3View = () => import('../views/DashboardVariant3View.vue')
@@ -143,6 +144,12 @@ const router = createRouter({
       path: '/smart-assistant',
       name: 'smart-assistant',
       component: SmartAssistantView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/calendar',
+      name: 'calendar',
+      component: CalendarView,
       meta: { requiresAuth: true }
     }
   ]
