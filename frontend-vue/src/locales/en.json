@@ -29,7 +29,8 @@
     "to": "to",
     "of": "of",
     "previousPage": "Previous page",
-    "nextPage": "Next page"
+    "nextPage": "Next page",
+    "maxFilesReached": "Maximum {{max}} files allowed."
   },
   "auth": {
     "login": "Login",
@@ -296,6 +297,7 @@
       "cancel": "Cancel",
       "helpText": "Having trouble choosing a category?",
       "helpLink": "View Guide",
+      "attachments": "Attachments (receipt / invoice)",
       "success": "Service recorded successfully",
       "error": "Error recording service",
       "validation": {
@@ -389,6 +391,7 @@
     "add": {
       "expenseTab": "Additional Expense",
       "expenseDate": "Expense date",
+      "currentKm": "Current mileage (km)",
       "success": "Expense recorded successfully",
       "error": "Error recording expense",
       "validation": {

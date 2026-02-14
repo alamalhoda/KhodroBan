@@ -49,11 +49,16 @@ const reminderInterval = ref({ days: 90, km: 5000 })
 // Quick category chips for expense tab (plan: fuel, parking, toll, wash)
 const EXPENSE_QUICK_CHIP_CODES = ['fuel', 'parking', 'toll', 'wash']
 
-// Receipt upload (phase 1: state + preview + validation; payload when backend supports)
-const receiptFile = ref(null)
+// Attachments: multiple files per tab (gallery-like)
+const MAX_ATTACHMENTS = 10
+const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_ATTACHMENT_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+
+const receiptFiles = ref([]) // expense tab: { file, previewUrl? }
 const receiptError = ref('')
-const MAX_RECEIPT_SIZE = 5 * 1024 * 1024 // 5MB
-const ALLOWED_RECEIPT_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+
+const serviceAttachments = ref([]) // service tab: { file, previewUrl? }
+const serviceAttachmentError = ref('')
 
 // Recurring expense presets: insurance, inspection, contractual (plan: پریست‌های رایج)
 const RECURRING_PRESETS = [
@@ -336,6 +341,9 @@ const handleSubmit = async () => {
         category: formData.value.category,
         note: formData.value.note || undefined
       }
+      if (formData.value.km && !isNaN(parseInt(formData.value.km))) {
+        expenseData.km = parseInt(formData.value.km)
+      }
       
       const createdExpense = await expenseStore.createExpense(expenseData)
       toast.success(t('expenses.add.success', 'هزینه با موفقیت ثبت شد'))
@@ -454,11 +462,11 @@ const switchTab = (tab) => {
   // Reset form data when switching tabs
   if (tab === 'service') {
     formData.value.category = ''
-    clearReceipt()
+    clearAllReceipts()
   } else {
     formData.value.types = []
     formData.value.type = ''
-    formData.value.km = ''
+    clearServiceAttachments()
   }
   autocompleteQuery.value = ''
   showAutocompleteDropdown.value = false
@@ -545,39 +553,79 @@ const applyRecurringPreset = (preset) => {
   createReminderAfterService.value = true
 }
 
-const receiptPreviewObjectUrl = ref(null)
-/** Receipt file select with validation */
+function validateAttachmentFile(file) {
+  if (!ALLOWED_ATTACHMENT_TYPES.includes(file.type)) {
+    return t('expenses.add.receiptInvalidType', 'فقط تصویر (JPEG, PNG, WebP) یا PDF مجاز است.')
+  }
+  if (file.size > MAX_ATTACHMENT_SIZE) {
+    return t('expenses.add.receiptTooLarge', 'حداکثر حجم فایل ۵ مگابایت.')
+  }
+  return null
+}
+
+/** Expense tab: add receipt/attachment */
 const handleReceiptSelect = (event) => {
   receiptError.value = ''
   const file = event.target.files?.[0]
   if (!file) return
-  if (!ALLOWED_RECEIPT_TYPES.includes(file.type)) {
-    receiptError.value = t('expenses.add.receiptInvalidType', 'فقط تصویر (JPEG, PNG, WebP) یا PDF مجاز است.')
+  const err = validateAttachmentFile(file)
+  if (err) {
+    receiptError.value = err
     return
   }
-  if (file.size > MAX_RECEIPT_SIZE) {
-    receiptError.value = t('expenses.add.receiptTooLarge', 'حداکثر حجم فایل ۵ مگابایت.')
+  if (receiptFiles.value.length >= MAX_ATTACHMENTS) {
+    receiptError.value = t('common.maxFilesReached', 'حداکثر {{max}} فایل مجاز است.', { max: MAX_ATTACHMENTS })
     return
   }
-  if (receiptPreviewObjectUrl.value) {
-    URL.revokeObjectURL(receiptPreviewObjectUrl.value)
-    receiptPreviewObjectUrl.value = null
-  }
-  if (file.type.startsWith('image/')) {
-    receiptPreviewObjectUrl.value = URL.createObjectURL(file)
-  }
-  receiptFile.value = file
+  const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+  receiptFiles.value.push({ file, previewUrl })
   event.target.value = ''
 }
-const clearReceipt = () => {
-  if (receiptPreviewObjectUrl.value) {
-    URL.revokeObjectURL(receiptPreviewObjectUrl.value)
-    receiptPreviewObjectUrl.value = null
-  }
-  receiptFile.value = null
+const removeReceiptFile = (index) => {
+  const item = receiptFiles.value[index]
+  if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  receiptFiles.value.splice(index, 1)
   receiptError.value = ''
 }
-const receiptPreviewUrl = computed(() => receiptPreviewObjectUrl.value || null)
+const clearAllReceipts = () => {
+  receiptFiles.value.forEach(item => {
+    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  })
+  receiptFiles.value = []
+  receiptError.value = ''
+}
+
+/** Service tab: add attachment */
+const handleServiceAttachmentSelect = (event) => {
+  serviceAttachmentError.value = ''
+  const file = event.target.files?.[0]
+  if (!file) return
+  const err = validateAttachmentFile(file)
+  if (err) {
+    serviceAttachmentError.value = err
+    return
+  }
+  if (serviceAttachments.value.length >= MAX_ATTACHMENTS) {
+    serviceAttachmentError.value = t('common.maxFilesReached', 'حداکثر {{max}} فایل مجاز است.', { max: MAX_ATTACHMENTS })
+    return
+  }
+  const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+  serviceAttachments.value.push({ file, previewUrl })
+  event.target.value = ''
+}
+const removeServiceAttachment = (index) => {
+  const item = serviceAttachments.value[index]
+  if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  serviceAttachments.value.splice(index, 1)
+  serviceAttachmentError.value = ''
+}
+const clearServiceAttachments = () => {
+  serviceAttachments.value.forEach(item => {
+    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl)
+  })
+  serviceAttachments.value = []
+  serviceAttachmentError.value = ''
+}
 
 const handleAutocompleteKeydown = (event) => {
   if (event.key === 'ArrowDown') {
@@ -1026,6 +1074,51 @@ watch(() => route.query.edit, (newEditId) => {
               </div>
             </div>
             
+            <!-- Service attachments (gallery-like) -->
+            <div v-if="activeTab === 'service'" class="mt-6">
+              <label class="block text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal mb-2">
+                {{ $t('services.add.attachments', 'پیوست‌ها (رسید / فاکتور)') }} ({{ $t('common.optional') }})
+              </label>
+              <div class="flex flex-wrap gap-3 items-start">
+                <div
+                  v-for="(item, index) in serviceAttachments"
+                  :key="index"
+                  class="relative group w-20 h-20 shrink-0 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden bg-gray-50 dark:bg-gray-800"
+                >
+                  <img
+                    v-if="item.previewUrl"
+                    :src="item.previewUrl"
+                    alt=""
+                    class="w-full h-full object-cover"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center p-1">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate text-center">{{ item.file.name }}</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="absolute top-0.5 right-0.5 p-1 rounded bg-black/50 text-white hover:bg-red-500 transition-colors"
+                    :aria-label="$t('common.close')"
+                    @click="removeServiceAttachment(index)"
+                  >
+                    <span class="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+                <label
+                  v-if="serviceAttachments.length < MAX_ATTACHMENTS"
+                  class="w-20 h-20 shrink-0 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                >
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                    class="hidden"
+                    @change="handleServiceAttachmentSelect"
+                  />
+                  <span class="material-symbols-outlined text-3xl text-gray-400">add_photo_alternate</span>
+                </label>
+              </div>
+              <p v-if="serviceAttachmentError" class="text-red-500 text-xs mt-1" role="alert">{{ serviceAttachmentError }}</p>
+            </div>
+            
           </div>
           
           <div 
@@ -1035,7 +1128,7 @@ watch(() => route.query.edit, (newEditId) => {
             :aria-labelledby="'expense-tab'"
             tabindex="0"
           >
-            <!-- Expense date -->
+            <!-- Expense date and optional km -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
               <PersianDatePicker
                 v-if="isPersianLocale"
@@ -1055,6 +1148,17 @@ watch(() => route.query.edit, (newEditId) => {
                 required
                 :aria-required="true"
               />
+              <div class="flex flex-col gap-2">
+                <Input
+                  v-model="formData.km"
+                  :label="$t('expenses.add.currentKm', 'کارکرد فعلی (کیلومتر)') + ' (' + $t('common.optional') + ')'"
+                  type="number"
+                  :placeholder="$t('services.add.currentKmPlaceholder')"
+                  dir="ltr"
+                  class="text-right"
+                  min="0"
+                />
+              </div>
             </div>
             <!-- Quick category chips (plan: fuel, parking, toll, wash) -->
             <div class="flex flex-wrap gap-2 mb-2">
@@ -1160,37 +1264,47 @@ watch(() => route.query.edit, (newEditId) => {
                 </div>
               </div>
             </div>
-            <!-- Receipt upload (phase 1: preview + validation) -->
+            <!-- Expense attachments (gallery-like) -->
             <div v-if="activeTab === 'expense'" class="mt-6">
               <label class="block text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal mb-2">
                 {{ $t('expenses.add.receipt', 'رسید / فاکتور') }} ({{ $t('common.optional') }})
               </label>
-              <div class="flex flex-wrap items-center gap-3">
-                <input
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
-                  class="text-sm text-gray-600 dark:text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary dark:file:bg-blue-900/20 dark:file:text-blue-300 hover:file:bg-primary/20 dark:hover:file:bg-blue-900/30"
-                  @change="handleReceiptSelect"
-                />
-                <template v-if="receiptFile">
-                  <div class="flex items-center gap-2 min-w-0">
-                    <img
-                      v-if="receiptPreviewUrl"
-                      :src="receiptPreviewUrl"
-                      alt=""
-                      class="w-12 h-12 object-cover rounded border border-gray-200 dark:border-gray-600"
-                    />
-                    <span v-else class="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[180px]">{{ receiptFile.name }}</span>
-                    <button
-                      type="button"
-                      class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500"
-                      :aria-label="$t('common.close')"
-                      @click="clearReceipt"
-                    >
-                      <span class="material-symbols-outlined text-lg">close</span>
-                    </button>
+              <div class="flex flex-wrap gap-3 items-start">
+                <div
+                  v-for="(item, index) in receiptFiles"
+                  :key="index"
+                  class="relative group w-20 h-20 shrink-0 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden bg-gray-50 dark:bg-gray-800"
+                >
+                  <img
+                    v-if="item.previewUrl"
+                    :src="item.previewUrl"
+                    alt=""
+                    class="w-full h-full object-cover"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center p-1">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate text-center">{{ item.file.name }}</span>
                   </div>
-                </template>
+                  <button
+                    type="button"
+                    class="absolute top-0.5 right-0.5 p-1 rounded bg-black/50 text-white hover:bg-red-500 transition-colors"
+                    :aria-label="$t('common.close')"
+                    @click="removeReceiptFile(index)"
+                  >
+                    <span class="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+                <label
+                  v-if="receiptFiles.length < MAX_ATTACHMENTS"
+                  class="w-20 h-20 shrink-0 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                >
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                    class="hidden"
+                    @change="handleReceiptSelect"
+                  />
+                  <span class="material-symbols-outlined text-3xl text-gray-400">add_photo_alternate</span>
+                </label>
               </div>
               <p v-if="receiptError" class="text-red-500 text-xs mt-1" role="alert">{{ receiptError }}</p>
             </div>
