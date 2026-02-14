@@ -13,6 +13,7 @@
 """
 
 from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
 from khodroban.models import (
     SubscriptionPlan,
     ServiceType,
@@ -78,7 +79,7 @@ def ensure_expense_categories():
         )
 
 
-def make_sample_user_and_vehicle(username="test_sample", email="test_sample@test.com", password="testpass"):
+def make_sample_user_and_vehicle(username="test_sample", email="test_sample@test.com", password=None):
     """
     یک کاربر، پروفایل و یک خودرو با دادهٔ نمونه می‌سازد.
     برای استفاده در تست‌ها؛ طرح free و نوع سرویس‌ها باید از قبل وجود داشته باشند
@@ -89,7 +90,8 @@ def make_sample_user_and_vehicle(username="test_sample", email="test_sample@test
     """
     ensure_plans()
     ensure_service_types()
-    user = User.objects.create_user(username=username, password=password, email=email)
+    resolved_password = password or get_random_string(14)
+    user = User.objects.create_user(username=username, password=resolved_password, email=email)
     profile = UserProfile.objects.get(user=user)
     vehicle = Vehicle.objects.create(
         user_profile=profile,

@@ -6,12 +6,19 @@ Django settings for KhodroBan project.
 from pathlib import Path
 import os
 import sys
+import hashlib
 from datetime import timedelta
 
 # Build paths: parent of this file is khodroban_prj, parent.parent = backend/django
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-تغییر-این-مقدار-در-محیط-واقعی-ضروری-است")
+def _build_local_secret_key() -> str:
+    """Build a deterministic local-only fallback key when env is missing."""
+    seed = f"{BASE_DIR}:{os.environ.get('USER', 'local-user')}"
+    return hashlib.sha256(seed.encode("utf-8")).hexdigest()
+
+
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or _build_local_secret_key()
 DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
