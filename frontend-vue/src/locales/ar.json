@@ -352,11 +352,20 @@
     "amount": "المبلغ",
     "add": {
       "expenseTab": "مصروف إضافي",
+      "expenseDate": "تاريخ المصروف",
       "success": "تم تسجيل المصروف بنجاح",
       "error": "خطأ في تسجيل المصروف",
       "validation": {
         "categoryRequired": "اختيار الفئة مطلوب"
-      }
+      },
+      "receiptInvalidType": "الصور (JPEG, PNG, WebP) أو PDF فقط.",
+      "receiptTooLarge": "الحد الأقصى لحجم الملف 5 ميجابايت.",
+      "receipt": "إيصال / فاتورة"
+    },
+    "recurring": {
+      "insurance": "التأمين",
+      "inspection": "الفحص الفني",
+      "contractual": "خدمة تعاقدية"
     },
     "date": "التاريخ",
     "description": "الوصف",
@@ -442,6 +451,8 @@
     "markCompletedError": "خطأ في تعليم التذكير كمكتمل",
     "createFromService": "إنشاء تذكير لهذه الخدمة",
     "createFromServiceDescription": "سيتم إنشاء تذكير تلقائي للخدمة التالية",
+    "createFromExpense": "تذكير بعد تسجيل المصروف",
+    "createFromExpenseDescription": "بعد حفظ هذا المصروف، سيتم إنشاء تذكير بالفاصل الزمني المحدد.",
     "autoReminder": "تذكير تلقائي",
     "filter": {
       "all": "الكل",

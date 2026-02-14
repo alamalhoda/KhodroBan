@@ -388,11 +388,20 @@
     "amount": "Amount",
     "add": {
       "expenseTab": "Additional Expense",
+      "expenseDate": "Expense date",
       "success": "Expense recorded successfully",
       "error": "Error recording expense",
       "validation": {
         "categoryRequired": "Category selection is required"
-      }
+      },
+      "receiptInvalidType": "Only image (JPEG, PNG, WebP) or PDF allowed.",
+      "receiptTooLarge": "Maximum file size is 5 MB.",
+      "receipt": "Receipt / Invoice"
+    },
+    "recurring": {
+      "insurance": "Insurance",
+      "inspection": "Inspection",
+      "contractual": "Contractual service"
     },
     "date": "Date",
     "description": "Description",
@@ -484,6 +493,8 @@
     "markCompletedError": "Error marking reminder as completed",
     "createFromService": "Create reminder for this service",
     "createFromServiceDescription": "Automatic reminder will be created for next service",
+    "createFromExpense": "Create reminder after this expense",
+    "createFromExpenseDescription": "After saving this expense, a reminder will be created with the chosen interval.",
     "autoReminder": "Auto Reminder",
     "filter": {
       "all": "All",

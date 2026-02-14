@@ -38,18 +38,53 @@ export const useExpenseStore = defineStore('expense', () => {
   }
 
   const createExpense = async (data) => {
-    // Implementation will be added in later tasks
-    console.log('Create expense action placeholder', data)
+    isLoading.value = true
+    error.value = null
+    try {
+      const newExpense = await expenseService.create(data)
+      expenses.value.unshift(newExpense)
+      return newExpense
+    } catch (err) {
+      error.value = err.message || 'خطا در ثبت هزینه'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
   }
 
   const updateExpense = async (id, data) => {
-    // Implementation will be added in later tasks
-    console.log('Update expense action placeholder', id, data)
+    isLoading.value = true
+    error.value = null
+    try {
+      const updatedExpense = await expenseService.update(id, data)
+      const index = expenses.value.findIndex(e => String(e.id) === String(id))
+      if (index !== -1) {
+        expenses.value[index] = updatedExpense
+      }
+      return updatedExpense
+    } catch (err) {
+      error.value = err.message || 'خطا در به‌روزرسانی هزینه'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
   }
 
   const deleteExpense = async (id) => {
-    // Implementation will be added in later tasks
-    console.log('Delete expense action placeholder', id)
+    isLoading.value = true
+    error.value = null
+    try {
+      await expenseService.delete(id)
+      const index = expenses.value.findIndex(e => String(e.id) === String(id))
+      if (index !== -1) {
+        expenses.value.splice(index, 1)
+      }
+    } catch (err) {
+      error.value = err.message || 'خطا در حذف هزینه'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
   }
 
   return {

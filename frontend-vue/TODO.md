@@ -15,6 +15,8 @@
 
 ## ✅ انجام‌شده‌های اخیر (خلاصه)
 
+- **Expense Tab (add-service):** اتصال `expenseStore` به `expenseService` (create/update/delete)، فیلد تاریخ تب هزینه، اعتبارسنجی، متن جداگانه یادآور، Quick chips (سوخت/پارکینگ/عوارض/کارواش)، آپلود رسید (preview + validation)، پریست‌های تکرارشونده (بیمه/معاینه/سرویس قراردادی)، تست‌های view و store
+- Backend: parse تاریخ هزینه (ISO + شمسی) در serializer، تست‌های API (create با ISO/شمسی، رد amount≤0 و vehicleId نامعتبر)
 - Reminders Phase 1/2: باگ‌فیکس + Date Picker شمسی + Retry/Error/Loading
 - Service List: فیلتر خودرو + صفحه‌بندی + ویرایش/حذف
 - Service Presets: دریافت از API و اتصال در Add Service
@@ -26,10 +28,10 @@
 ## 🔴 اولویت بالا (Sprint فعلی)
 
 ### 1) تکمیل Expense Management UI
-- [ ] تکمیل اتصال `expenseStore` به `expenseService` در همه سناریوها
-- [ ] تکمیل فرم افزودن/ویرایش هزینه با UX هم‌سطح سرویس
+- [x] تکمیل اتصال `expenseStore` به `expenseService` در همه سناریوها
+- [x] تکمیل فرم افزودن هزینه در تب هزینه با UX هم‌سطح سرویس (تاریخ، دسته، مبلغ، Quick chips، رسید، یادآور)
 - [ ] تکمیل لیست هزینه با فیلتر پایه و مدیریت خطا/empty/loading
-- [ ] افزودن تست واحد/Integration برای flow هزینه
+- [x] افزودن تست واحد/Integration برای flow هزینه (AddServiceView + expense store + test_api_expenses)
 
 ### 2) تکمیل تنظیمات کانال‌های یادآوری (UI)
 - [ ] تکمیل UX تنظیمات کانال‌ها در `SettingsView`
