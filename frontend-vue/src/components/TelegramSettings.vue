@@ -40,6 +40,21 @@
       </div>
     </div>
 
+    <!-- Offline State -->
+    <div v-else-if="telegramStore.isOfflineMode" class="space-y-4">
+      <div class="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-gray-500 text-xl">cloud_off</span>
+          <div class="flex-1">
+            <p class="text-gray-700 dark:text-gray-300 font-bold">حالت آفلاین فعال است</p>
+            <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">
+              اتصال ربات تلگرام نیازمند اینترنت است. در حالت strict-offline این قابلیت غیرفعال می‌ماند.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Connected State -->
     <div v-else-if="telegramStore.isConnected" class="space-y-4">
       <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
@@ -302,6 +317,10 @@ const copyCode = async () => {
 }
 
 const openTelegram = () => {
+  if (telegramStore.isOfflineMode) {
+    uiStore.warning('اتصال تلگرام در حالت آفلاین غیرفعال است')
+    return
+  }
   const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'your_bot'
   window.open(`https://t.me/${botUsername}`, '_blank')
 }

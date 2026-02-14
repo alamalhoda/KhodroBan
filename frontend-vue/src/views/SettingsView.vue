@@ -17,7 +17,7 @@ import TelegramSettings from '../components/TelegramSettings.vue'
           <div class="flex flex-col gap-6">
             <div class="flex gap-4 items-center p-3 rounded-xl bg-background-light dark:bg-background-dark/50">
               <div class="relative">
-                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 shadow-sm border-2 border-white dark:border-gray-700" data-alt="User profile picture of a man with a beard" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBYEsN-vh7_rGY0L282TKIu7KcW718azqR_JWvzj3aidI0rg4w2inSRo2UgviIBeC7srUS-vS6z6d5Bysx0pUHR5BpC6qb2HHA_mZhpV5rIdCHjlRSbUu7hqESkfDCF195wNvhyMcvHUUUhAF7NwHIh6KWs2AQSjjznUJvlI0jP29yi81GJdyfhUDG2KL9CC_xPOfshLlKjFoz9fDraAuwzgB0BlNq-RiEPK870p6EE0wD7swn1oaG9ogzePdYmxP8C5m09o2j6GTA");'>
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 shadow-sm border-2 border-white dark:border-gray-700" data-alt="User profile picture of a man with a beard" style='background-image: url("/images/offline/avatar-placeholder.svg");'>
                 </div>
                 <div class="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
               </div>

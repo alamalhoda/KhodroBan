@@ -3,6 +3,9 @@
 این سند برای زمانی است که **سیستم مقصد هیچ اینترنتی ندارد**.  
 هدف این است که پروژه را به صورت کامل (Backend + Frontend + وابستگی ها) روی سیستم آفلاین بالا بیاورید.
 
+چک لیست نهایی پذیرش:
+- `docs/technical/offline-final-checklist.md`
+
 ---
 
 ## 1) سناریوی استاندارد
@@ -195,6 +198,7 @@ cat > .env.local <<'EOF'
 VITE_BACKEND_TYPE=django
 VITE_API_URL=http://127.0.0.1:8000/api
 VITE_AI_USE_MOCK=true
+VITE_OFFLINE_MODE=true
 EOF
 ```
 
@@ -274,6 +278,7 @@ pip install --no-index --find-links /PATH/TO/offline-bundle/python/reminder-tele
 - [ ] Frontend با `npm run dev` بدون نصب جدید npm بالا می آید
 - [ ] صفحه login/dashboard بدون فونت یا icon خراب نمایش داده نمی شود
 - [ ] `VITE_BACKEND_TYPE=django` یا `mock` تنظیم شده است
+- [ ] `VITE_OFFLINE_MODE=true` برای قطع قابلیت های آنلاین تنظیم شده است
 - [ ] قابلیت های آنلاین (Supabase/Telegram/AI Real) برای حالت آفلاین غیرفعال یا mock شده اند
 
 ---

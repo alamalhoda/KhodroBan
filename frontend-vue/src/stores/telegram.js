@@ -11,6 +11,10 @@ export const useTelegramStore = defineStore('telegram', () => {
   const isLoading = ref(false)
   const error = ref(null)
   const chatId = ref(null)
+  const isOfflineMode = computed(() =>
+    import.meta.env.VITE_OFFLINE_MODE === 'true' ||
+    (typeof navigator !== 'undefined' && navigator.onLine === false)
+  )
 
   // Getters
   const hasConnectionCode = computed(() => !!connectionCode.value)
@@ -21,6 +25,15 @@ export const useTelegramStore = defineStore('telegram', () => {
    * بارگذاری وضعیت اتصال
    */
   const loadStatus = async () => {
+    if (isOfflineMode.value) {
+      isConnected.value = false
+      connectionCode.value = null
+      telegramLink.value = ''
+      chatId.value = null
+      error.value = null
+      return
+    }
+
     const authStore = useAuthStore()
     if (!authStore.user) {
       return
@@ -57,6 +70,10 @@ export const useTelegramStore = defineStore('telegram', () => {
    * ایجاد لینک اتصال جدید
    */
   const generateLink = async () => {
+    if (isOfflineMode.value) {
+      throw new Error('اتصال تلگرام در حالت آفلاین غیرفعال است')
+    }
+
     const authStore = useAuthStore()
     if (!authStore.user) {
       throw new Error('کاربر لاگین نشده است')
@@ -81,6 +98,10 @@ export const useTelegramStore = defineStore('telegram', () => {
    * قطع اتصال تلگرام
    */
   const disconnect = async () => {
+    if (isOfflineMode.value) {
+      throw new Error('اتصال تلگرام در حالت آفلاین غیرفعال است')
+    }
+
     const authStore = useAuthStore()
     if (!authStore.user) {
       throw new Error('کاربر لاگین نشده است')
@@ -109,6 +130,10 @@ export const useTelegramStore = defineStore('telegram', () => {
    * این تابع برای چک کردن اینکه آیا کاربر در تلگرام Start زده یا نه
    */
   const checkConnection = async () => {
+    if (isOfflineMode.value) {
+      return false
+    }
+
     const authStore = useAuthStore()
     if (!authStore.user) {
       return false
@@ -160,6 +185,7 @@ export const useTelegramStore = defineStore('telegram', () => {
     // Getters
     hasConnectionCode,
     canConnect,
+    isOfflineMode,
     // Actions
     loadStatus,
     generateLink,

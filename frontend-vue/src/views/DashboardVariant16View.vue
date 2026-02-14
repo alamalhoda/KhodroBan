@@ -9,7 +9,7 @@
         <!-- User Profile Summary -->
         <div class="flex items-center gap-4 p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
           <div class="relative">
-            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 ring-2 ring-primary/20 group-hover:ring-primary transition-all" data-alt="User profile picture showing a smiling man" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCRT_3eYt3zDY_9vB-sSOyaiIDD4O0jyfqka-gkKa0h-ayfLiICXbgeKj8_H6c7400gPv7QMd7PGPfuaxTtc00Z0cwJX46AC3bEkglUfzrmNXyi2M1q6arWtr1x2tpjjVNm_UzYqW-ajmaSCtdyGYMNAXuMJ9S5nAD9NsEXFYzm_WbbYupGd0j2GteQJIaodRL6bc8Q_RRzjWsn-GlbngabOWUSTEys0N57rKCuxy1gRrKbBTtCVcTWWcEaYkJohtTGv91xRNIrY9g");'>
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 ring-2 ring-primary/20 group-hover:ring-primary transition-all" data-alt="User profile picture showing a smiling man" style='background-image: url("/images/offline/avatar-placeholder.svg");'>
             </div>
             <div class="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full border-2 border-[#111b22]"></div>
           </div>
@@ -167,7 +167,7 @@
                 <!-- Car Card 1 -->
                 <div class="glass-panel p-4 rounded-xl flex flex-col sm:flex-row items-center gap-4 hover:border-primary/50 transition cursor-pointer group relative overflow-hidden">
                   <div class="absolute left-0 top-0 h-full w-1 bg-primary"></div>
-                  <div class="w-full sm:w-48 aspect-video rounded-lg bg-cover bg-center shrink-0" data-alt="White Peugeot 206 parked on a street" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDpV7uXuXOg5zAwf62Sp_ZfojTJSA1MhdMrfZZs_3GCViYZd9nFrep4UHJ_rKvaop_b-1ullzg6FG1FZ7Eg5-d8kqU7fRfJvCkmndztrLQF5FS8fEKjlg-ifRCwcSgGYVuvg1LgA9MFGE_Lg3HumOnx7t1VpgtmEVpgqhT_0WcK0v6mKlDlPQuSUQaZv7Y6t7cM2DE_9erV4Gqw6u2Q9tDrf8_SMLDMrOu69yKKia43hTr83mamP--sEwiRWJghgWC7ilvjQA7V3CA");'>
+                  <div class="w-full sm:w-48 aspect-video rounded-lg bg-cover bg-center shrink-0" data-alt="White Peugeot 206 parked on a street" style='background-image: url("/images/offline/car-placeholder.svg");'>
                   </div>
                   <div class="flex-1 flex flex-col gap-2 w-full text-center sm:text-right">
                     <div class="flex flex-col sm:flex-row justify-between items-center">
@@ -186,7 +186,7 @@
                 </div>
                 <!-- Car Card 2 -->
                 <div class="glass-panel p-4 rounded-xl flex flex-col sm:flex-row items-center gap-4 hover:border-primary/50 transition cursor-pointer group">
-                  <div class="w-full sm:w-48 aspect-video rounded-lg bg-cover bg-center shrink-0 grayscale hover:grayscale-0 transition duration-500" data-alt="Black luxury sedan car front view" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAfU3FKFnjdmt2K74EGyYPvLALURPoApuxHiSxNj5sZ79P2IZ8Q16nmuUHOVfbCobomaXtOwW-wx4ipfvvEzFlWcsSI1-LL70tHWd4dAdXK6033VC-Xh1pkSnV9fernypA9lyUZOjRs1C05JKMlw1t4DYgygbz5EDWsW5gEs2qJS1H1KUMQfx3ufKZzwm9-RiSlhllo2H0Sp8Il5yagiziG94JfpKLc1bqSEqKZb4EbpBh5CZIwCpf7xRWiDPVWVbF3KXq3zumQW_4");'>
+                  <div class="w-full sm:w-48 aspect-video rounded-lg bg-cover bg-center shrink-0 grayscale hover:grayscale-0 transition duration-500" data-alt="Black luxury sedan car front view" style='background-image: url("/images/offline/car-placeholder-alt.svg");'>
                   </div>
                   <div class="flex-1 flex flex-col gap-2 w-full text-center sm:text-right">
                     <div class="flex flex-col sm:flex-row justify-between items-center">

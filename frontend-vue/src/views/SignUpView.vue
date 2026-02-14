@@ -138,7 +138,7 @@ const handleGoogleRegister = async () => {
           </p>
         </div>
         <div class="relative z-10 mt-auto w-full aspect-video rounded-xl overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg flex items-center justify-center group">
-          <img alt="Car Dashboard" class="object-cover w-full h-full opacity-80 mix-blend-overlay group-hover:scale-105 transition-transform duration-700" data-alt="Modern car interior dashboard view showing high tech navigation" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAt6fPYpyRtIAJQk5Skv2h_VvlcxN8VEaAPhcDPcK1VeHQE0a7xRgp_jCo4yUsZe9gxRUc3J4A6cQsaOxAz9mgAyIehn2glyGwYQvAE4Blh0cjksLFhX7yBbGAignSAOUFz0qnhRBtpqD9_enSOmK_2mcOzg9t6iCBVoi0dIiKbayUTjl_V9FOYv8djeshCUbwf8mcssICUG8RwgzUHJGbZy7vO1Xf_OjfK3GJGXkJAPPJyRKSeIdyh2DHMW3h3M8zb-ZCNCYLpVEc" />
+          <img alt="Car Dashboard" class="object-cover w-full h-full opacity-80 mix-blend-overlay group-hover:scale-105 transition-transform duration-700" data-alt="Modern car interior dashboard view showing high tech navigation" src="/images/offline/dashboard-hero.svg" />
           <div class="absolute inset-0 bg-gradient-to-t from-primary to-transparent opacity-60"></div>
           <div class="absolute bottom-4 right-4 text-white font-medium flex items-center gap-2">
             <span class="material-symbols-outlined text-sm">verified_user</span>
