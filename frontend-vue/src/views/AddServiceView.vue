@@ -12,9 +12,11 @@ import { useReminderStore } from '../stores/reminder'
 import { useToast } from '../composables/useToast'
 import MainLayout from '../components/MainLayout.vue'
 import { Button, Input, Select, Card, LoadingSpinner, Modal, PersianDatePicker } from '../components/ui'
-import { getTodayJalaliStr, isoToJalaliStr } from '../utils/dateUtils'
+import { getTodayJalaliStr, isoToJalaliStr, jalaliToIso } from '../utils/dateUtils'
 import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
 import ServiceTypeSelector from '../components/ServiceTypeSelector.vue'
+import ReminderTimeIntervalFields from '../components/ReminderTimeIntervalFields.vue'
+import ReminderKmIntervalFields from '../components/ReminderKmIntervalFields.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -42,9 +44,17 @@ const formData = ref({
   shopName: ''
 })
 
-// Reminder state
+// Reminder state (reusable interval components)
 const createReminderAfterService = ref(false)
-const reminderInterval = ref({ days: 90, km: 5000 })
+const reminderTimeFields = ref({
+  timeIntervalPreset: '90',
+  dueDate: null,
+  warningDaysBefore: 7
+})
+const reminderKmFields = ref({
+  kmInterval: 5000,
+  warningKmBefore: 500
+})
 
 // Quick category chips for expense tab (plan: fuel, parking, toll, wash)
 const EXPENSE_QUICK_CHIP_CODES = ['fuel', 'parking', 'toll', 'wash']
@@ -312,6 +322,7 @@ const handleSubmit = async () => {
           // Get default intervals based on service type
           const defaultIntervals = getDefaultIntervalsForServiceType(serviceType)
           
+          const baseKm = parseInt(serviceData.km, 10) || 0
           const reminderData = {
             title: t('reminders.autoReminder') + ': ' + serviceTypeLabel,
             description: serviceData.note || null,
@@ -319,10 +330,10 @@ const handleSubmit = async () => {
             serviceId: createdService.id,
             source: 'auto',
             type: serviceType,
-            dueDate: calculateDueDate(reminderInterval.value.days),
-            dueKm: calculateDueKm(serviceData.km, reminderInterval.value.km),
-            warningDaysBefore: 7,
-            warningKmBefore: 500
+            dueDate: getDueDateFromTimeFields(),
+            dueKm: baseKm + (reminderKmFields.value.kmInterval || 0),
+            warningDaysBefore: reminderTimeFields.value.warningDaysBefore ?? 7,
+            warningKmBefore: reminderKmFields.value.warningKmBefore ?? 500
           }
           
           await reminderStore.createReminder(reminderData)
@@ -357,16 +368,17 @@ const handleSubmit = async () => {
           const selectedVehicle = vehicleStore.vehicles.find(v => v.id === formData.value.vehicleId)
           const currentKm = selectedVehicle?.currentKm || 0
           
+          const dueKmVal = currentKm > 0 ? currentKm + (reminderKmFields.value.kmInterval || 0) : null
           const reminderData = {
             title: t('reminders.autoReminder') + ': ' + expenseCategoryLabel,
             description: formData.value.note ?? undefined,
             vehicleId: formData.value.vehicleId,
             serviceId: null,
             source: 'auto',
-            dueDate: calculateDueDate(reminderInterval.value.days),
-            dueKm: currentKm > 0 ? calculateDueKm(currentKm.toString(), reminderInterval.value.km) : null,
-            warningDaysBefore: 7,
-            warningKmBefore: 500
+            dueDate: getDueDateFromTimeFields(),
+            dueKm: dueKmVal,
+            warningDaysBefore: reminderTimeFields.value.warningDaysBefore ?? 7,
+            warningKmBefore: reminderKmFields.value.warningKmBefore ?? 500
           }
           
           await reminderStore.createReminder(reminderData)
@@ -421,22 +433,41 @@ const getDefaultIntervalsForServiceType = (serviceType) => {
   return defaults[serviceType] || defaults['other']
 }
 
-const calculateDueDate = (days) => {
-  const date = new Date()
-  date.setDate(date.getDate() + days)
-  return date.toISOString().split('T')[0]
+/** Ensures dueDate is ISO YYYY-MM-DD (backend accepts both; store sends ISO) */
+function ensureDueDateIso(val) {
+  if (!val) return null
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(val))) return val
+  return jalaliToIso(String(val)) || val
 }
 
-const calculateDueKm = (currentKm, intervalKm) => {
-  return parseInt(currentKm) + parseInt(intervalKm)
+/** Fallback: compute due date from preset when component has not yet synced dueDate */
+function getDueDateFromTimeFields() {
+  const tf = reminderTimeFields.value
+  const iso = ensureDueDateIso(tf.dueDate)
+  if (iso) return iso
+  const preset = tf.timeIntervalPreset
+  if (preset && preset !== 'custom') {
+    const days = parseInt(preset, 10)
+    if (!Number.isNaN(days)) {
+      const d = new Date()
+      d.setDate(d.getDate() + days)
+      return d.toISOString().split('T')[0]
+    }
+  }
+  return null
 }
 
-// Watch service type to update reminder intervals
+// Watch service type to sync reminder interval presets (time + km)
 watch(() => formData.value.types, (newTypes) => {
   if (newTypes.length > 0 && createReminderAfterService.value) {
     const serviceType = newTypes[0]
     const intervals = getDefaultIntervalsForServiceType(serviceType)
-    reminderInterval.value = intervals
+    const presetMap = { 1: '1', 2: '2', 7: '7', 30: '30', 60: '60', 90: '90', 180: '180', 365: '365' }
+    reminderTimeFields.value = {
+      ...reminderTimeFields.value,
+      timeIntervalPreset: presetMap[intervals.days] || '90'
+    }
+    reminderKmFields.value = { ...reminderKmFields.value, kmInterval: intervals.km }
   }
 }, { immediate: true })
 
@@ -547,9 +578,13 @@ const applyExpenseQuickChip = (code) => {
   showAutocompleteDropdown.value = false
 }
 
-/** Recurring preset: set reminder interval and enable create reminder */
+/** Recurring preset: set time interval preset and enable create reminder */
 const applyRecurringPreset = (preset) => {
-  reminderInterval.value = { ...reminderInterval.value, days: preset.days }
+  const presetMap = { 1: '1', 2: '2', 7: '7', 30: '30', 60: '60', 90: '90', 180: '180', 365: '365' }
+  reminderTimeFields.value = {
+    ...reminderTimeFields.value,
+    timeIntervalPreset: presetMap[preset.days] || '90'
+  }
   createReminderAfterService.value = true
 }
 
@@ -1039,36 +1074,13 @@ watch(() => route.query.edit, (newEditId) => {
                     {{ t('reminders.createFromServiceDescription') }}
                   </p>
                   
-                  <!-- Reminder intervals (shown when checkbox is checked) -->
+                  <!-- Reminder intervals: same reusable components as Add Reminder page -->
                   <div v-if="createReminderAfterService" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                        {{ t('reminders.form.timeInterval') }}
-                      </label>
-                      <div class="flex gap-2">
-                        <Input
-                          v-model.number="reminderInterval.days"
-                          type="number"
-                          min="1"
-                          class="flex-1"
-                        />
-                        <span class="text-xs text-gray-500 self-center">{{ t('reminders.form.days') }}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                        {{ t('reminders.form.kmInterval') }}
-                      </label>
-                      <div class="flex gap-2">
-                        <Input
-                          v-model.number="reminderInterval.km"
-                          type="number"
-                          min="1"
-                          class="flex-1"
-                        />
-                        <span class="text-xs text-gray-500 self-center">{{ t('common.km') }}</span>
-                      </div>
-                    </div>
+                    <ReminderTimeIntervalFields v-model="reminderTimeFields" />
+                    <ReminderKmIntervalFields
+                      :vehicle-id="formData.vehicleId"
+                      v-model="reminderKmFields"
+                    />
                   </div>
                 </div>
               </div>
@@ -1350,7 +1362,7 @@ watch(() => route.query.edit, (newEditId) => {
                     :key="preset.key"
                     type="button"
                     class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs transition-colors"
-                    :class="createReminderAfterService && reminderInterval.days === preset.days
+                    :class="createReminderAfterService && reminderTimeFields.timeIntervalPreset === String(preset.days)
                       ? 'bg-primary/20 text-primary dark:text-blue-400 border-primary dark:border-blue-500'
                       : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
                     @click="applyRecurringPreset(preset)"
@@ -1358,36 +1370,13 @@ watch(() => route.query.edit, (newEditId) => {
                     {{ t(preset.labelKey) }}
                   </button>
                 </div>
-                <!-- Reminder intervals (shown when checkbox is checked) -->
+                <!-- Reminder intervals: same reusable components as Add Reminder page -->
                 <div v-if="createReminderAfterService" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                      {{ t('reminders.form.timeInterval') }}
-                    </label>
-                    <div class="flex gap-2">
-                      <Input
-                        v-model.number="reminderInterval.days"
-                        type="number"
-                        min="1"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-gray-500 self-center">{{ t('reminders.form.days') }}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">
-                      {{ t('reminders.form.kmInterval') }}
-                    </label>
-                    <div class="flex gap-2">
-                      <Input
-                        v-model.number="reminderInterval.km"
-                        type="number"
-                        min="1"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-gray-500 self-center">{{ t('common.km') }}</span>
-                    </div>
-                  </div>
+                  <ReminderTimeIntervalFields v-model="reminderTimeFields" />
+                  <ReminderKmIntervalFields
+                    :vehicle-id="formData.vehicleId"
+                    v-model="reminderKmFields"
+                  />
                 </div>
               </div>
             </div>

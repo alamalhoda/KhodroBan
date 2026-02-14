@@ -9,6 +9,7 @@
 بر اساس PRهای اخیر:
 
 - صفحات اصلی `Auth`, `Dashboard`, `Vehicles`, `Services`, `Reminders`, `Reports` به backend Django متصل هستند.
+- فرم یادآور و بخش «ایجاد یادآور» در افزودن سرویس/هزینه از کامپوننت‌های مشترک بازه زمانی و کیلومتری (`ReminderTimeIntervalFields`, `ReminderKmIntervalFields`) استفاده می‌کنند.
 - بهبودهای مهم UX در reminders/service list اعمال شده‌اند (Date Picker شمسی، فیلتر خودرو، pagination، retry states).
 - i18n (fa/en/ar) فعال است.
 - زیرساخت تست (Vitest) فعال و برای چند view/component/store پوشش مناسب دارد.
