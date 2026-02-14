@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import MainLayout from '../components/MainLayout.vue'
 import { useVehicleStore } from '../stores/vehicle'
 import { useUIStore } from '../stores/ui'
+import { VEHICLE_ICONS, VEHICLE_ICON_STYLES, DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '../config/vehicleIcons'
 
 const route = useRoute()
 const router = useRouter()
@@ -21,7 +22,10 @@ const formData = ref({
   year: 1403, // سال شمسی فعلی
   plateNumber: '',
   currentKm: 0,
-  note: ''
+  note: '',
+  iconName: DEFAULT_VEHICLE_ICON,
+  iconStyle: DEFAULT_VEHICLE_ICON_STYLE,
+  iconColor: DEFAULT_VEHICLE_ICON_COLOR
 })
 
 const formErrors = ref({})
@@ -80,7 +84,10 @@ const handleSubmit = async () => {
       year: parseInt(formData.value.year),
       plateNumber: formData.value.plateNumber.trim(),
       currentKm: parseInt(formData.value.currentKm) || 0,
-      note: formData.value.note.trim() || undefined
+      note: formData.value.note.trim() || undefined,
+      iconName: formData.value.iconName || undefined,
+      iconStyle: formData.value.iconStyle || undefined,
+      iconColor: formData.value.iconColor || undefined
     }
     
     if (isEditMode.value && vehicleId.value) {
@@ -137,7 +144,10 @@ onMounted(async () => {
           year: vehicle.year || new Date().getFullYear(),
           plateNumber: vehicle.plateNumber || '',
           currentKm: vehicle.currentKm || 0,
-          note: vehicle.note || ''
+          note: vehicle.note || '',
+          iconName: vehicle.iconName || DEFAULT_VEHICLE_ICON,
+          iconStyle: vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE,
+          iconColor: vehicle.iconColor || DEFAULT_VEHICLE_ICON_COLOR
         }
       }
     } catch (error) {
@@ -252,6 +262,66 @@ onMounted(async () => {
               :placeholder="t('vehicles.form.notePlaceholder')"
             ></textarea>
           </label>
+
+          <!-- Icon & Color -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="flex flex-col gap-2">
+              <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ t('vehicles.vehicleIcon') }}</span>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="opt in VEHICLE_ICONS"
+                  :key="opt.name"
+                  type="button"
+                  :class="[
+                    'w-11 h-11 rounded-xl border-2 flex items-center justify-center transition-colors',
+                    formData.iconName === opt.name
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-[#dcdfe4] dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500'
+                  ]"
+                  :style="{ color: formData.iconName === opt.name ? formData.iconColor : undefined }"
+                  :title="t(opt.labelKey)"
+                  :aria-label="t(opt.labelKey)"
+                  @click="formData.iconName = opt.name"
+                >
+                  <i :class="['fa', 'fa-' + formData.iconStyle, 'fa-' + opt.name]" class="fa-fw text-lg"></i>
+                </button>
+              </div>
+              <div class="flex gap-2 mt-1">
+                <button
+                  v-for="styleOpt in VEHICLE_ICON_STYLES"
+                  :key="styleOpt.value"
+                  type="button"
+                  :class="[
+                    'px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors',
+                    formData.iconStyle === styleOpt.value
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400'
+                  ]"
+                  @click="formData.iconStyle = styleOpt.value"
+                >
+                  {{ t(styleOpt.labelKey) }}
+                </button>
+              </div>
+            </div>
+            <label class="flex flex-col gap-2">
+              <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ t('vehicles.vehicleColor') }}</span>
+              <div class="flex items-center gap-3">
+                <input
+                  v-model="formData.iconColor"
+                  type="color"
+                  class="w-12 h-12 rounded-xl border border-[#dcdfe4] dark:border-gray-600 cursor-pointer bg-white dark:bg-gray-800"
+                  :aria-label="t('vehicles.vehicleColor')"
+                />
+                <input
+                  v-model="formData.iconColor"
+                  type="text"
+                  class="flex-1 rounded-xl border border-[#dcdfe4] dark:border-gray-600 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 px-4 font-mono text-sm"
+                  placeholder="#6b7280"
+                  maxlength="7"
+                />
+              </div>
+            </label>
+          </div>
           
           <!-- Error display -->
           <div v-if="vehicleStore.error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">

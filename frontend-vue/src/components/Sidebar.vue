@@ -1,9 +1,17 @@
 <script setup>
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useNotificationStore } from '../stores/notification'
 
+const route = useRoute()
 const notificationStore = useNotificationStore()
 const unreadCount = computed(() => notificationStore.unreadCount)
+
+/** فعال بودن لینک منو: برای / فقط دقیقاً همان مسیر، برای بقیه مسیر یا زیرمسیر */
+function isNavActive(path) {
+  if (path === '/') return route.path === '/'
+  return route.path === path || route.path.startsWith(path + '/')
+}
 </script>
 
 <template>
@@ -16,25 +24,65 @@ const unreadCount = computed(() => notificationStore.unreadCount)
       <p class="text-[#666e85] dark:text-gray-400 text-xs font-medium pr-10">مدیریت هوشمند ناوگان</p>
     </div>
     <nav class="flex-1 flex flex-col gap-2 px-4 mt-4">
-      <router-link to="/" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]">
-        <span class="material-symbols-outlined">dashboard</span>
-        <span class="font-medium text-sm">داشبورد</span>
+      <router-link
+        to="/"
+        :class="[
+          'flex items-center gap-3 px-4 py-3 rounded-xl transition-all',
+          isNavActive('/')
+            ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02]'
+            : 'text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 group'
+        ]"
+      >
+        <span class="material-symbols-outlined" :class="{ 'group-hover:text-primary transition-colors': !isNavActive('/') }">dashboard</span>
+        <span class="font-medium text-sm" :class="{ 'group-hover:text-primary dark:group-hover:text-white transition-colors': !isNavActive('/') }">داشبورد</span>
       </router-link>
-      <router-link to="/vehicle-list" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group">
-        <span class="material-symbols-outlined group-hover:text-primary transition-colors">directions_car</span>
-        <span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">گاراژ من</span>
+      <router-link
+        to="/vehicle-list"
+        :class="[
+          'flex items-center gap-3 px-4 py-3 rounded-xl transition-all',
+          isNavActive('/vehicle-list')
+            ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02]'
+            : 'text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 group'
+        ]"
+      >
+        <span class="material-symbols-outlined" :class="{ 'group-hover:text-primary transition-colors': !isNavActive('/vehicle-list') }">directions_car</span>
+        <span class="font-medium text-sm" :class="{ 'group-hover:text-primary dark:group-hover:text-white transition-colors': !isNavActive('/vehicle-list') }">گاراژ من</span>
       </router-link>
-      <router-link to="/service-list" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group">
-        <span class="material-symbols-outlined group-hover:text-primary transition-colors">build</span>
-        <span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">سرویس‌ها</span>
+      <router-link
+        to="/service-list"
+        :class="[
+          'flex items-center gap-3 px-4 py-3 rounded-xl transition-all',
+          isNavActive('/service-list')
+            ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02]'
+            : 'text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 group'
+        ]"
+      >
+        <span class="material-symbols-outlined" :class="{ 'group-hover:text-primary transition-colors': !isNavActive('/service-list') }">build</span>
+        <span class="font-medium text-sm" :class="{ 'group-hover:text-primary dark:group-hover:text-white transition-colors': !isNavActive('/service-list') }">سرویس‌ها</span>
       </router-link>
-      <router-link to="/reports" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group">
-        <span class="material-symbols-outlined group-hover:text-primary transition-colors">credit_card</span>
-        <span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">هزینه‌ها</span>
+      <router-link
+        to="/reports"
+        :class="[
+          'flex items-center gap-3 px-4 py-3 rounded-xl transition-all',
+          isNavActive('/reports')
+            ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02]'
+            : 'text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 group'
+        ]"
+      >
+        <span class="material-symbols-outlined" :class="{ 'group-hover:text-primary transition-colors': !isNavActive('/reports') }">credit_card</span>
+        <span class="font-medium text-sm" :class="{ 'group-hover:text-primary dark:group-hover:text-white transition-colors': !isNavActive('/reports') }">هزینه‌ها</span>
       </router-link>
-      <router-link to="/reminders" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group">
+      <router-link
+        to="/reminders"
+        :class="[
+          'flex items-center gap-3 px-4 py-3 rounded-xl transition-all',
+          isNavActive('/reminders')
+            ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02]'
+            : 'text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 group'
+        ]"
+      >
         <div class="relative">
-          <span class="material-symbols-outlined group-hover:text-primary transition-colors">notifications</span>
+          <span class="material-symbols-outlined" :class="{ 'group-hover:text-primary transition-colors': !isNavActive('/reminders') }">notifications</span>
           <span
             v-if="unreadCount > 0"
             class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-[#121620]"
@@ -42,15 +90,31 @@ const unreadCount = computed(() => notificationStore.unreadCount)
             {{ unreadCount > 9 ? '9+' : unreadCount }}
           </span>
         </div>
-        <span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">یادآورها</span>
+        <span class="font-medium text-sm" :class="{ 'group-hover:text-primary dark:group-hover:text-white transition-colors': !isNavActive('/reminders') }">یادآورها</span>
       </router-link>
-      <router-link to="/smart-assistant" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group">
-        <span class="material-symbols-outlined group-hover:text-primary transition-colors">smart_toy</span>
-        <span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">مشاور هوشمند</span>
+      <router-link
+        to="/smart-assistant"
+        :class="[
+          'flex items-center gap-3 px-4 py-3 rounded-xl transition-all',
+          isNavActive('/smart-assistant')
+            ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02]'
+            : 'text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 group'
+        ]"
+      >
+        <span class="material-symbols-outlined" :class="{ 'group-hover:text-primary transition-colors': !isNavActive('/smart-assistant') }">smart_toy</span>
+        <span class="font-medium text-sm" :class="{ 'group-hover:text-primary dark:group-hover:text-white transition-colors': !isNavActive('/smart-assistant') }">مشاور هوشمند</span>
       </router-link>
-      <router-link to="/settings" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 transition-all group">
-        <span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
-        <span class="font-medium text-sm group-hover:text-primary dark:group-hover:text-white transition-colors">تنظیمات</span>
+      <router-link
+        to="/settings"
+        :class="[
+          'flex items-center gap-3 px-4 py-3 rounded-xl transition-all',
+          isNavActive('/settings')
+            ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02]'
+            : 'text-[#666e85] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 group'
+        ]"
+      >
+        <span class="material-symbols-outlined" :class="{ 'group-hover:text-primary transition-colors': !isNavActive('/settings') }">settings</span>
+        <span class="font-medium text-sm" :class="{ 'group-hover:text-primary dark:group-hover:text-white transition-colors': !isNavActive('/settings') }">تنظیمات</span>
       </router-link>
     </nav>
     <div class="p-4 mt-auto">

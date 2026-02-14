@@ -630,6 +630,577 @@ git push origin main
 # یا از GitHub/GitLab Release ایجاد کنید
 ```
 
+---
+
+## 📖 راهنمای گام‌به‌گام: کار با Feature Branches
+
+این بخش راهنمای عملی و کامل برای کار با feature branches در Monorepo است.
+
+### 1️⃣ ایجاد Feature Branch جدید
+
+#### گام 1: همگام‌سازی با develop
+
+همیشه قبل از ایجاد feature branch جدید، مطمئن شوید که برنچ `develop` به‌روز است:
+
+```bash
+# به برنچ develop بروید
+git checkout develop
+
+# آخرین تغییرات را از remote دریافت کنید
+git pull origin develop
+
+# بررسی کنید که همه چیز به‌روز است
+git status
+```
+
+**نکته مهم**: همیشه از `develop` برای ایجاد feature branches استفاده کنید، نه از `main`!
+
+#### گام 2: ایجاد برنچ جدید
+
+```bash
+# ایجاد و switch به برنچ جدید
+git checkout -b feature/user-authentication
+
+# یا به صورت جداگانه:
+git branch feature/user-authentication  # ایجاد برنچ
+git checkout feature/user-authentication  # switch به برنچ
+```
+
+**قوانین نام‌گذاری:**
+- ✅ `feature/user-authentication` - خوب
+- ✅ `feature/add-telegram-bot` - خوب
+- ✅ `bugfix/login-error` - خوب
+- ❌ `feature/changes` - خیلی کلی
+- ❌ `fix` - نامشخص
+
+#### گام 3: بررسی وضعیت
+
+```bash
+# بررسی کنید که روی برنچ درست هستید
+git branch
+
+# باید خروجی شبیه این باشد:
+# * feature/user-authentication
+#   develop
+#   main
+```
+
+### 2️⃣ کار روی Feature
+
+#### گام 1: انجام تغییرات
+
+تغییرات خود را انجام دهید. به یاد داشته باشید:
+- یک Feature = یک برنچ (حتی اگر هم Frontend و هم Backend را تغییر دهد)
+- Commit‌ها را با scope مشخص کنید
+
+#### گام 2: Stage کردن تغییرات
+
+```bash
+# Stage کردن تغییرات یک بخش (توصیه می‌شود)
+git add frontend-vue/src/auth/
+
+# یا همه تغییرات
+git add .
+
+# بررسی تغییرات staged شده
+git status
+```
+
+#### گام 3: Commit کردن با Scope مشخص
+
+**مثال: Feature که هم Frontend و هم Backend را تغییر می‌دهد**
+
+```bash
+# Commit 1: تغییرات Frontend
+git add frontend-vue/src/auth/
+git commit -m "feat(frontend): اضافه کردن صفحه لاگین
+
+- اضافه کردن کامپوننت LoginForm
+- اضافه کردن صفحه /login
+- اضافه کردن validation فرم"
+
+# Commit 2: تغییرات Backend
+git add backend/django/khodroban/views.py
+git add backend/django/khodroban/serializers.py
+git commit -m "feat(backend): اضافه کردن API احراز هویت
+
+- اضافه کردن endpoint POST /api/auth/login
+- اضافه کردن serializer برای login
+- اضافه کردن JWT token generation"
+
+# Commit 3: تست‌ها
+git add frontend-vue/tests/auth.test.js
+git add backend/django/khodroban/tests/test_auth.py
+git commit -m "test: اضافه کردن تست‌های احراز هویت
+
+- تست‌های unit برای کامپوننت LoginForm
+- تست‌های integration برای API login"
+
+# Commit 4: مستندات
+git add docs/technical/api/auth.md
+git commit -m "docs: به‌روزرسانی مستندات API احراز هویت"
+```
+
+**چرا چند Commit؟**
+
+- ✅ **تاریخچه واضح**: می‌توانید ببینید چه بخشی در چه زمانی تغییر کرده
+- ✅ **Review آسان‌تر**: Reviewer می‌تواند هر commit را جداگانه بررسی کند
+- ✅ **Rollback راحت‌تر**: می‌توانید یک commit خاص را revert کنید
+- ✅ **Blame دقیق‌تر**: `git blame` دقیق‌تر عمل می‌کند
+
+#### گام 4: Push کردن به Remote
+
+**اولین بار (با `-u` برای tracking):**
+
+```bash
+git push -u origin feature/user-authentication
+```
+
+**دفعات بعدی (بدون `-u`):**
+
+```bash
+git push
+```
+
+**اگر conflict داشتید:**
+
+```bash
+# ابتدا از develop pull کنید
+git checkout develop
+git pull origin develop
+
+# به برنچ خود برگردید
+git checkout feature/user-authentication
+
+# تغییرات develop را merge کنید
+git merge develop
+
+# یا rebase کنید (اگر ترجیح می‌دهید)
+git rebase develop
+
+# بعد از حل conflict، push کنید
+git push
+```
+
+#### گام 5: ایجاد Pull Request
+
+**از GitHub:**
+
+1. به repository بروید
+2. روی "Compare & pull request" کلیک کنید
+3. Base branch را `develop` انتخاب کنید
+4. Compare branch را `feature/user-authentication` انتخاب کنید
+5. Title و Description را پر کنید:
+
+```markdown
+## 📝 توضیحات
+اضافه کردن سیستم احراز هویت کامل شامل Frontend و Backend
+
+## 🎯 هدف
+اجازه دادن به کاربران برای ورود به سیستم و استفاده از قابلیت‌های اپلیکیشن
+
+## 🔄 تغییرات
+- [x] Backend
+- [x] Frontend
+- [x] Tests
+- [x] Docs
+
+### جزئیات تغییرات
+
+**Backend:**
+- اضافه کردن endpoint POST /api/auth/login
+- اضافه کردن JWT token generation
+- اضافه کردن serializer برای login
+
+**Frontend:**
+- اضافه کردن کامپوننت LoginForm
+- اضافه کردن صفحه /login
+- اضافه کردن validation فرم
+
+**Tests:**
+- تست‌های unit برای کامپوننت LoginForm
+- تست‌های integration برای API login
+
+## ✅ تست‌ها
+- [x] تست واحد (Unit Tests)
+- [x] تست integration
+- [x] تست دستی (Manual Testing)
+- [x] تست در محیط development
+
+## 🔗 Issues مرتبط
+Closes #123
+```
+
+**از Command Line (با GitHub CLI):**
+
+```bash
+# اگر gh CLI نصب دارید
+gh pr create --base develop --head feature/user-authentication --title "feat: اضافه کردن سیستم احراز هویت" --body "توضیحات PR"
+```
+
+**نکات مهم برای PR:**
+
+- ✅ Base branch همیشه `develop` باشد
+- ✅ Title واضح و توصیفی باشد
+- ✅ Description کامل باشد (از template استفاده کنید)
+- ✅ بخش‌های تغییر کرده را مشخص کنید
+- ✅ Screenshots اضافه کنید (اگر UI تغییر کرده)
+- ✅ Issues مرتبط را link کنید
+
+### 3️⃣ مدیریت برنچ‌ها (با Git Commands)
+
+#### مشاهده وضعیت برنچ‌ها
+
+```bash
+# لیست برنچ‌های محلی
+git branch
+
+# لیست همه برنچ‌ها (محلی + remote)
+git branch -a
+
+# لیست برنچ‌های merge شده با develop
+git branch --merged develop
+
+# لیست برنچ‌های merge نشده با develop
+git branch --no-merged develop
+
+# مشاهده آخرین commit هر برنچ
+git branch -v
+
+# مشاهده تاریخچه به صورت گرافیکی
+git log --oneline --graph --all --decorate -15
+```
+
+#### همگام‌سازی با Remote
+
+```bash
+# دریافت همه برنچ‌های remote
+git fetch --all
+
+# حذف برنچ‌های remote که دیگر وجود ندارند
+git fetch --prune
+
+# همگام‌سازی develop با remote
+git checkout develop
+git pull origin develop
+
+# همگام‌سازی main با remote
+git checkout main
+git pull origin main
+```
+
+#### پاکسازی برنچ‌های Merge شده
+
+**پاک کردن برنچ محلی:**
+
+```bash
+# پاک کردن برنچ merge شده (safe)
+git branch -d feature/user-authentication
+
+# پاک کردن برنچ بدون توجه به merge status (force)
+git branch -D feature/user-authentication
+```
+
+**پاک کردن برنچ‌های متعدد:**
+
+```bash
+# پاک کردن همه برنچ‌های merge شده با develop (به جز main و develop)
+git branch --merged develop | grep -v "\*\|main\|develop" | xargs -n 1 git branch -d
+```
+
+**پاک کردن برنچ Remote:**
+
+```bash
+# حذف برنچ از remote
+git push origin --delete feature/user-authentication
+
+# یا
+git push origin :feature/user-authentication
+```
+
+#### به‌روزرسانی Feature Branch از develop
+
+اگر در حین کار روی feature، تغییرات جدیدی به `develop` اضافه شد:
+
+```bash
+# روش 1: Merge (توصیه می‌شود)
+git checkout feature/user-authentication
+git fetch origin
+git merge origin/develop
+
+# حل conflict (در صورت وجود)
+# ... حل conflict ...
+git add .
+git commit -m "merge: همگام‌سازی با develop"
+
+# روش 2: Rebase (برای تاریخچه تمیزتر)
+git checkout feature/user-authentication
+git fetch origin
+git rebase origin/develop
+
+# حل conflict (در صورت وجود)
+# ... حل conflict ...
+git add .
+git rebase --continue
+
+# بعد از rebase، باید force push کنید
+git push --force-with-lease origin feature/user-authentication
+```
+
+**⚠️ نکته مهم**: از `--force-with-lease` به جای `--force` استفاده کنید تا از overwrite کردن تغییرات دیگران جلوگیری شود.
+
+#### مشاهده تفاوت‌ها
+
+```bash
+# تفاوت بین برنچ فعلی و develop
+git diff develop
+
+# تفاوت بین دو برنچ
+git diff develop..feature/user-authentication
+
+# فایل‌های تغییر کرده
+git diff --name-only develop..feature/user-authentication
+
+# خلاصه تغییرات (stat)
+git diff --stat develop..feature/user-authentication
+```
+
+#### تغییر نام برنچ
+
+```bash
+# تغییر نام برنچ محلی
+git branch -m feature/old-name feature/new-name
+
+# تغییر نام برنچ remote
+git push origin :feature/old-name feature/new-name
+git push origin -u feature/new-name
+```
+
+### 🔒 Git Hooks برای جلوگیری از خطاها
+
+برای جلوگیری از ایجاد feature branches از `main` به صورت تصادفی، می‌توانید از Git hooks استفاده کنید.
+
+#### نصب Git Hook
+
+یک hook به نام `pre-checkout` در `.git/hooks/` ایجاد کنید:
+
+```bash
+# ایجاد فایل hook
+touch .git/hooks/pre-checkout
+chmod +x .git/hooks/pre-checkout
+```
+
+**محتوای Hook:**
+
+```bash
+#!/bin/bash
+# .git/hooks/pre-checkout
+# Git Hook برای جلوگیری از ایجاد feature branches از main
+
+# اگر در حال checkout کردن یک برنچ جدید هستیم
+if [[ "$3" == "1" ]]; then
+    CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "")
+    TARGET_BRANCH="$2"
+    
+    # بررسی اینکه آیا از main در حال ایجاد برنچ جدید هستیم
+    if [[ "$CURRENT_BRANCH" == "main" ]] && [[ -n "$TARGET_BRANCH" ]]; then
+        # بررسی اینکه آیا برنچ جدید feature/bugfix است (نه hotfix)
+        if [[ "$TARGET_BRANCH" =~ ^(feature|bugfix)/ ]] && [[ "$TARGET_BRANCH" != "hotfix/"* ]]; then
+            echo ""
+            echo "================================================"
+            echo "⚠️  هشدار: در حال ایجاد برنچ جدید از main هستید!"
+            echo "================================================"
+            echo ""
+            echo "🔧 در Git Flow استاندارد، باید:"
+            echo "   1. از develop برای features/bugfixes استفاده کنید"
+            echo "   2. فقط برای hotfix از main استفاده کنید"
+            echo ""
+            echo "📋 برنچ هدف: $TARGET_BRANCH"
+            echo ""
+            read -p "آیا مطمئن هستید که می‌خواهید ادامه دهید؟ (y/N): " -n 1 -r
+            echo ""
+            
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                echo ""
+                echo "❌ ایجاد برنچ لغو شد."
+                echo ""
+                echo "💡 دستورات پیشنهادی:"
+                echo "   git checkout develop"
+                echo "   git pull origin develop"
+                echo "   git checkout -b $TARGET_BRANCH"
+                echo ""
+                exit 1
+            fi
+        fi
+    fi
+fi
+
+exit 0
+```
+
+**نکات مهم:**
+
+- ⚠️ Git hooks در `.git/hooks/` به صورت پیش‌فرض در Git commit نمی‌شوند
+- ✅ می‌توانید hook را در یک پوشه جداگانه نگه دارید و به تیم share کنید
+- ✅ Hook فقط هشدار می‌دهد و می‌توانید با `y` ادامه دهید (برای موارد خاص)
+- ✅ Hook فقط برای `feature/` و `bugfix/` فعال است، `hotfix/` از main مجاز است
+
+**نصب Hook برای تیم:**
+
+اگر می‌خواهید hook را با تیم share کنید:
+
+```bash
+# ایجاد پوشه برای hooks
+mkdir -p scripts/git-hooks
+
+# کپی hook
+cp .git/hooks/pre-checkout scripts/git-hooks/pre-checkout
+
+# اضافه کردن به Git
+git add scripts/git-hooks/pre-checkout
+git commit -m "chore: اضافه کردن Git hook برای جلوگیری از ایجاد feature branches از main"
+```
+
+**نصب Hook توسط سایر اعضای تیم:**
+
+```bash
+# کپی hook به .git/hooks/
+cp scripts/git-hooks/pre-checkout .git/hooks/pre-checkout
+chmod +x .git/hooks/pre-checkout
+```
+
+### ⚠️ نکات مهم
+
+#### 1. همیشه از develop برای ایجاد feature branches استفاده کنید
+
+```bash
+# ✅ درست
+git checkout develop
+git pull origin develop
+git checkout -b feature/new-feature
+
+# ❌ اشتباه
+git checkout main
+git checkout -b feature/new-feature
+```
+
+#### 2. یک Feature = یک برنچ
+
+حتی اگر یک feature هم Frontend و هم Backend را تغییر دهد، همه تغییرات در یک برنچ و یک PR قرار می‌گیرند:
+
+```bash
+# ✅ درست: یک برنچ برای feature کامل
+feature/user-authentication/
+├── commit 1: feat(frontend): ...
+├── commit 2: feat(backend): ...
+└── commit 3: docs: ...
+
+# ❌ اشتباه: دو برنچ جداگانه
+feature/frontend-auth/
+feature/backend-auth/
+```
+
+#### 3. Commit‌ها را با Scope مشخص کنید
+
+```bash
+# ✅ خوب
+git commit -m "feat(frontend): اضافه کردن صفحه لاگین"
+git commit -m "feat(backend): اضافه کردن API login"
+git commit -m "docs: به‌روزرسانی مستندات"
+
+# ❌ بد
+git commit -m "تغییرات"
+git commit -m "fix"
+git commit -m "update"
+```
+
+**Scope‌های رایج:**
+- `feat(frontend):` - ویژگی جدید در Frontend
+- `feat(backend):` - ویژگی جدید در Backend
+- `fix(frontend):` - رفع باگ در Frontend
+- `fix(backend):` - رفع باگ در Backend
+- `docs:` - تغییرات مستندات
+- `test:` - تغییرات تست‌ها
+- `refactor:` - بازنویسی کد
+- `chore:` - کارهای جانبی (config، dependencies)
+
+#### 4. بعد از merge PR، برنچ را حذف کنید
+
+```bash
+# بعد از merge PR در GitHub/GitLab:
+
+# 1. به develop بروید و pull کنید
+git checkout develop
+git pull origin develop
+
+# 2. برنچ محلی را حذف کنید
+git branch -d feature/user-authentication
+
+# 3. برنچ remote را حذف کنید (اگر خودکار حذف نشد)
+git push origin --delete feature/user-authentication
+```
+
+#### 5. Commit‌های کوچک و متمرکز
+
+```bash
+# ✅ خوب: Commit‌های کوچک و متمرکز
+git add frontend-vue/src/auth/LoginForm.vue
+git commit -m "feat(frontend): اضافه کردن کامپوننت LoginForm"
+
+git add frontend-vue/src/auth/LoginPage.vue
+git commit -m "feat(frontend): اضافه کردن صفحه Login"
+
+# ❌ بد: یک commit بزرگ با همه چیز
+git add .
+git commit -m "feat: اضافه کردن سیستم احراز هویت کامل"
+```
+
+#### 6. Pull قبل از Push
+
+همیشه قبل از push، از remote pull کنید:
+
+```bash
+# ✅ خوب
+git pull origin develop
+git push
+
+# ❌ ممکن است مشکل ایجاد کند
+git push  # بدون pull
+```
+
+### 📋 Checklist کار با Feature Branch
+
+#### قبل از شروع کار
+
+- [ ] از `develop` pull کرده‌ام: `git checkout develop && git pull origin develop`
+- [ ] برنچ جدید از `develop` ایجاد کرده‌ام
+- [ ] نام برنچ واضح و توصیفی است
+
+#### در حین کار
+
+- [ ] Commit‌ها با scope مشخص هستند (`feat(frontend):`، `feat(backend):`)
+- [ ] Commit‌ها کوچک و متمرکز هستند
+- [ ] Commit messages واضح و توصیفی هستند
+
+#### قبل از Push
+
+- [ ] همه تغییرات commit شده‌اند: `git status`
+- [ ] تست‌ها pass می‌شوند
+- [ ] Linter errors ندارم
+
+#### بعد از Push
+
+- [ ] PR ایجاد کرده‌ام
+- [ ] Base branch را `develop` انتخاب کرده‌ام
+- [ ] PR description کامل است
+- [ ] Reviewer‌ها را اضافه کرده‌ام
+
+#### بعد از Merge
+
+- [ ] PR merge شده است
+- [ ] برنچ محلی را حذف کرده‌ام: `git branch -d feature/name`
+- [ ] برنچ remote را حذف کرده‌ام (در صورت نیاز)
+
 ### 🛠️ دستورات مفید برای مدیریت برنچ‌ها
 
 #### مشاهده وضعیت برنچ‌ها

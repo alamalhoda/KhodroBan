@@ -39,37 +39,50 @@
 </template>
 
 <script setup>
+/**
+ * یک toast با نوع (success/error/warning/info)، مدت و نوار پیشرفت
+ *
+ * @component Toast
+ * @emits {string} close - هنگام بستن (payload: id)
+ */
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
+  /** شناسه یکتا برای مدیریت در ToastContainer */
   id: {
     type: String,
     required: true
   },
+  /** متن پیام */
   message: {
     type: String,
     required: true
   },
+  /** نوع: success | error | warning | info */
   type: {
     type: String,
     default: 'info',
     validator: (value) => ['success', 'error', 'warning', 'info'].includes(value)
   },
+  /** مدت نمایش (میلی‌ثانیه) */
   duration: {
     type: Number,
     default: 5000
   },
+  /** نمایش یا مخفی بودن */
   visible: {
     type: Boolean,
     default: true
   },
+  /** نمایش نوار پیشرفت زمان */
   showProgress: {
     type: Boolean,
     default: true
   }
 })
 
+/** @emits close - id: string */
 const emit = defineEmits(['close'])
 
 const { locale } = useI18n()

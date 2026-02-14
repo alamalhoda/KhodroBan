@@ -6,6 +6,8 @@
     "edit": "تعديل",
     "add": "إضافة",
     "search": "بحث",
+    "searchPlaceholder": "البحث في المركبات والخدمات والتذكيرات...",
+    "searchComingSoon": "البحث — نتائج المركبات والخدمات قريباً",
     "loading": "جارٍ التحميل...",
     "error": "خطأ",
     "success": "نجح",
@@ -24,7 +26,13 @@
     "optional": "اختياري",
     "selected": "محدد",
     "actions": "الإجراءات",
-    "km": "كم"
+    "km": "كم",
+    "showing": "عرض",
+    "to": "إلى",
+    "of": "من",
+    "previousPage": "الصفحة السابقة",
+    "nextPage": "الصفحة التالية",
+    "maxFilesReached": "الحد الأقصى {{max}} ملف."
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -126,6 +134,7 @@
       "normal": "عادي",
       "currentMileage": "المسافة الحالية",
       "km": "كم",
+      "vehicle": "المركبة",
       "usageStatus": "حالة الخطة المجانية",
       "usageDescription": "أنت تستخدم {count} مركبة من أصل 3 مركبات مسموحة.",
       "usagePercent": "ممتلئة",
@@ -254,6 +263,7 @@
       "cancel": "إلغاء",
       "helpText": "تواجه مشكلة في اختيار الفئة؟",
       "helpLink": "عرض الدليل",
+      "attachments": "المرفقات (إيصال / فاتورة)",
       "success": "تم تسجيل الخدمة بنجاح",
       "error": "خطأ في تسجيل الخدمة",
       "validation": {
@@ -346,11 +356,21 @@
     "amount": "المبلغ",
     "add": {
       "expenseTab": "مصروف إضافي",
+      "expenseDate": "تاريخ المصروف",
+      "currentKm": "الكيلومترات الحالية",
       "success": "تم تسجيل المصروف بنجاح",
       "error": "خطأ في تسجيل المصروف",
       "validation": {
         "categoryRequired": "اختيار الفئة مطلوب"
-      }
+      },
+      "receiptInvalidType": "الصور (JPEG, PNG, WebP) أو PDF فقط.",
+      "receiptTooLarge": "الحد الأقصى لحجم الملف 5 ميجابايت.",
+      "receipt": "إيصال / فاتورة"
+    },
+    "recurring": {
+      "insurance": "التأمين",
+      "inspection": "الفحص الفني",
+      "contractual": "خدمة تعاقدية"
     },
     "date": "التاريخ",
     "description": "الوصف",
@@ -404,7 +424,8 @@
       "free": "الخطة المجانية",
       "pro": "الخطة الاحترافية",
       "proPlus": "الخطة الاحترافية بلس"
-    }
+    },
+    "upgradeProTitle": "الترقية إلى الخطة الاحترافية"
   },
   "reminders": {
     "title": "التذكيرات",
@@ -421,6 +442,8 @@
     "completed": "مكتمل",
     "empty": "لا توجد تذكيرات",
     "emptyDescription": "لم تقم بإنشاء أي تذكيرات بعد",
+    "retry": "إعادة المحاولة",
+    "loading": "جاري تحميل التذكيرات...",
     "targetKm": "الهدف: {km} كم",
     "loadingError": "خطأ في تحميل التذكيرات",
     "createSuccess": "تم إنشاء التذكير بنجاح",
@@ -434,6 +457,8 @@
     "markCompletedError": "خطأ في تعليم التذكير كمكتمل",
     "createFromService": "إنشاء تذكير لهذه الخدمة",
     "createFromServiceDescription": "سيتم إنشاء تذكير تلقائي للخدمة التالية",
+    "createFromExpense": "تذكير بعد تسجيل المصروف",
+    "createFromExpenseDescription": "بعد حفظ هذا المصروف، سيتم إنشاء تذكير بالفاصل الزمني المحدد.",
     "autoReminder": "تذكير تلقائي",
     "filter": {
       "all": "الكل",
@@ -460,10 +485,12 @@
       "kmInterval": "الفاصل المسافات",
       "kmIntervalPlaceholder": "مثال: 5000",
       "dueDate": "تاريخ الاستحقاق",
+      "dueDatePlaceholder": "YYYY-MM-DD",
       "dueKm": "مسافة الاستحقاق",
       "warningDaysBefore": "تنبيه قبل (أيام)",
       "warningKmBefore": "تنبيه قبل (كم)",
       "calculatedDate": "التاريخ المحسوب: {date}",
+      "calculatedDateLabel": "التاريخ المحسوب",
       "calculatedKm": "مسافة الاستحقاق: {km}",
       "currentKm": "المسافة الحالية",
       "selectVehicleForKm": "اختر مركبة أولاً لاستخدام تذكيرات المسافات",
@@ -474,10 +501,22 @@
       "vehicleRequired": "اختيار المركبة مطلوب"
     },
     "presets": {
-      "10days": "10 أيام قادمة",
-      "30days": "30 يوماً قادماً",
-      "90days": "90 يوماً قادماً",
+      "tomorrow": "غداً",
+      "dayAfter": "بعد غدٍ",
+      "oneWeek": "بعد أسبوع",
+      "oneMonth": "بعد شهر",
+      "twoMonths": "بعد شهرين",
+      "threeMonths": "بعد ثلاثة أشهر",
+      "sixMonths": "بعد ستة أشهر",
+      "oneYear": "بعد سنة",
       "custom": "مخصص"
+    },
+    "daysRemaining": {
+      "daysAgo": "قبل {count} يوم",
+      "today": "اليوم",
+      "tomorrow": "غداً",
+      "daysLater": "بعد {count} يوم",
+      "daysPastDue": "{count} يوم بعد الموعد"
     }
   },
   "notifications": {

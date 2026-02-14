@@ -493,32 +493,42 @@ const authServiceSupabase: IAuthService = {
 };
 
 // ============================================
-// DJANGO IMPLEMENTATION (Placeholder)
+// DJANGO IMPLEMENTATION
 // ============================================
+// Endpoints: POST /token/ (login), POST /register/, GET/PATCH /me/ (profile)
 
 const authServiceDjango: IAuthService = {
   async login(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
-    const response = await api.post<ApiResponse<{ user: User; token: string }>>(
-      '/auth/login/',
-      credentials
-    );
-    const token = response.data.data.token;
+    const response = await api.post<{ access: string; refresh: string }>('/token/', {
+      username: credentials.email,
+      password: credentials.password,
+    });
+    const token = response.data.access;
     localStorage.setItem('token', token);
-    return response.data.data;
+    const user = await this.getProfile();
+    return { user, token };
   },
 
   async register(data: RegisterData): Promise<{ user: User; token: string }> {
-    const response = await api.post<ApiResponse<{ user: User; token: string }>>(
-      '/auth/register/',
-      data
+    const response = await api.post<{ user: Record<string, unknown>; access: string; refresh: string }>(
+      '/register/',
+      {
+        username: data.email,
+        email: data.email,
+        password: data.password,
+        password2: data.password,
+        first_name: data.name,
+        last_name: '',
+      }
     );
-    const token = response.data.data.token;
+    const token = response.data.access;
     localStorage.setItem('token', token);
-    return response.data.data;
+    const user = await this.getProfile();
+    return { user, token };
   },
 
   async loginWithGoogle(): Promise<void> {
-    // Django implementation - redirect به endpoint Django
+    // Django: redirect به endpoint OAuth در صورت پیاده‌سازی
     window.location.href = '/api/auth/google/login/';
   },
 
@@ -529,17 +539,16 @@ const authServiceDjango: IAuthService = {
       // Ignore logout errors
     }
     localStorage.removeItem('token');
-    // Note: Store update should be handled by framework-specific wrapper
   },
 
   async getProfile(): Promise<User> {
-    const response = await api.get<ApiResponse<User>>('/auth/profile/');
-    return response.data.data;
+    const response = await api.get<User>('/me/');
+    return response.data;
   },
 
   async updateProfile(data: Partial<{ firstName: string; lastName: string }>): Promise<User> {
-    const response = await api.patch<ApiResponse<User>>('/auth/profile/', data);
-    return response.data.data;
+    const response = await api.patch<User>('/me/', data);
+    return response.data;
   },
 
   async forgotPassword(email: string): Promise<void> {
@@ -551,8 +560,8 @@ const authServiceDjango: IAuthService = {
   },
 
   async upgradeToPro(): Promise<{ redirectUrl: string }> {
-    const response = await api.post<ApiResponse<{ redirectUrl: string }>>('/auth/upgrade/');
-    return response.data.data;
+    const response = await api.post<{ redirectUrl: string }>('/auth/upgrade/');
+    return response.data;
   },
 };
 

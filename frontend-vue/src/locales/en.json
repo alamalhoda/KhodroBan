@@ -6,6 +6,8 @@
     "edit": "Edit",
     "add": "Add",
     "search": "Search",
+    "searchPlaceholder": "Search vehicles, services and reminders...",
+    "searchComingSoon": "Search — results for vehicles and services coming soon",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
@@ -24,7 +26,13 @@
     "optional": "Optional",
     "selected": "Selected",
     "actions": "Actions",
-    "km": "km"
+    "km": "km",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "maxFilesReached": "Maximum {{max}} files allowed."
   },
   "auth": {
     "login": "Login",
@@ -126,6 +134,7 @@
       "normal": "Normal",
       "currentMileage": "Current Mileage",
       "km": "km",
+      "vehicle": "Vehicle",
       "usageStatus": "Free Plan Status",
       "usageDescription": "You are using {count} vehicles out of 3 allowed.",
       "usagePercent": "filled",
@@ -151,6 +160,9 @@
       "delete": "Delete",
       "addRecord": "Add Record",
       "updateKm": "Update",
+      "updateKmModalTitle": "Update Mileage",
+      "updateKmModalLabel": "Current mileage (km)",
+      "updateKmSuccess": "Mileage updated successfully",
       "lastUpdate": "Last Update",
       "currentKm": "Current Mileage",
       "services": "Service History",
@@ -164,6 +176,16 @@
       "addFirstService": "Add First Service",
       "fuelComingSoon": "Fuel report will be added soon",
       "expensesComingSoon": "Expense report will be added soon",
+      "noExpenses": "No expenses registered yet",
+      "addFirstExpense": "Add First Expense",
+      "viewAllExpenses": "View All Expenses",
+      "tableAmount": "Amount",
+      "tableCategory": "Category",
+      "tableNote": "Note",
+      "noFuelRecords": "No fuel records for this vehicle",
+      "remindersForVehicle": "Reminders for this vehicle",
+      "viewReminders": "Manage Reminders",
+      "noReminders": "No reminders for this vehicle",
       "notFound": "Vehicle not found",
       "backToList": "Back to List",
       "loading": "Loading...",
@@ -183,6 +205,28 @@
       "completed": "Completed",
       "viewAllServices": "View All Services"
     },
+    "iconStyleSolid": "Solid",
+    "iconStyleRegular": "Regular",
+    "iconCar": "Car",
+    "iconTruck": "Truck",
+    "iconVan": "Van",
+    "iconCarSide": "Car (side)",
+    "iconPickup": "Pickup",
+    "iconBus": "Bus",
+    "iconMotorcycle": "Motorcycle",
+    "iconCarRear": "Car (rear)",
+    "iconTruckFast": "Truck (fast)",
+    "vehicleIcon": "Vehicle icon",
+    "vehicleColor": "Icon color",
+    "galleryTitle": "Image gallery",
+    "galleryDefault": "Default",
+    "gallerySetDefault": "Set as default",
+    "galleryEmpty": "No images added yet.",
+    "galleryError": "Error loading gallery",
+    "galleryMaxReached": "Maximum {{max}} images allowed.",
+    "galleryUploadSuccess": "Image added successfully",
+    "galleryDeleteSuccess": "Image deleted",
+    "gallerySetDefaultSuccess": "Default image updated",
     "form": {
       "addTitle": "Add New Vehicle",
       "editTitle": "Edit Vehicle",
@@ -239,6 +283,7 @@
       "serviceTab": "Periodic Service",
       "selectVehicle": "Select vehicle...",
       "serviceDate": "Service Date",
+      "serviceDatePlaceholder": "1403/01/01",
       "currentKm": "Current Mileage (km)",
       "currentKmPlaceholder": "Example: 54,200",
       "serviceType": "Service Type",
@@ -254,6 +299,7 @@
       "cancel": "Cancel",
       "helpText": "Having trouble choosing a category?",
       "helpLink": "View Guide",
+      "attachments": "Attachments (receipt / invoice)",
       "success": "Service recorded successfully",
       "error": "Error recording service",
       "validation": {
@@ -346,15 +392,31 @@
     "amount": "Amount",
     "add": {
       "expenseTab": "Additional Expense",
+      "expenseDate": "Expense date",
+      "currentKm": "Current mileage (km)",
       "success": "Expense recorded successfully",
       "error": "Error recording expense",
       "validation": {
         "categoryRequired": "Category selection is required"
-      }
+      },
+      "receiptInvalidType": "Only image (JPEG, PNG, WebP) or PDF allowed.",
+      "receiptTooLarge": "Maximum file size is 5 MB.",
+      "receipt": "Receipt / Invoice"
+    },
+    "recurring": {
+      "insurance": "Insurance",
+      "inspection": "Inspection",
+      "contractual": "Contractual service"
     },
     "date": "Date",
     "description": "Description",
     "receipt": "Receipt"
+  },
+  "calendar": {
+    "title": "Persian Calendar",
+    "monthView": "Month view",
+    "weekView": "Week view",
+    "selected": "Selected:"
   },
   "reports": {
     "title": "Reports",
@@ -404,7 +466,8 @@
       "free": "Free Plan",
       "pro": "Pro Plan",
       "proPlus": "Pro+ Plan"
-    }
+    },
+    "upgradeProTitle": "Upgrade to Pro"
   },
   "reminders": {
     "title": "Reminders",
@@ -421,6 +484,8 @@
     "completed": "Completed",
     "empty": "No reminders found",
     "emptyDescription": "You haven't created any reminders yet",
+    "retry": "Retry",
+    "loading": "Loading reminders...",
     "targetKm": "Target: {km} km",
     "loadingError": "Error loading reminders",
     "createSuccess": "Reminder created successfully",
@@ -434,6 +499,8 @@
     "markCompletedError": "Error marking reminder as completed",
     "createFromService": "Create reminder for this service",
     "createFromServiceDescription": "Automatic reminder will be created for next service",
+    "createFromExpense": "Create reminder after this expense",
+    "createFromExpenseDescription": "After saving this expense, a reminder will be created with the chosen interval.",
     "autoReminder": "Auto Reminder",
     "filter": {
       "all": "All",
@@ -460,10 +527,12 @@
       "kmInterval": "Distance Interval",
       "kmIntervalPlaceholder": "e.g., 5000",
       "dueDate": "Due Date",
+      "dueDatePlaceholder": "YYYY-MM-DD",
       "dueKm": "Due Mileage",
       "warningDaysBefore": "Warning days before",
       "warningKmBefore": "Warning km before",
       "calculatedDate": "Calculated date: {date}",
+      "calculatedDateLabel": "Calculated date",
       "calculatedKm": "Due mileage: {km}",
       "currentKm": "Current Mileage",
       "selectVehicleForKm": "Select a vehicle first to use distance reminders",
@@ -474,10 +543,22 @@
       "vehicleRequired": "Vehicle selection is required"
     },
     "presets": {
-      "10days": "10 days later",
-      "30days": "30 days later",
-      "90days": "90 days later",
+      "tomorrow": "Tomorrow",
+      "dayAfter": "Day after tomorrow",
+      "oneWeek": "One week later",
+      "oneMonth": "One month later",
+      "twoMonths": "Two months later",
+      "threeMonths": "Three months later",
+      "sixMonths": "Six months later",
+      "oneYear": "One year later",
       "custom": "Custom"
+    },
+    "daysRemaining": {
+      "daysAgo": "{count} days ago",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "daysLater": "{count} days later",
+      "daysPastDue": "{count} days past due"
     }
   },
   "notifications": {

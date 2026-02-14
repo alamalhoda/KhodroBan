@@ -1,9 +1,11 @@
-import { supabase } from './index'
+import { supabase, api } from './index'
+
+const isDjango = () => import.meta.env.VITE_BACKEND_TYPE === 'django'
 
 /**
  * Service Type Service
- * 
- * دریافت انواع سرویس از دیتابیس
+ *
+ * دریافت انواع سرویس از دیتابیس (Django یا Supabase)
  * کدها و metadata از دیتابیس، ترجمه‌ها از i18n
  */
 
@@ -14,6 +16,16 @@ export const serviceTypeService = {
    */
   async getAll() {
     try {
+      if (isDjango()) {
+        const response = await api.get('/service-types/')
+        const raw = response.data?.data ?? []
+        return raw.map((r) => ({
+          code: r.code,
+          icon: r.icon,
+          group_name: r.group_name,
+          is_active: r.is_active,
+        }))
+      }
       const { data, error } = await supabase
         .from('service_types')
         .select('code, icon, group_name, is_active')
@@ -64,6 +76,10 @@ export const serviceTypeService = {
    */
   async getByCode(code) {
     try {
+      if (isDjango()) {
+        const all = await this.getAll()
+        return all.find((r) => r.code === code) ?? null
+      }
       const { data, error } = await supabase
         .from('service_types')
         .select('code, icon, group_name, is_active')
@@ -73,7 +89,6 @@ export const serviceTypeService = {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // No rows returned
           return null
         }
         console.error('Error fetching service type:', error)
@@ -85,6 +100,6 @@ export const serviceTypeService = {
       console.error('Error in serviceTypeService.getByCode:', error)
       throw error
     }
-  }
+  },
 }
 

@@ -6,6 +6,8 @@
     "edit": "ویرایش",
     "add": "افزودن",
     "search": "جستجو",
+    "searchPlaceholder": "جستجو در خودروها، سرویس‌ها و یادآورها...",
+    "searchComingSoon": "جستجو — به‌زودی اتصال به نتایج خودروها و سرویس‌ها",
     "loading": "در حال بارگذاری...",
     "error": "خطا",
     "success": "موفقیت",
@@ -24,7 +26,14 @@
     "optional": "اختیاری",
     "selected": "انتخاب شده",
     "actions": "عملیات",
-    "km": "کیلومتر"
+    "km": "کیلومتر",
+    "showing": "نمایش",
+    "to": "تا",
+    "of": "از",
+    "previousPage": "صفحه قبل",
+    "nextPage": "صفحه بعد",
+    "retry": "تلاش مجدد",
+    "maxFilesReached": "حداکثر {{max}} فایل مجاز است."
   },
   "auth": {
     "login": "ورود",
@@ -126,6 +135,7 @@
       "normal": "عادی",
       "currentMileage": "کارکرد فعلی",
       "km": "کیلومتر",
+      "vehicle": "خودرو",
       "usageStatus": "وضعیت طرح رایگان",
       "usageDescription": "شما از {count} خودرو از ۳ خودروی مجاز استفاده کرده‌اید.",
       "usagePercent": "پر شده",
@@ -151,6 +161,9 @@
       "delete": "حذف",
       "addRecord": "افزودن رکورد",
       "updateKm": "بروزرسانی",
+      "updateKmModalTitle": "به‌روزرسانی کارکرد",
+      "updateKmModalLabel": "کیلومتر فعلی",
+      "updateKmSuccess": "کارکرد با موفقیت به‌روز شد",
       "lastUpdate": "آخرین بروزرسانی",
       "currentKm": "کارکرد فعلی",
       "services": "تاریخچه سرویس",
@@ -164,6 +177,16 @@
       "addFirstService": "افزودن اولین سرویس",
       "fuelComingSoon": "گزارش سوخت به زودی اضافه خواهد شد",
       "expensesComingSoon": "گزارش هزینه‌ها به زودی اضافه خواهد شد",
+      "noExpenses": "هنوز هزینه‌ای ثبت نشده است",
+      "addFirstExpense": "ثبت اولین هزینه",
+      "viewAllExpenses": "مشاهده همه هزینه‌ها",
+      "tableAmount": "مبلغ",
+      "tableCategory": "دسته",
+      "tableNote": "یادداشت",
+      "noFuelRecords": "هیچ رکورد سوختی برای این خودرو ثبت نشده است",
+      "remindersForVehicle": "یادآورهای این خودرو",
+      "viewReminders": "مدیریت یادآورها",
+      "noReminders": "یادآوری برای این خودرو ثبت نشده است",
       "notFound": "خودرو یافت نشد",
       "backToList": "بازگشت به لیست",
       "loading": "در حال بارگذاری...",
@@ -183,6 +206,28 @@
       "completed": "تکمیل شده",
       "viewAllServices": "مشاهده همه سرویس‌ها"
     },
+    "iconStyleSolid": "پر",
+    "iconStyleRegular": "خطی",
+    "iconCar": "خودرو",
+    "iconTruck": "کامیون",
+    "iconVan": "ون",
+    "iconCarSide": "خودرو (نمای کنار)",
+    "iconPickup": "وانت",
+    "iconBus": "اتوبوس",
+    "iconMotorcycle": "موتور",
+    "iconCarRear": "خودرو (عقب)",
+    "iconTruckFast": "کامیون سریع",
+    "vehicleIcon": "آیکون خودرو",
+    "vehicleColor": "رنگ آیکون",
+    "galleryTitle": "گالری تصاویر",
+    "galleryDefault": "پیش‌فرض",
+    "gallerySetDefault": "تنظیم به‌عنوان پیش‌فرض",
+    "galleryEmpty": "هنوز تصویری اضافه نشده است.",
+    "galleryError": "خطا در بارگذاری گالری",
+    "galleryMaxReached": "حداکثر {{max}} تصویر مجاز است.",
+    "galleryUploadSuccess": "تصویر با موفقیت اضافه شد",
+    "galleryDeleteSuccess": "تصویر حذف شد",
+    "gallerySetDefaultSuccess": "تصویر پیش‌فرض به‌روز شد",
     "form": {
       "addTitle": "افزودن خودرو جدید",
       "editTitle": "ویرایش خودرو",
@@ -239,6 +284,7 @@
       "serviceTab": "سرویس دوره‌ای",
       "selectVehicle": "انتخاب خودرو...",
       "serviceDate": "تاریخ انجام",
+      "serviceDatePlaceholder": "۱۴۰۳/۰۱/۰۱",
       "currentKm": "کارکرد فعلی (کیلومتر)",
       "currentKmPlaceholder": "مثال: ۵۴,۲۰۰",
       "serviceType": "نوع سرویس",
@@ -254,6 +300,7 @@
       "cancel": "انصراف",
       "helpText": "در انتخاب دسته‌بندی مشکل دارید؟",
       "helpLink": "مشاهده راهنما",
+      "attachments": "پیوست‌ها (رسید / فاکتور)",
       "success": "سرویس با موفقیت ثبت شد",
       "error": "خطا در ثبت سرویس",
       "validation": {
@@ -402,13 +449,29 @@
       "title": "ثبت هزینه جدید",
       "subtitle": "ثبت هزینه جدید برای خودروی شما",
       "expenseTab": "هزینه جانبی",
+      "expenseDate": "تاریخ هزینه",
+      "currentKm": "کارکرد فعلی (کیلومتر)",
       "success": "هزینه با موفقیت ثبت شد",
       "error": "خطا در ثبت هزینه",
       "validation": {
         "categoryRequired": "انتخاب دسته‌بندی الزامی است"
-      }
+      },
+      "receiptInvalidType": "فقط تصویر (JPEG, PNG, WebP) یا PDF مجاز است.",
+      "receiptTooLarge": "حداکثر حجم فایل ۵ مگابایت.",
+      "receipt": "رسید / فاکتور"
+    },
+    "recurring": {
+      "insurance": "بیمه",
+      "inspection": "معاینه فنی",
+      "contractual": "سرویس قراردادی"
     },
     "error": "خطا در دریافت دسته‌بندی هزینه‌ها"
+  },
+  "calendar": {
+    "title": "تقویم شمسی",
+    "monthView": "نمای ماهانه",
+    "weekView": "نمای هفتگی",
+    "selected": "انتخاب شده:"
   },
   "reports": {
     "title": "گزارش‌ها",
@@ -458,7 +521,8 @@
       "free": "طرح رایگان",
       "pro": "طرح حرفه‌ای",
       "proPlus": "طرح حرفه‌ای پلاس"
-    }
+    },
+    "upgradeProTitle": "ارتقا به طرح حرفه‌ای"
   },
   "reminders": {
     "title": "یادآورها",
@@ -475,6 +539,8 @@
     "completed": "انجام شده",
     "empty": "یادآوری وجود ندارد",
     "emptyDescription": "هنوز یادآوری ایجاد نکرده‌اید",
+    "retry": "تلاش مجدد",
+    "loading": "در حال بارگذاری یادآورها...",
     "targetKm": "هدف: {km} کیلومتر",
     "loadingError": "خطا در بارگذاری یادآورها",
     "createSuccess": "یادآور با موفقیت ایجاد شد",
@@ -488,6 +554,8 @@
     "markCompletedError": "خطا در علامت‌گذاری یادآور",
     "createFromService": "ایجاد یادآور برای این سرویس",
     "createFromServiceDescription": "یادآور خودکار برای سرویس بعدی ایجاد می‌شود",
+    "createFromExpense": "یادآوری بعد از ثبت هزینه",
+    "createFromExpenseDescription": "بعد از ثبت این هزینه، یک یادآوری با بازه زمانی مشخص ایجاد می‌شود.",
     "autoReminder": "یادآور خودکار",
     "filter": {
       "all": "همه",
@@ -514,10 +582,12 @@
       "kmInterval": "بازه کیلومتری",
       "kmIntervalPlaceholder": "مثلاً: 5000",
       "dueDate": "تاریخ موعد",
+      "dueDatePlaceholder": "۱۴۰۳/۰۱/۰۱",
       "dueKm": "کیلومتر سررسید",
       "warningDaysBefore": "هشدار چند روز قبل",
       "warningKmBefore": "هشدار چند کیلومتر قبل",
       "calculatedDate": "تاریخ محاسبه شده: {date}",
+      "calculatedDateLabel": "تاریخ محاسبه شده",
       "calculatedKm": "کیلومتر موعد: {km}",
       "currentKm": "کارکرد فعلی",
       "selectVehicleForKm": "برای استفاده از یادآور کیلومتری، ابتدا خودرو را انتخاب کنید",
@@ -528,10 +598,22 @@
       "vehicleRequired": "انتخاب خودرو الزامی است"
     },
     "presets": {
-      "10days": "۱۰ روز دیگر",
-      "30days": "۳۰ روز دیگر",
-      "90days": "۹۰ روز دیگر",
-      "custom": "سفارشی"
+      "tomorrow": "فردا",
+      "dayAfter": "پس‌فردا",
+      "oneWeek": "یک هفته دیگر",
+      "oneMonth": "یک ماه دیگر",
+      "twoMonths": "دو ماه دیگر",
+      "threeMonths": "سه ماه دیگر",
+      "sixMonths": "شش ماه دیگر",
+      "oneYear": "یک سال دیگر",
+      "custom": "دلخواه"
+    },
+    "daysRemaining": {
+      "daysAgo": "{count} روز گذشته",
+      "today": "امروز",
+      "tomorrow": "فردا",
+      "daysLater": "{count} روز دیگر",
+      "daysPastDue": "{count} روز گذشته از موعد"
     }
   },
   "notifications": {
