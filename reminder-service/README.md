@@ -1,8 +1,15 @@
 # سرویس یادآوری خودروها
 
-## 📋 خلاصه
+> **⚠️ منسوخ (Deprecated / Archived)**  
+> این سرویس دیگر مسیر اصلی نیست. یادآوری و نوتیفیکیشن اکنون از **Django backend** (Huey + Outbox + multi-channel) انجام می‌شود.  
+> **مرجع فعلی:** [reminder-notification-api-blueprint.md](../docs/technical/reminder-notification-api-blueprint.md) و [reminder-system-status.md](../docs/technical/reminder-system-status.md).  
+> این پوشه فقط برای آرشیو و مرجع نگه‌داری شده است.
 
-این سرویس یادآوری سرویس دوره‌ای خودروها را از طریق **تلگرام** ارسال می‌کند.
+---
+
+## 📋 خلاصه (آرشیو)
+
+این سرویس یادآوری سرویس دوره‌ای خودروها را از طریق **تلگرام** ارسال می‌کرد (Cron + Supabase).
 
 ---
 

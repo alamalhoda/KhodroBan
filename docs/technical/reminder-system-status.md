@@ -138,12 +138,13 @@ VITE_API_URL=http://127.0.0.1:8000/api
 
 ---
 
-## ⚠️ reminder-service (منسوخ)
+## ⚠️ reminder-service (منسوخ / آرشیو — Phase 4)
 
-سرویس قدیمی Python در `reminder-service/` (Cron + Supabase) دیگر مسیر اصلی نیست.  
-برای جزئیات تلگرام و رفتارهای legacy ر.ک. `reminder-service/TELEGRAM_README.md` و Blueprint §۴.
+سرویس قدیمی Python در `reminder-service/` (Cron + Supabase) منسوخ و آرشیو شده است.  
+مستندات آن پوشه (`README.md`, `TELEGRAM_README.md`) با هشدار deprecated و لینک به Django و Blueprint به‌روز شده‌اند.  
+برای جزئیات تلگرام legacy ر.ک. `reminder-service/TELEGRAM_README.md` و Blueprint §۴.
 
-مسیر فعلی: Django + Huey + Outbox.
+**مسیر فعلی:** Django + Huey + Outbox. وابستگی production به reminder-service قطع است.
 
 ---
 
@@ -154,6 +155,8 @@ VITE_API_URL=http://127.0.0.1:8000/api
 | ۲۸ دی ۱۴۰۴ | دیتابیس Supabase، Python Cron | انجام شده (legacy) |
 | ۲۶ بهمن ۱۴۰۴ | Phase 1: Notification API، notificationServiceDjango، dedup، تلگرام callback | ✅ |
 | ۲۶ بهمن ۱۴۰۴ | Phase 2: تفکیک reminders/notifications، Outbox، OutboxConsumer | ✅ |
+| ۲۶ بهمن ۱۴۰۴ | Phase 3: NotificationDelivery/Preference، ChannelDispatcher، fallback، تست‌ها | ✅ |
+| ۲۶ بهمن ۱۴۰۴ | Phase 4: آرشیو reminder-service، مستندات منسوخ | ✅ |
 
 ---
 
