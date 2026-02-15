@@ -192,6 +192,10 @@
       "completed": "مكتمل",
       "viewAllServices": "عرض جميع الخدمات"
     },
+    "vehicleIcon": "أيقونة المركبة",
+    "iconSearchPlaceholder": "البحث عن أيقونة...",
+    "iconSearchNoResults": "لم يتم العثور على أيقونة.",
+    "vehicleColor": "لون الأيقونة",
     "form": {
       "addTitle": "إضافة مركبة جديدة",
       "editTitle": "تعديل المركبة",

@@ -219,6 +219,8 @@
     "iconCarRear": "خودرو (عقب)",
     "iconTruckFast": "کامیون سریع",
     "vehicleIcon": "آیکون خودرو",
+    "iconSearchPlaceholder": "جستجوی آیکون...",
+    "iconSearchNoResults": "آیکونی یافت نشد.",
     "vehicleColor": "رنگ آیکون",
     "galleryTitle": "گالری تصاویر",
     "galleryDefault": "پیش‌فرض",

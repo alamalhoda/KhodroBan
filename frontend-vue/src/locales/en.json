@@ -218,6 +218,8 @@
     "iconCarRear": "Car (rear)",
     "iconTruckFast": "Truck (fast)",
     "vehicleIcon": "Vehicle icon",
+    "iconSearchPlaceholder": "Search icon...",
+    "iconSearchNoResults": "No icon found.",
     "vehicleColor": "Icon color",
     "galleryTitle": "Image gallery",
     "galleryDefault": "Default",
