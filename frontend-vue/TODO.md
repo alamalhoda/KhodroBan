@@ -35,9 +35,10 @@
 - [x] افزودن تست واحد/Integration برای flow هزینه (AddServiceView + expense store + test_api_expenses)
 
 ### 2) تکمیل تنظیمات کانال‌های یادآوری (UI)
-- [ ] تکمیل UX تنظیمات کانال‌ها در `SettingsView`
+- **زمینه:** Backend یادآوری/نوتیفیکیشن (فازهای ۱–۴) انجام شده؛ Notification API و ChannelDispatcher با fallback (telegram فعال؛ Email/SMS/Push stub). ر.ک. `docs/technical/reminder-system-status.md`.
+- [ ] تکمیل UX تنظیمات کانال‌ها در `SettingsView` (اتصال به NotificationPreference در صورت نیاز)
 - [ ] تکمیل جریان Telegram در فرانت (اتصال، خطا، وضعیت)
-- [ ] تعریف placeholder اجرایی برای SMS/Push تا زمان تکمیل backend
+- [ ] تعریف placeholder یا اتصال برای SMS/Push (backend اسکلت/stub آماده است)
 
 ### 3) Regression تست جریان اصلی کاربر
 - [ ] تعریف smoke flow: login -> vehicles -> services/expenses -> reminders -> reports
@@ -91,5 +92,5 @@
 
 ---
 
-**آخرین به‌روزرسانی:** 2026-02-14 (کامپوننت‌های یادآور + مستندات قبل از PR)
+**آخرین به‌روزرسانی:** 2026-02-15 (هم‌راستا با فازهای ۱–۴ یادآوری/نوتیفیکیشن backend)
 

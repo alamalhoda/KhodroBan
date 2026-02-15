@@ -6,6 +6,7 @@
 
 ## ✅ انجام‌شده‌های اخیر
 
+- **یادآوری/نوتیفیکیشن (فازهای ۱–۴):** Notification API کامل (list, unread_count, mark_as_read, mark_all_read, delete)؛ Outbox و appهای `reminders`/`notifications`؛ ChannelDispatcher با fallback (telegram→push→email→sms)؛ مدل‌های NotificationDelivery و NotificationPreference؛ process_pending_notifications با dispatcher؛ آرشیو reminder-service در مستندات. ر.ک. `docs/technical/reminder-system-status.md`.
 - تست‌های API مربوط به `reports` تکمیل و پایدار شد.
 - API و تست‌های `reminders` گسترش یافت (CRUD، dismiss، by_vehicle، user list).
 - `ServicePreset` و endpoint مربوط اضافه شد.
@@ -34,9 +35,9 @@
 
 ## 🟢 آینده
 
-- [ ] کانال‌های اعلان تکمیلی (SMS/Push) در backend
+- [ ] اتصال سرویس‌دهندگان واقعی برای Email/SMS/Push (اسکلت و stubها در Phase 3 آماده است؛ ر.ک. `docs/technical/notification-channel-providers.md`)
 - [ ] endpointهای پرداخت/اشتراک برای Upgrade (در صورت نهایی شدن scope)
 
 ---
 
-**آخرین به‌روزرسانی:** 2026-02-14
+**آخرین به‌روزرسانی:** 2026-02-15

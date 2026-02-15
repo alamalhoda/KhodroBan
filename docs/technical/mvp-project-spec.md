@@ -171,7 +171,18 @@ KhodroBan (خودروبان) یک وب‌اپلیکیشن واکنش‌گرا (M
 - **نزدیک موعد**: اگر (due_at_date - امروز <= threshold_days) یا (due_at_km - km فعلی <= threshold_km)
 - **OK**: سایر حالات
 
-> نکته MVP: چون Push نداریم، برای کیلومترمحور بودن، یک ایمیل «یادآوری به‌روزرسانی کیلومتر» (مثلاً ماهی یک‌بار) می‌تواند ارزش ایجاد کند.
+### 7.4 معماری یادآوری و نوتیفیکیشن (Django — به‌روز)
+
+پیاده‌سازی فعلی با **Blueprint یادآوری/نوتیفیکیشن** هم‌راستا است و فازهای ۱–۴ انجام شده‌اند:
+
+- **دامنه Reminders** (app `reminders`): ارزیابی موعد، emit رویداد به Outbox (بدون ایجاد مستقیم Notification).
+- **دامنه Notifications** (app `notifications`): consume Outbox، ایجاد Notification، ارسال چندکاناله با fallback (telegram → push → email → sms).
+- **API نوتیفیکیشن:** list، unread_count، mark_as_read، mark_all_read، delete. فرانت با `notificationServiceDjango` و short-poll استفاده می‌کند.
+- **reminder-service** (Cron + Supabase) منسوخ و آرشیو شده است؛ مسیر واحد Django + Huey + Outbox.
+
+**مراجع:** `docs/technical/reminder-notification-api-blueprint.md`، `docs/technical/reminder-system-status.md`.
+
+> نکته MVP: برای کیلومترمحور بودن، یک ایمیل «یادآوری به‌روزرسانی کیلومتر» (مثلاً ماهی یک‌بار) می‌تواند ارزش ایجاد کند. اتصال سرویس‌دهندگان واقعی Email/SMS/Push در `docs/technical/notification-channel-providers.md` توضیح داده شده است.
 
 ---
 
