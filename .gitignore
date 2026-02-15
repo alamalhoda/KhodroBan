@@ -4,7 +4,6 @@ vendor/
 .pub-cache/
 
 # FontAwesome (پوشه‌های public کامیت نشوند؛ لایسنس Pro / حجم)
-frontend-vue/public/fontawesome-free-7.2.0-web/
 frontend-vue/public/fontawesome-pro-7.1.0-web/
 
 # Build outputs
