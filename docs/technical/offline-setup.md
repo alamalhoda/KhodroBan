@@ -27,7 +27,7 @@
 - `venv/` ها commit نمی شوند
 - فایل های env محلی مثل `.env.local` commit نمی شوند
 - پوشه **Font Awesome** در `public` commit نمی شود:
-  - `frontend-vue/public/fontawesome-pro-7.1.0-web/` (نسخه Pro 7.1.0 – تنها منبع آیکون‌ها؛ فقط استایل Duotone استفاده می‌شود)
+  - `frontend-vue/public/fontawesome-pro-7.1.0-web/` (نسخه Pro 7.1.0 – تنها منبع آیکون‌ها؛ فقط استایل Duotone استفاده می‌شود؛ در صورت وجود پوشه `metadata/` با `icons.json` یا `icons.yml` می‌توان لیست آیکون‌ها را با `npm run generate:fa-icons` بازتولید کرد)
 
 همچنین برای اجرای کامل UI به فایل های فونت محلی نیاز دارید (در `frontend-vue/public/fonts/`) که ممکن است روی clone جدید وجود نداشته باشند.
 
@@ -128,7 +128,7 @@ cp reminder-service/.env.example offline-bundle/env/reminder-service.env.example
 
 **Font Awesome Pro (آیکون‌های خودرو و UI):**  
 پکیج npm Font Awesome حذف شده؛ آیکون‌ها از پوشه محلی لود می‌شوند. کل پوشه را در bundle بگذارید:
-- `frontend-vue/public/fontawesome-pro-7.1.0-web/` (شامل `css/` و `webfonts/`)
+- `frontend-vue/public/fontawesome-pro-7.1.0-web/` (شامل `css/` و `webfonts/`؛ برای بازتولید لیست آیکون‌های انتخابگر در محیط آفلاین اختیاری است: پوشه `metadata/` با `icons.json` یا `icons.yml`)
 
 نمونه کپی به bundle:
 
@@ -316,6 +316,7 @@ pip install --no-index --find-links /PATH/TO/offline-bundle/python/reminder-tele
 
 - پوشه `frontend-vue/public/fontawesome-pro-7.1.0-web/` وجود ندارد یا ناقص است
 - زیرپوشه‌های `css/` و `webfonts/` باید در همان مسیر باشند (مسیر نسبی در CSS: `../webfonts/`)
+- لیست آیکون‌های انتخابگر در فرم خودرو از `src/config/fontAwesomeIconNames.js` خوانده می‌شود (در Git است). برای بازتولید این لیست در محیط آفلاین، پوشه `metadata/` با `icons.json` یا `icons.yml` لازم است؛ سپس `npm run generate:fa-icons` را اجرا کنید.
 
 ### فونت Vazirmatn اعمال نمی شود
 

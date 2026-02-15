@@ -28,6 +28,7 @@
 - [ ] فایل `frontend-vue/public/fonts/MaterialSymbolsOutlined.woff2` موجود است
 - [ ] تمام فایل های `Vazirmatn-*.woff2` موجود است
 - [ ] پوشه **Font Awesome Pro** (`frontend-vue/public/fontawesome-pro-7.1.0-web/`) موجود است و شامل `css/` و `webfonts/` است (در Git نیست؛ از بسته آفلاین کپی شود)
+- [ ] (اختیاری) برای بازتولید لیست آیکون‌های انتخابگر در محیط آفلاین: پوشه `metadata/` با `icons.json` یا `icons.yml` در همان پوشه Font Awesome موجود است؛ سپس `npm run generate:fa-icons` قابل اجرا است
 - [ ] هیچ asset ضروری UI فقط از CDN لود نمی شود
 - [ ] تصاویر استفاده شده در `src/views` به مسیرهای محلی (`/images/...`) اشاره می کنند
 
