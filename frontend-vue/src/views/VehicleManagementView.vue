@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import MainLayout from '../components/MainLayout.vue'
 import { useVehicleStore } from '../stores/vehicle'
 import { useUIStore } from '../stores/ui'
-import { VEHICLE_ICON_STYLES, VEHICLE_PREFERRED_ICON_NAMES, DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '../config/vehicleIcons'
+import { VEHICLE_ICON_STYLES, VEHICLE_PREFERRED_ICON_NAMES, DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, DEFAULT_VEHICLE_ICON_COLOR_SECONDARY } from '../config/vehicleIcons'
 import { ALL_FONT_AWESOME_ICON_NAMES } from '../config/fontAwesomeIconNames'
 import IconPickerDropdown from '../components/IconPickerDropdown.vue'
 
@@ -27,7 +27,8 @@ const formData = ref({
   note: '',
   iconName: DEFAULT_VEHICLE_ICON,
   iconStyle: DEFAULT_VEHICLE_ICON_STYLE,
-  iconColor: DEFAULT_VEHICLE_ICON_COLOR
+  iconColor: DEFAULT_VEHICLE_ICON_COLOR,
+  iconColorSecondary: DEFAULT_VEHICLE_ICON_COLOR_SECONDARY
 })
 
 const formErrors = ref({})
@@ -89,7 +90,8 @@ const handleSubmit = async () => {
       note: formData.value.note.trim() || undefined,
       iconName: formData.value.iconName || undefined,
       iconStyle: formData.value.iconStyle || undefined,
-      iconColor: formData.value.iconColor || undefined
+      iconColor: formData.value.iconColor || undefined,
+      iconColorSecondary: formData.value.iconColorSecondary || undefined
     }
     
     if (isEditMode.value && vehicleId.value) {
@@ -149,7 +151,8 @@ onMounted(async () => {
           note: vehicle.note || '',
           iconName: vehicle.iconName || DEFAULT_VEHICLE_ICON,
           iconStyle: vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE,
-          iconColor: vehicle.iconColor || DEFAULT_VEHICLE_ICON_COLOR
+          iconColor: vehicle.iconColor || DEFAULT_VEHICLE_ICON_COLOR,
+          iconColorSecondary: vehicle.iconColorSecondary ?? DEFAULT_VEHICLE_ICON_COLOR_SECONDARY
         }
       }
     } catch (error) {
@@ -256,7 +259,7 @@ onMounted(async () => {
           </div>
 
           <!-- Icon & Color -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="flex flex-col gap-2">
               <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ t('vehicles.vehicleIcon') }}</span>
               <IconPickerDropdown
@@ -265,6 +268,7 @@ onMounted(async () => {
                 :preferred-icon-names="VEHICLE_PREFERRED_ICON_NAMES"
                 :icon-style="formData.iconStyle"
                 :icon-color="formData.iconColor"
+                :icon-color-secondary="formData.iconColorSecondary"
                 :placeholder-label="t('vehicles.vehicleIcon')"
                 :search-placeholder="t('vehicles.iconSearchPlaceholder')"
                 :no-results-label="t('vehicles.iconSearchNoResults')"
@@ -300,6 +304,24 @@ onMounted(async () => {
                   type="text"
                   class="flex-1 rounded-xl border border-[#dcdfe4] dark:border-gray-600 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 px-4 font-mono text-sm"
                   placeholder="#6b7280"
+                  maxlength="7"
+                />
+              </div>
+            </label>
+            <label class="flex flex-col gap-2">
+              <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ t('vehicles.vehicleColorSecondary') }}</span>
+              <div class="flex items-center gap-3">
+                <input
+                  v-model="formData.iconColorSecondary"
+                  type="color"
+                  class="w-12 h-12 rounded-xl border border-[#dcdfe4] dark:border-gray-600 cursor-pointer bg-white dark:bg-gray-800"
+                  :aria-label="t('vehicles.vehicleColorSecondary')"
+                />
+                <input
+                  v-model="formData.iconColorSecondary"
+                  type="text"
+                  class="flex-1 rounded-xl border border-[#dcdfe4] dark:border-gray-600 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 px-4 font-mono text-sm"
+                  placeholder="#9ca3af"
                   maxlength="7"
                 />
               </div>

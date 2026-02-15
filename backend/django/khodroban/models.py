@@ -126,6 +126,7 @@ class Vehicle(models.Model):
     icon_name = models.CharField(max_length=50, blank=True, null=True, help_text=_("FontAwesome icon name, e.g. car"))
     icon_style = models.CharField(max_length=20, blank=True, null=True, default='solid', help_text=_("FontAwesome style: solid, regular, brands"))
     icon_color = models.CharField(max_length=20, blank=True, null=True, help_text=_("Hex color, e.g. #FF5733"))
+    icon_color_secondary = models.CharField(max_length=20, blank=True, null=True, help_text=_("Duotone secondary layer hex color"))
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
 

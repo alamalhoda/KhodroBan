@@ -149,8 +149,28 @@ export const VEHICLE_PREFERRED_ICON_NAMES = [
 export const DEFAULT_VEHICLE_ICON = 'car'
 export const DEFAULT_VEHICLE_ICON_STYLE = 'duotone'
 export const DEFAULT_VEHICLE_ICON_COLOR = '#6b7280'
+/** رنگ لایه دوم آیکون Duotone (پیش‌فرض کمی تیره‌تر/شفاف). */
+export const DEFAULT_VEHICLE_ICON_COLOR_SECONDARY = '#9ca3af'
 
 /** برای نمایش؛ فقط duotone لود شده، پس استایل‌های قدیمی (solid/regular) به duotone نرمال می‌شوند. */
 export function getEffectiveIconStyle(style) {
   return style === 'duotone' ? style : 'duotone'
+}
+
+/**
+ * استایل CSS برای آیکون Duotone با دو رنگ (primary و secondary).
+ * برای اعمال روی المنت آیکون: :style="getVehicleIconDuotoneStyle(primaryColor, secondaryColor)"
+ * @param {string} [primaryColor] - رنگ لایه اصلی (--fa-primary-color)
+ * @param {string} [secondaryColor] - رنگ لایه دوم (--fa-secondary-color)
+ * @returns {Record<string, string>}
+ */
+export function getVehicleIconDuotoneStyle(primaryColor, secondaryColor) {
+  const primary = primaryColor || DEFAULT_VEHICLE_ICON_COLOR
+  const secondary = secondaryColor ?? primary
+  return {
+    '--fa-primary-color': primary,
+    '--fa-secondary-color': secondary,
+    '--fa-primary-opacity': '1',
+    '--fa-secondary-opacity': '0.4'
+  }
 }

@@ -16,7 +16,7 @@ import MainLayout from '../components/MainLayout.vue'
 import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
 import { Button, Card, LoadingSpinner, Modal } from '../components/ui'
 import { formatCurrency } from '@/utils/formatters'
-import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '../config/vehicleIcons'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle, getVehicleIconDuotoneStyle } from '../config/vehicleIcons'
 
 const router = useRouter()
 const route = useRoute()
@@ -70,9 +70,9 @@ function vehicleIconClass(vehicle) {
   return `fa fa-${getEffectiveIconStyle(style)} fa-${name}`
 }
 
-/** رنگ آیکون خودرو */
-function vehicleIconColor(vehicle) {
-  return vehicle?.iconColor || DEFAULT_VEHICLE_ICON_COLOR
+/** استایل دو رنگ آیکون Duotone خودرو */
+function vehicleIconStyle(vehicle) {
+  return getVehicleIconDuotoneStyle(vehicle?.iconColor, vehicle?.iconColorSecondary)
 }
 
 /** آیکون نوع سرویس */
@@ -270,7 +270,7 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
                       <i
                         :class="vehicleIconClass(getVehicleById(service.vehicleId))"
                         class="text-base"
-                        :style="{ color: vehicleIconColor(getVehicleById(service.vehicleId)) }"
+                        :style="vehicleIconStyle(getVehicleById(service.vehicleId))"
                       ></i>
                     </span>
                     <span v-else class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 shrink-0">
@@ -363,7 +363,7 @@ watch(() => route.query.vehicleId, (newVehicleId) => {
                   <i
                     :class="vehicleIconClass(getVehicleById(service.vehicleId))"
                     class="text-sm"
-                    :style="{ color: vehicleIconColor(getVehicleById(service.vehicleId)) }"
+                    :style="vehicleIconStyle(getVehicleById(service.vehicleId))"
                   ></i>
                 </span>
                 <span v-else class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 shrink-0">

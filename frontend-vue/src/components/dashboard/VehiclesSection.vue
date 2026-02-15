@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import { formatNumber } from '@/utils/formatters'
-import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '@/config/vehicleIcons'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle, getVehicleIconDuotoneStyle } from '@/config/vehicleIcons'
 
 const props = defineProps({
   /** آرایه خودروها (هر خودرو می‌تواند defaultImageUrl و iconName/iconStyle/iconColor داشته باشد) */
@@ -29,8 +29,8 @@ function vehicleIconClass(vehicle) {
   return `fa fa-${getEffectiveIconStyle(style)} fa-${name}`
 }
 
-function vehicleIconColor(vehicle) {
-  return vehicle?.iconColor || DEFAULT_VEHICLE_ICON_COLOR
+function vehicleIconStyle(vehicle) {
+  return getVehicleIconDuotoneStyle(vehicle?.iconColor, vehicle?.iconColorSecondary)
 }
 </script>
 
@@ -77,7 +77,7 @@ function vehicleIconColor(vehicle) {
               <div class="flex items-center gap-2 min-w-0">
                 <span
                   class="flex items-center justify-center w-7 h-7 shrink-0 rounded-full bg-gray-100 dark:bg-gray-700"
-                  :style="{ color: vehicleIconColor(vehicle) }"
+                  :style="vehicleIconStyle(vehicle)"
                   :title="hasReminderForVehicle(vehicle.id) ? t('dashboard.activeReminders') : t('dashboard.normal')"
                   aria-hidden="true"
                 >

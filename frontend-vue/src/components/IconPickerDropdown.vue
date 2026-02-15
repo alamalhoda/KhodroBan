@@ -3,7 +3,7 @@
  * Dropdown انتخاب آیکون با جستجو؛ لیست کامل آیکون‌های Font Awesome را نمایش می‌دهد.
  */
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { getEffectiveIconStyle } from '../config/vehicleIcons'
+import { getEffectiveIconStyle, getVehicleIconDuotoneStyle } from '../config/vehicleIcons'
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
@@ -12,6 +12,7 @@ const props = defineProps({
   preferredIconNames: { type: Array, default: () => [] },
   iconStyle: { type: String, default: 'duotone' },
   iconColor: { type: String, default: '#6b7280' },
+  iconColorSecondary: { type: String, default: '#9ca3af' },
   placeholderLabel: { type: String, default: 'آیکون خودرو' },
   searchPlaceholder: { type: String, default: 'جستجوی آیکون...' },
   noResultsLabel: { type: String, default: 'آیکونی یافت نشد.' }
@@ -23,6 +24,9 @@ const isOpen = ref(false)
 const searchQuery = ref('')
 
 const effectiveStyle = computed(() => getEffectiveIconStyle(props.iconStyle))
+const iconDuotoneStyle = computed(() =>
+  getVehicleIconDuotoneStyle(props.iconColor, props.iconColorSecondary)
+)
 
 const filteredIcons = computed(() => {
   const q = (searchQuery.value || '').trim().toLowerCase()
@@ -80,7 +84,7 @@ onUnmounted(() => {
       <span
         v-if="modelValue"
         class="w-9 h-9 shrink-0 rounded-lg border-2 border-primary/30 bg-primary/5 flex items-center justify-center"
-        :style="{ color: iconColor }"
+        :style="iconDuotoneStyle"
       >
         <i :class="['fa', 'fa-' + effectiveStyle, 'fa-' + modelValue]" class="fa-fw text-lg" aria-hidden="true"></i>
       </span>
@@ -126,7 +130,7 @@ onUnmounted(() => {
                 ? 'border-primary bg-primary/10'
                 : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
             ]"
-            :style="{ color: modelValue === name ? iconColor : undefined }"
+            :style="modelValue === name ? iconDuotoneStyle : undefined"
             :title="name"
             @click="select(name)"
           >

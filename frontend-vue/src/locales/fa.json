@@ -222,6 +222,7 @@
     "iconSearchPlaceholder": "جستجوی آیکون...",
     "iconSearchNoResults": "آیکونی یافت نشد.",
     "vehicleColor": "رنگ آیکون",
+    "vehicleColorSecondary": "رنگ دوم آیکون",
     "galleryTitle": "گالری تصاویر",
     "galleryDefault": "پیش‌فرض",
     "gallerySetDefault": "تنظیم به‌عنوان پیش‌فرض",

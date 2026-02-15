@@ -6,7 +6,7 @@ import MainLayout from '../components/MainLayout.vue'
 import Modal from '../components/ui/Modal.vue'
 import { useVehicleStore } from '../stores/vehicle'
 import { useUIStore } from '../stores/ui'
-import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '../config/vehicleIcons'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle, getVehicleIconDuotoneStyle } from '../config/vehicleIcons'
 
 const router = useRouter()
 const vehicleStore = useVehicleStore()
@@ -160,7 +160,7 @@ const vehicleUsagePercent = () => {
                     v-else
                     :class="['fa', 'fa-' + getEffectiveIconStyle(vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE), 'fa-' + (vehicle.iconName || DEFAULT_VEHICLE_ICON)]"
                     class="text-xl"
-                    :style="{ color: vehicle.iconColor || DEFAULT_VEHICLE_ICON_COLOR }"
+                    :style="getVehicleIconDuotoneStyle(vehicle.iconColor, vehicle.iconColorSecondary)"
                     aria-hidden="true"
                   ></i>
                 </div>

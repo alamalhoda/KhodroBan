@@ -6,7 +6,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVehicleStore } from '../stores/vehicle'
-import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '../config/vehicleIcons'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle, getVehicleIconDuotoneStyle } from '../config/vehicleIcons'
 
 const props = defineProps({
   /** مقدار انتخاب‌شده: id خودرو یا ''/null برای «همه» */
@@ -74,8 +74,8 @@ function vehicleIconClass(vehicle) {
   return `fa fa-${getEffectiveIconStyle(style)} fa-${name}`
 }
 
-function vehicleIconColor(vehicle) {
-  return vehicle?.iconColor || DEFAULT_VEHICLE_ICON_COLOR
+function vehicleIconStyle(vehicle) {
+  return getVehicleIconDuotoneStyle(vehicle?.iconColor, vehicle?.iconColorSecondary)
 }
 
 function selectValue(value) {
@@ -125,7 +125,7 @@ onUnmounted(() => {
           v-if="selectedVehicle"
           :class="vehicleIconClass(selectedVehicle)"
           class="text-lg"
-          :style="{ color: vehicleIconColor(selectedVehicle) }"
+          :style="vehicleIconStyle(selectedVehicle)"
         ></i>
         <span v-else class="material-symbols-outlined text-lg text-gray-500">directions_car</span>
       </span>
@@ -175,7 +175,7 @@ onUnmounted(() => {
           :aria-selected="modelValue === String(v.id)"
           @click="selectValue(v.id)"
         >
-          <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 shrink-0" :style="{ color: vehicleIconColor(v) }">
+          <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 shrink-0" :style="vehicleIconStyle(v)">
             <i :class="vehicleIconClass(v)" class="text-base" aria-hidden="true"></i>
           </span>
           <span class="truncate">{{ v.model }} - {{ v.year }}</span>

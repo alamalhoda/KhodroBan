@@ -221,6 +221,7 @@
     "iconSearchPlaceholder": "Search icon...",
     "iconSearchNoResults": "No icon found.",
     "vehicleColor": "Icon color",
+    "vehicleColorSecondary": "Icon color (secondary)",
     "galleryTitle": "Image gallery",
     "galleryDefault": "Default",
     "gallerySetDefault": "Set as default",

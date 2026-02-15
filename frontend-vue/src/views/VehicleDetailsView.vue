@@ -12,7 +12,7 @@ import { useExpenseStore } from '../stores/expense'
 import { useReminderStore } from '../stores/reminder'
 import { useUIStore } from '../stores/ui'
 import { vehicleGalleryService } from '../services'
-import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '../config/vehicleIcons'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle, getVehicleIconDuotoneStyle } from '../config/vehicleIcons'
 
 const route = useRoute()
 const router = useRouter()
@@ -80,7 +80,9 @@ const vehicleIconClass = computed(() => {
   const style = vehicle.value?.iconStyle || DEFAULT_VEHICLE_ICON_STYLE
   return `fa fa-${getEffectiveIconStyle(style)} fa-${name}`
 })
-const vehicleIconColor = computed(() => vehicle.value?.iconColor || DEFAULT_VEHICLE_ICON_COLOR)
+const vehicleIconStyle = computed(() =>
+  getVehicleIconDuotoneStyle(vehicle.value?.iconColor, vehicle.value?.iconColorSecondary)
+)
 
 const MAX_GALLERY_IMAGES = 15
 
@@ -298,7 +300,7 @@ const handleSubmitKmModal = async () => {
                   v-else
                   :class="vehicleIconClass"
                   class="text-4xl sm:text-5xl"
-                  :style="{ color: vehicleIconColor }"
+                  :style="vehicleIconStyle"
                   aria-hidden="true"
                 ></i>
               </div>
