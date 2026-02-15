@@ -28,7 +28,7 @@
               <span class="material-symbols-outlined text-[18px]">arrow_back</span>
             </button>
             <div class="h-6 w-px bg-slate-200 mx-1"></div>
-            <div class="size-9 rounded-full bg-cover bg-center border-2 border-white shadow-sm ring-1 ring-slate-100" data-alt="user avatar profile image" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDKAeQMqrfT4pLVpFFAo8d29SvSj0wH8j-x_pYsSpVOvEYR7QDubG9yKbp9zcBWSHNRylK5tf2OI5IHtx31K6W7BtTv8eRh7ulr8-DoMktihCT9CdjubNwXyjelfl8qx4_oZztfhZ4EhvXkqChUqi2bfPviXXQRrURU5oyxl917q7jOiGWMdyKFc19wiqa8Y8NFVGGAxNvBE3E5nGjfa4OPztPthoq3nd_8p6kh11JIaJdNrcnV9mSTJZvBpRcILbJyvcvpfei8jks");'></div>
+            <div class="size-9 rounded-full bg-cover bg-center border-2 border-white shadow-sm ring-1 ring-slate-100" data-alt="user avatar profile image" style='background-image: url("/images/offline/avatar-placeholder.svg");'></div>
           </div>
         </div>
       </div>
@@ -165,7 +165,7 @@
                 "گزارش‌های خروجی این برنامه حسابداری شرکت ما را متحول کرد. هزینه سالانه در برابر سرویسی که دریافت می‌کنم واقعاً ناچیز است."
               </p>
               <div class="mt-3 flex items-center gap-2">
-                <div class="size-8 rounded-full bg-cover ring-2 ring-white shadow-sm" data-alt="User avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBqcIvdoGtTadItElDn_qe7uZ-1TOdkIDSrx-TOcc1Zc1g8K6Nk0q_PsME0bEwk_vEvvwQ84IhLLW9fnLB45mDf05Nss_UYfiuAeBFi3yH9iGsamkyzvbE8HjA5UJFsMYP84mz7tVvCONEzqU0VBAmrYoZbrYUjX_zPYaic5aUgFM7gNK_Bd1ZTneLW34h2F3IDy0FrqpAJxdx1GlZOUSaZZloJOYFBRLXcv74DUwXyyfXNVu79SfDHU6SewgmZES9wLgzR3ZcWabY");'></div>
+                <div class="size-8 rounded-full bg-cover ring-2 ring-white shadow-sm" data-alt="User avatar" style='background-image: url("/images/offline/avatar-placeholder.svg");'></div>
                 <div>
                   <span class="block text-xs font-bold text-slate-900">رضا محمدی</span>
                   <span class="block text-[10px] text-slate-500">مدیر ناوگان پخش</span>
@@ -210,7 +210,7 @@
                 </div>
               </div>
               <div class="bg-gradient-to-r from-slate-800 to-slate-700 rounded-2xl p-5 text-white shadow-lg shadow-slate-900/10 mb-6 flex justify-between items-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+                <div class="absolute inset-0 bg-[url('/images/offline/pattern-cubes.svg')] opacity-10 mix-blend-overlay"></div>
                 <div>
                   <span class="block text-xs text-slate-300 mb-1">مبلغ قابل پرداخت</span>
                   <span class="block text-2xl font-black tracking-tight">۵۳۴,۱۰۰ <span class="text-sm font-medium text-slate-300">تومان</span></span>

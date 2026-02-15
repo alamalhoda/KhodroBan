@@ -66,6 +66,7 @@ npm run dev
 - `frontend-vue/README.md` - راهنمای فرانت Vue
 - `frontend-vue/IMPLEMENTATION_PLAN.md` - نقشه راه اجرایی فرانت
 - `docs/technical/offline-setup.md` - راهنمای کامل راه اندازی آفلاین پروژه
+- `docs/technical/offline-final-checklist.md` - چک لیست نهایی پذیرش اجرای strict-offline
 - `docs/development/PAGE_REVIEW_LOG.md` - وضعیت بررسی صفحات
 - `docs/development/API_CONTRACT_REGISTRY.md` - رجیستری قرارداد API
 

@@ -82,7 +82,7 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
 class VehicleMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
-        fields = ['id', 'model', 'plate_number', 'year', 'current_km', 'icon_name', 'icon_style', 'icon_color']
+        fields = ['id', 'model', 'plate_number', 'year', 'current_km', 'icon_name', 'icon_style', 'icon_color', 'icon_color_secondary']
         read_only_fields = fields
 
 
@@ -94,7 +94,7 @@ class VehicleSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user_profile', 'model', 'year',
             'plate_number', 'current_km', 'description',
-            'icon_name', 'icon_style', 'icon_color',
+            'icon_name', 'icon_style', 'icon_color', 'icon_color_secondary',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'user_profile', 'created_at', 'updated_at']
@@ -113,7 +113,7 @@ class VehicleSerializer(serializers.ModelSerializer):
 # ---------- خروجی مطابق فرانت (camelCase + نام فیلدهای فرانت) ----------
 
 class VehicleApiSerializer(VehicleSerializer):
-    """خروجی: id, userId, plateNumber, currentKm, note, iconName, iconStyle, iconColor, defaultImageUrl, createdAt, updatedAt"""
+    """خروجی: id, userId, plateNumber, currentKm, note, iconName, iconStyle, iconColor, iconColorSecondary, defaultImageUrl, createdAt, updatedAt"""
 
     def _get_default_image_url(self, instance):
         """از تصویر پیش‌فرض خودرو (با prefetch_related) آدرس کامل برمی‌گرداند."""
@@ -140,6 +140,7 @@ class VehicleApiSerializer(VehicleSerializer):
             'iconName': instance.icon_name or None,
             'iconStyle': instance.icon_style or 'solid',
             'iconColor': instance.icon_color or None,
+            'iconColorSecondary': instance.icon_color_secondary or None,
             'defaultImageUrl': default_image_url,
             'createdAt': instance.created_at.isoformat() if instance.created_at else None,
             'updatedAt': instance.updated_at.isoformat() if instance.updated_at else None,
@@ -150,7 +151,8 @@ class VehicleApiSerializer(VehicleSerializer):
         key_map = [
             ('model', 'model'), ('year', 'year'),
             ('plate_number', 'plateNumber'), ('current_km', 'currentKm'), ('description', 'note'),
-            ('icon_name', 'iconName'), ('icon_style', 'iconStyle'), ('icon_color', 'iconColor'),
+            ('icon_name', 'iconName'), ('icon_style', 'iconStyle'),
+            ('icon_color', 'iconColor'), ('icon_color_secondary', 'iconColorSecondary'),
         ]
         internal = {}
         for snake, camel in key_map:

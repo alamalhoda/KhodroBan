@@ -1,6 +1,10 @@
 import { supabase, api } from '@services/index'
 
 const isDjango = () => import.meta.env.VITE_BACKEND_TYPE === 'django'
+const isOfflineMode = () =>
+  import.meta.env.VITE_OFFLINE_MODE === 'true' ||
+  (typeof navigator !== 'undefined' && navigator.onLine === false)
+const OFFLINE_TELEGRAM_ERROR = 'اتصال تلگرام در حالت آفلاین غیرفعال است.'
 
 /**
  * سرویس مدیریت اتصال تلگرام (Django یا Supabase)
@@ -12,6 +16,9 @@ export const telegramService = {
    * @returns {Promise<string>} لینک اتصال به ربات تلگرام
    */
   async getTelegramLink(userId) {
+    if (isOfflineMode()) {
+      throw new Error(OFFLINE_TELEGRAM_ERROR)
+    }
     if (isDjango()) {
       const listRes = await api.get('/telegram-settings/')
       const list = listRes.data?.data ?? []
@@ -63,6 +70,9 @@ export const telegramService = {
    * @returns {Promise<boolean>} true اگر متصل باشد
    */
   async checkConnection(userId) {
+    if (isOfflineMode()) {
+      return false
+    }
     if (isDjango()) {
       const res = await api.get('/telegram-settings/')
       const list = res.data?.data ?? []
@@ -87,6 +97,9 @@ export const telegramService = {
    * @returns {Promise<Object|null>} تنظیمات تلگرام
    */
   async getSettings(userId) {
+    if (isOfflineMode()) {
+      return null
+    }
     if (isDjango()) {
       const res = await api.get('/telegram-settings/')
       const list = res.data?.data ?? []
@@ -110,6 +123,9 @@ export const telegramService = {
    * @param {boolean} enabled - وضعیت فعال/غیرفعال
    */
   async toggleTelegram(userId, enabled) {
+    if (isOfflineMode()) {
+      throw new Error(OFFLINE_TELEGRAM_ERROR)
+    }
     if (isDjango()) {
       const listRes = await api.get('/telegram-settings/')
       const list = listRes.data?.data ?? []
@@ -137,6 +153,9 @@ export const telegramService = {
    * @param {string} userId - شناسه کاربر
    */
   async disconnect(userId) {
+    if (isOfflineMode()) {
+      throw new Error(OFFLINE_TELEGRAM_ERROR)
+    }
     if (isDjango()) {
       const listRes = await api.get('/telegram-settings/')
       const list = listRes.data?.data ?? []
@@ -171,6 +190,9 @@ export const telegramService = {
    * @returns {Promise<Object>} وضعیت اتصال
    */
   async getConnectionStatus(userId) {
+    if (isOfflineMode()) {
+      return { isConnected: false, hasCode: false, chatId: null, code: null }
+    }
     if (isDjango()) {
       const res = await api.get('/telegram-settings/')
       const list = res.data?.data ?? []

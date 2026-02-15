@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Offline car placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1f2937" />
+      <stop offset="100%" stop-color="#111827" />
+    </linearGradient>
+    <linearGradient id="car" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)" />
+  <rect x="70" y="230" width="500" height="40" rx="16" fill="#0b1220" opacity="0.5" />
+  <path d="M130 215h380c18 0 30-12 30-30v-12c0-20-16-36-36-36H452l-40-52H248l-36 52h-48c-20 0-36 16-36 36v12c0 18 12 30 30 30z" fill="url(#car)" />
+  <rect x="245" y="95" width="160" height="40" rx="12" fill="#dbeafe" opacity="0.75" />
+  <circle cx="210" cy="215" r="38" fill="#0f172a" />
+  <circle cx="210" cy="215" r="20" fill="#93c5fd" />
+  <circle cx="450" cy="215" r="38" fill="#0f172a" />
+  <circle cx="450" cy="215" r="20" fill="#93c5fd" />
+</svg>

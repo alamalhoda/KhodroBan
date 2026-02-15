@@ -81,7 +81,7 @@
             <span class="absolute top-2.5 left-2.5 w-2 h-2 bg-red-500 rounded-full border border-[#111b22]"></span>
           </button>
           <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/50 cursor-pointer">
-            <img alt="User Profile" class="w-full h-full object-cover" data-alt="User profile picture showing a smiling man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDI6XyTMz9Sb28dm0awX_MGeQz3SpoBc8-WbTddl0R31sbouTrkDu9g3VwGa8iTApiHg9nmvSGGPJv0yg304o_gpkmy-E2qGVIdiUULl5Avao-x4Jkb4n6tcOOjyQ1x7v-d4bGYuBQEQ1PjRaFSaABQo6yZdX9Q1xJZiGyBkI9DN2n-0YnCscxniqUqY8BHGkMSTuOmNV3aQxsgZoQ-JcxlWfRIuAl9D6ssQL2cgO_eSht1nTSHblf8bVw8vSyj8OBV-c_drMadmRg" />
+            <img alt="User Profile" class="w-full h-full object-cover" data-alt="User profile picture showing a smiling man" src="/images/offline/avatar-placeholder.svg" />
           </div>
         </div>
       </header>
@@ -189,7 +189,7 @@
             <div class="flex flex-col gap-4">
               <!-- Car Card 1 -->
               <div class="bg-[#1d2830] rounded-2xl overflow-hidden border border-white/5 hover:border-primary/40 transition-all group">
-                <div class="h-32 bg-cover bg-center relative" data-alt="Silver Peugeot 206 parked on street" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDQTk2hpUZ-_jb3Sa7bBDgR1XrSwbs9B88hxE59DQjATc9_MF-hBIXCYvZHDH-yRJgnl2nOAIhRxu5TWjpqjj6C09Hhz8xDkSyKqaHOPv9brSdfhg3jcqMcV6InG9ecaYzzJ7o7Sb13m77AC9lpRRSYH8RfHBqFjWzTySfHCmmhyt90IDuFGoML4q-4_jv9hHqjmf2kiDckCJ_NCh3YAVqUjA8hfkK3iT5bCpqNRnNj1_Aub3pAT8ZoyvXzls1h6PKkkaXBjWSW_Qo');">
+                <div class="h-32 bg-cover bg-center relative" data-alt="Silver Peugeot 206 parked on street" style="background-image: url('/images/offline/car-placeholder.svg');">
                   <div class="absolute inset-0 bg-gradient-to-t from-[#1d2830] to-transparent"></div>
                   <div class="absolute bottom-3 right-3">
                     <h4 class="text-white font-bold text-lg shadow-black drop-shadow-md">پژو ۲۰۶ تیپ ۵</h4>
@@ -215,7 +215,7 @@
               </div>
               <!-- Car Card 2 -->
               <div class="bg-[#1d2830] rounded-2xl overflow-hidden border border-white/5 hover:border-primary/40 transition-all group opacity-80 hover:opacity-100">
-                <div class="h-32 bg-cover bg-center relative" data-alt="White sedan car in a modern garage" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCjWFZkAHc-UXDtmy_Kq8RyoJmtfnt6SEfrKjQhpMVyCTuavQjr_jpmv6vMonc9LNfMJ2jANZ8cFtXIiZqRRZLBN2RLM0br5a804LpGGjcQLJlaSR7aowvKuWS7wd7OLczFKb7LYrBuUVIukS0t4zLNdWnrqIjPOQDZIJxxoBS2B-OJRG5qpo_g8PzofwXLjCeJFhkMDk2t-KPZgENGgI6yflXDr3Tx-1H9wA8LKo7Ojs3_BoRWhoIl4jToGyx8tdFnmBIpQ_fC1wM');">
+                <div class="h-32 bg-cover bg-center relative" data-alt="White sedan car in a modern garage" style="background-image: url('/images/offline/car-placeholder-alt.svg');">
                   <div class="absolute inset-0 bg-gradient-to-t from-[#1d2830] to-transparent"></div>
                   <div class="absolute bottom-3 right-3">
                     <h4 class="text-white font-bold text-lg shadow-black drop-shadow-md">دنا پلاس توربو</h4>
