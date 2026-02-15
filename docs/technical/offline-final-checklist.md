@@ -27,6 +27,7 @@
 - [ ] فایل `frontend-vue/public/fonts/material-symbols-local.css` موجود است
 - [ ] فایل `frontend-vue/public/fonts/MaterialSymbolsOutlined.woff2` موجود است
 - [ ] تمام فایل های `Vazirmatn-*.woff2` موجود است
+- [ ] پوشه **Font Awesome Pro** (`frontend-vue/public/fontawesome-pro-7.1.0-web/`) موجود است و شامل `css/` و `webfonts/` است (در Git نیست؛ از بسته آفلاین کپی شود)
 - [ ] هیچ asset ضروری UI فقط از CDN لود نمی شود
 - [ ] تصاویر استفاده شده در `src/views` به مسیرهای محلی (`/images/...`) اشاره می کنند
 
@@ -51,7 +52,7 @@
   - [ ] `VITE_AI_USE_MOCK=true` (در محیط بدون AI provider)
   - [ ] `VITE_OFFLINE_MODE=true`
 - [ ] `npm run dev` بدون نیاز به دانلود جدید اجرا می شود
-- [ ] UI اصلی روی `http://localhost:5174` بدون خرابی فونت/آیکون نمایش داده می شود
+- [ ] UI اصلی روی `http://localhost:5174` بدون خرابی فونت/آیکون نمایش داده می شود (فونت‌های متنی، Material Symbols، Font Awesome Pro Duotone)
 
 ---
 

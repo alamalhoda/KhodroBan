@@ -26,7 +26,8 @@
 - `node_modules/` ها commit نمی شوند
 - `venv/` ها commit نمی شوند
 - فایل های env محلی مثل `.env.local` commit نمی شوند
-- مسیر `frontend-vue/public/fontawesome-free-7.2.0-web/` ignore شده است
+- پوشه **Font Awesome** در `public` commit نمی شود:
+  - `frontend-vue/public/fontawesome-pro-7.1.0-web/` (نسخه Pro 7.1.0 – تنها منبع آیکون‌ها؛ فقط استایل Duotone استفاده می‌شود)
 
 همچنین برای اجرای کامل UI به فایل های فونت محلی نیاز دارید (در `frontend-vue/public/fonts/`) که ممکن است روی clone جدید وجود نداشته باشند.
 
@@ -118,20 +119,29 @@ cp reminder-service/.env.example offline-bundle/env/reminder-service.env.example
 
 این فایل ها را حتما در bundle بگذارید:
 
+**فونت‌های متنی و آیکون Material:**
 - `frontend-vue/public/fonts/vazirmatn-local.css`
 - `frontend-vue/public/fonts/material-symbols-local.css`
 - همه فایل های فونت:
   - `Vazirmatn-*.woff2`
   - `MaterialSymbolsOutlined.woff2`
 
+**Font Awesome Pro (آیکون‌های خودرو و UI):**  
+پکیج npm Font Awesome حذف شده؛ آیکون‌ها از پوشه محلی لود می‌شوند. کل پوشه را در bundle بگذارید:
+- `frontend-vue/public/fontawesome-pro-7.1.0-web/` (شامل `css/` و `webfonts/`)
+
 نمونه کپی به bundle:
 
 ```bash
+# فونت‌های متنی و Material Symbols
 cp frontend-vue/public/fonts/*.css offline-bundle/assets/fonts/
 cp frontend-vue/public/fonts/*.woff2 offline-bundle/assets/fonts/
+
+# Font Awesome Pro (کل پوشه؛ در Git نیست)
+cp -R frontend-vue/public/fontawesome-pro-7.1.0-web offline-bundle/assets/
 ```
 
-اگر این فونت ها را ندارید، ابتدا طبق `frontend-vue/docs/FONT_DOWNLOAD_GUIDE.md` دانلود کنید.
+اگر فونت های متنی را ندارید، ابتدا طبق `frontend-vue/docs/FONT_DOWNLOAD_GUIDE.md` دانلود کنید. پوشه Font Awesome Pro را از داشتن لایسنس معتبر تهیه و در `frontend-vue/public/` قرار دهید.
 
 در صورت نیاز به صفحات UX قدیمی:
 
@@ -202,10 +212,14 @@ VITE_OFFLINE_MODE=true
 EOF
 ```
 
-3) فونت های محلی را کپی کنید (اگر در repo نیستند):
+3) دارایی‌های محلی را کپی کنید (در repo نیستند):
 
 ```bash
+# فونت‌های متنی و Material Symbols
 cp -R /PATH/TO/offline-bundle/assets/fonts/* ~/Projects/OilChenger/frontend-vue/public/fonts/
+
+# Font Awesome Pro (آیکون‌های Duotone)
+cp -R /PATH/TO/offline-bundle/assets/fontawesome-pro-7.1.0-web ~/Projects/OilChenger/frontend-vue/public/
 ```
 
 4) اجرا:
@@ -236,14 +250,12 @@ pip install --no-index --find-links /PATH/TO/offline-bundle/python/reminder-tele
 
 ### 7.1) Frontend runtime اصلی (`frontend-vue/index.html`)
 
-منابع اینترنتی فعلی:
-
-- `fonts.googleapis.com`
-- `fonts.gstatic.com`
+- **Font Awesome:** دیگر از پکیج npm استفاده نمی‌شود؛ از پوشه محلی `public/fontawesome-pro-7.1.0-web/` لود می‌شود (`fontawesome.min.css` + `duotone.min.css`). این پوشه در Git نیست و باید در بسته آفلاین و روی سیستم مقصد قرار گیرد.
+- منابع اینترنتی احتمالی دیگر: `fonts.googleapis.com` / `fonts.gstatic.com` (در صورت وجود لینک fallback).
 
 راهکار آفلاین:
 
-1. فونت های محلی (`public/fonts/*.woff2`) را کامل تامین کنید.
+1. فونت های محلی (`public/fonts/*.woff2`) و پوشه **Font Awesome Pro** (`public/fontawesome-pro-7.1.0-web/`) را کامل تامین کنید.
 2. برای حالت **strict offline**، لینک های fallback گوگل را از `index.html` حذف یا comment کنید تا هیچ تلاش شبکه بیرونی انجام نشود.
 
 ### 7.2) صفحات UX استاتیک (`frontend-vue/ux/**/index.html`)
@@ -299,6 +311,11 @@ pip install --no-index --find-links /PATH/TO/offline-bundle/python/reminder-tele
 ### آیکون Material Symbols نمایش داده نمی شود
 
 - فایل `frontend-vue/public/fonts/MaterialSymbolsOutlined.woff2` وجود ندارد
+
+### آیکون‌های Font Awesome (خودرو/UI) نمایش داده نمی شوند
+
+- پوشه `frontend-vue/public/fontawesome-pro-7.1.0-web/` وجود ندارد یا ناقص است
+- زیرپوشه‌های `css/` و `webfonts/` باید در همان مسیر باشند (مسیر نسبی در CSS: `../webfonts/`)
 
 ### فونت Vazirmatn اعمال نمی شود
 
