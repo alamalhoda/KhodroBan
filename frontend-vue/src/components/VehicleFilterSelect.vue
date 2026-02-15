@@ -6,7 +6,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVehicleStore } from '../stores/vehicle'
-import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '../config/vehicleIcons'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '../config/vehicleIcons'
 
 const props = defineProps({
   /** مقدار انتخاب‌شده: id خودرو یا ''/null برای «همه» */
@@ -68,10 +68,10 @@ const selectedVehicle = computed(() => {
 })
 
 function vehicleIconClass(vehicle) {
-  if (!vehicle) return `fa fa-${DEFAULT_VEHICLE_ICON_STYLE} fa-${DEFAULT_VEHICLE_ICON}`
+  if (!vehicle) return `fa fa-${getEffectiveIconStyle(DEFAULT_VEHICLE_ICON_STYLE)} fa-${DEFAULT_VEHICLE_ICON}`
   const style = vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE
   const name = vehicle.iconName || DEFAULT_VEHICLE_ICON
-  return `fa fa-${style} fa-${name}`
+  return `fa fa-${getEffectiveIconStyle(style)} fa-${name}`
 }
 
 function vehicleIconColor(vehicle) {

@@ -12,7 +12,7 @@ import { useExpenseStore } from '../stores/expense'
 import { useReminderStore } from '../stores/reminder'
 import { useUIStore } from '../stores/ui'
 import { vehicleGalleryService } from '../services'
-import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '../config/vehicleIcons'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '../config/vehicleIcons'
 
 const route = useRoute()
 const router = useRouter()
@@ -78,7 +78,7 @@ const defaultGalleryImage = computed(() => {
 const vehicleIconClass = computed(() => {
   const name = vehicle.value?.iconName || DEFAULT_VEHICLE_ICON
   const style = vehicle.value?.iconStyle || DEFAULT_VEHICLE_ICON_STYLE
-  return `fa fa-${style} fa-${name}`
+  return `fa fa-${getEffectiveIconStyle(style)} fa-${name}`
 })
 const vehicleIconColor = computed(() => vehicle.value?.iconColor || DEFAULT_VEHICLE_ICON_COLOR)
 

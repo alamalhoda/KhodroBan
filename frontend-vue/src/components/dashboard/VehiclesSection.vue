@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import { formatNumber } from '@/utils/formatters'
-import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '@/config/vehicleIcons'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '@/config/vehicleIcons'
 
 const props = defineProps({
   /** آرایه خودروها (هر خودرو می‌تواند defaultImageUrl و iconName/iconStyle/iconColor داشته باشد) */
@@ -23,10 +23,10 @@ const { t } = useI18n()
 const hasReminderForVehicle = (vehicleId) => props.reminders.some(r => r.vehicleId === vehicleId)
 
 function vehicleIconClass(vehicle) {
-  if (!vehicle) return `fa fa-${DEFAULT_VEHICLE_ICON_STYLE} fa-${DEFAULT_VEHICLE_ICON}`
+  if (!vehicle) return `fa fa-${getEffectiveIconStyle(DEFAULT_VEHICLE_ICON_STYLE)} fa-${DEFAULT_VEHICLE_ICON}`
   const style = vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE
   const name = vehicle.iconName || DEFAULT_VEHICLE_ICON
-  return `fa fa-${style} fa-${name}`
+  return `fa fa-${getEffectiveIconStyle(style)} fa-${name}`
 }
 
 function vehicleIconColor(vehicle) {

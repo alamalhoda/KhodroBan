@@ -1,11 +1,10 @@
 /**
  * لیست آیکون‌های خودرو/حمل‌ونقل برای انتخاب در فرم خودرو.
- * با FontAwesome (fa-{style} fa-{name}) رندر می‌شوند.
+ * با Font Awesome Pro Duotone (fa-duotone fa-{name}) رندر می‌شوند.
  * قابل گسترش توسط برنامه‌نویس.
  */
 export const VEHICLE_ICON_STYLES = [
-  { value: 'solid', labelKey: 'vehicles.iconStyleSolid' },
-  { value: 'regular', labelKey: 'vehicles.iconStyleRegular' }
+  { value: 'duotone', labelKey: 'vehicles.iconStyleDuotone' }
 ]
 
 export const VEHICLE_ICONS = [
@@ -21,5 +20,10 @@ export const VEHICLE_ICONS = [
 ]
 
 export const DEFAULT_VEHICLE_ICON = 'car'
-export const DEFAULT_VEHICLE_ICON_STYLE = 'solid'
+export const DEFAULT_VEHICLE_ICON_STYLE = 'duotone'
 export const DEFAULT_VEHICLE_ICON_COLOR = '#6b7280'
+
+/** برای نمایش؛ فقط duotone لود شده، پس استایل‌های قدیمی (solid/regular) به duotone نرمال می‌شوند. */
+export function getEffectiveIconStyle(style) {
+  return style === 'duotone' ? style : 'duotone'
+}

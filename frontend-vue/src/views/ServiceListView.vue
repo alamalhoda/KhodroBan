@@ -16,7 +16,7 @@ import MainLayout from '../components/MainLayout.vue'
 import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
 import { Button, Card, LoadingSpinner, Modal } from '../components/ui'
 import { formatCurrency } from '@/utils/formatters'
-import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '../config/vehicleIcons'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '../config/vehicleIcons'
 
 const router = useRouter()
 const route = useRoute()
@@ -64,10 +64,10 @@ function getVehicleById(vehicleId) {
 
 /** کلاس آیکون FontAwesome برای خودرو */
 function vehicleIconClass(vehicle) {
-  if (!vehicle) return `fa fa-${DEFAULT_VEHICLE_ICON_STYLE} fa-${DEFAULT_VEHICLE_ICON}`
+  if (!vehicle) return `fa fa-${getEffectiveIconStyle(DEFAULT_VEHICLE_ICON_STYLE)} fa-${DEFAULT_VEHICLE_ICON}`
   const style = vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE
   const name = vehicle.iconName || DEFAULT_VEHICLE_ICON
-  return `fa fa-${style} fa-${name}`
+  return `fa fa-${getEffectiveIconStyle(style)} fa-${name}`
 }
 
 /** رنگ آیکون خودرو */

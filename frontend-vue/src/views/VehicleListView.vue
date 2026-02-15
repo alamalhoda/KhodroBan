@@ -6,7 +6,7 @@ import MainLayout from '../components/MainLayout.vue'
 import Modal from '../components/ui/Modal.vue'
 import { useVehicleStore } from '../stores/vehicle'
 import { useUIStore } from '../stores/ui'
-import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '../config/vehicleIcons'
+import { DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '../config/vehicleIcons'
 
 const router = useRouter()
 const vehicleStore = useVehicleStore()
@@ -158,7 +158,7 @@ const vehicleUsagePercent = () => {
                   />
                   <i
                     v-else
-                    :class="['fa', 'fa-' + (vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE), 'fa-' + (vehicle.iconName || DEFAULT_VEHICLE_ICON)]"
+                    :class="['fa', 'fa-' + getEffectiveIconStyle(vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE), 'fa-' + (vehicle.iconName || DEFAULT_VEHICLE_ICON)]"
                     class="text-xl"
                     :style="{ color: vehicle.iconColor || DEFAULT_VEHICLE_ICON_COLOR }"
                     aria-hidden="true"
@@ -227,7 +227,7 @@ const vehicleUsagePercent = () => {
       <!-- Empty State -->
       <div v-if="!vehicleStore.isLoading && vehicleStore.vehicles.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
         <div class="size-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-          <i class="fa fa-solid fa-car text-4xl text-gray-400" aria-hidden="true"></i>
+          <i class="fa fa-duotone fa-car text-4xl text-gray-400" aria-hidden="true"></i>
         </div>
         <h3 class="text-lg font-bold text-[#121317] dark:text-white mb-2">{{ t('vehicles.management.emptyTitle') }}</h3>
         <p class="text-gray-500 dark:text-gray-400 mb-6">{{ t('vehicles.management.emptyDescription') }}</p>

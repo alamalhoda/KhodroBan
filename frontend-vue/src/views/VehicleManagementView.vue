@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import MainLayout from '../components/MainLayout.vue'
 import { useVehicleStore } from '../stores/vehicle'
 import { useUIStore } from '../stores/ui'
-import { VEHICLE_ICONS, VEHICLE_ICON_STYLES, DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '../config/vehicleIcons'
+import { VEHICLE_ICONS, VEHICLE_ICON_STYLES, DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, getEffectiveIconStyle } from '../config/vehicleIcons'
 
 const route = useRoute()
 const router = useRouter()
@@ -283,7 +283,7 @@ onMounted(async () => {
                   :aria-label="t(opt.labelKey)"
                   @click="formData.iconName = opt.name"
                 >
-                  <i :class="['fa', 'fa-' + formData.iconStyle, 'fa-' + opt.name]" class="fa-fw text-lg"></i>
+                  <i :class="['fa', 'fa-' + getEffectiveIconStyle(formData.iconStyle), 'fa-' + opt.name]" class="fa-fw text-lg"></i>
                 </button>
               </div>
               <div class="flex gap-2 mt-1">
