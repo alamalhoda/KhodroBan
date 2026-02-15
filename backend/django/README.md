@@ -163,4 +163,5 @@ VITE_API_URL=http://127.0.0.1:8000/api
 - `backend/django/khodroban/huey_tasks.py` – send_telegram، process_pending_notifications
 - `docs/technical/reminder-notification-api-blueprint.md`
 - `docs/technical/reminder-system-status.md`
+- `docs/technical/notification-channel-providers.md` (راهنمای اتصال Email/SMS/Push واقعی)
 - `docs/development/API_CONTRACT_REGISTRY.md`

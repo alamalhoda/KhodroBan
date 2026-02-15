@@ -160,5 +160,6 @@ VITE_API_URL=http://127.0.0.1:8000/api
 ## 📞 مراجع
 
 - **Blueprint:** `docs/technical/reminder-notification-api-blueprint.md`
+- **اتصال سرویس‌دهندگان واقعی:** `docs/technical/notification-channel-providers.md`
 - **API Registry:** `docs/development/API_CONTRACT_REGISTRY.md`
 - **Backend README:** `backend/django/README.md`

@@ -21,30 +21,14 @@ logger = logging.getLogger(__name__)
 
 @periodic_task(crontab(minute='*/50'))
 def process_pending_notifications():
+    """پردازش نوتیفیکیشن‌های pending از طریق ChannelDispatcher (telegram → push → email → sms)."""
+    from notifications.dispatcher import process_pending_notifications as dispatch_pending
+
     logger.info("شروع پردازش نوتیفیکیشن‌های در انتظار ارسال")
-    pending = Notification.objects.filter(
-        sent_at__isnull=True
-    ).select_related('user_profile', 'vehicle')[:100]
-
-    telegram_success = 0
-    telegram_failed = 0
-    processed = 0
-
-    for n in pending.iterator():
-        processed += 1
-        try:
-            success = send_telegram(str(n.id))
-            if success:
-                telegram_success += 1
-            else:
-                telegram_failed += 1
-        except Exception:
-            logger.exception(f"خطا در پردازش نوتیفیکیشن {n.id}")
-            telegram_failed += 1
-
+    result = dispatch_pending(limit=100)
     logger.info(
-        f"پردازش نوتیفیکیشن‌ها پایان یافت → "
-        f"کل: {processed} | تلگرام موفق: {telegram_success} | ناموفق: {telegram_failed}"
+        "پردازش نوتیفیکیشن‌ها پایان یافت → کل: %(processed)s | موفق: %(success)s | ناموفق: %(failed)s",
+        result,
     )
 
 
