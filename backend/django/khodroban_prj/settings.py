@@ -16,6 +16,8 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [
+    'reminders.apps.RemindersConfig',
+    'notifications.apps.NotificationsConfig',
     'khodroban.apps.KhodrobanConfig',  # قبل از auth تا override قالب read_only_password_hash لود شود
     'corsheaders',
     'django.contrib.admin',

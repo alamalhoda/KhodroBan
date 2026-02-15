@@ -527,6 +527,9 @@ class Notification(models.Model):
     read = models.BooleanField(default=False)
     metadata = models.JSONField(default=dict, blank=True, null=True)
     notification_channels = models.JSONField(default=dict, blank=True, null=True)
+    idempotency_key = models.CharField(
+        max_length=255, null=True, blank=True, unique=True, db_index=True
+    )
     sent_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
