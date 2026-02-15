@@ -43,6 +43,13 @@ def check_reminders():
         days_until_due = rs.interval_days - days_since_last
 
         if days_until_due <= rs.warning_days_before:
+            if Notification.objects.filter(
+                user_profile=vehicle.user_profile,
+                vehicle=vehicle,
+                type="reminder",
+                created_at__date=today,
+            ).exists():
+                continue
             try:
                 Notification.objects.create(
                     user_profile=vehicle.user_profile,
