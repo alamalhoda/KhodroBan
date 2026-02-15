@@ -1,6 +1,11 @@
 # khodroban/huey_tasks.py
+"""
+Tasks مربوط به khodroban: ارسال تلگرام و پردازش نوتیفیکیشن‌های pending.
+
+check_reminders به reminders app منتقل شده (emit به Outbox).
+process_outbox در notifications app (consume Outbox → ایجاد Notification).
+"""
 import logging
-from datetime import date
 
 from django.conf import settings
 from django.utils import timezone
@@ -9,92 +14,21 @@ from huey.contrib.djhuey import db_task, periodic_task
 
 import requests
 
-from .models import (
-    ReminderSetting, Vehicle, Service, Notification, TelegramSetting
-)
+from .models import Notification, TelegramSetting
 
 logger = logging.getLogger(__name__)
 
 
-@periodic_task(crontab(hour=9, minute=0))
-def check_reminders():
-    logger.info("اجرای روزانه بررسی یادآوری‌ها شروع شد")
-    today = date.today()
-    created_count = 0
-
-    active_settings = ReminderSetting.objects.filter(
-        is_enabled=True,
-        reminder_mode__in=['time', 'both']
-    ).select_related('vehicle', 'vehicle__user_profile')
-
-    for rs in active_settings.iterator():
-        vehicle = rs.vehicle
-        if not vehicle:
-            continue
-
-        last_service = Service.objects.filter(vehicle=vehicle).order_by(
-            '-service_date_gregorian'
-        ).first()
-
-        if not last_service:
-            continue
-
-        days_since_last = (today - last_service.service_date_gregorian).days
-        days_until_due = rs.interval_days - days_since_last
-
-        if days_until_due <= rs.warning_days_before:
-            try:
-                Notification.objects.create(
-                    user_profile=vehicle.user_profile,
-                    vehicle=vehicle,
-                    title="یادآوری سرویس دوره‌ای خودرو",
-                    body=(
-                        f"خودرو {vehicle.model} ({vehicle.plate_number}) - "
-                        f"{days_until_due:+} روز تا موعد سرویس"
-                    ),
-                    type="reminder",
-                    metadata={
-                        "vehicle_model": vehicle.model,
-                        "plate_number": vehicle.plate_number,
-                        "days_until_due": days_until_due,
-                        "interval_days": rs.interval_days,
-                        "last_service_date": last_service.service_date_gregorian.isoformat(),
-                        "warning_days_before": rs.warning_days_before,
-                    }
-                )
-                created_count += 1
-            except Exception:
-                logger.exception(f"خطا در ایجاد نوتیفیکیشن برای {vehicle.plate_number}")
-
-    logger.info(f"بررسی یادآوری‌ها پایان یافت → {created_count} نوتیفیکیشن جدید")
-
-
 @periodic_task(crontab(minute='*/50'))
 def process_pending_notifications():
+    """پردازش نوتیفیکیشن‌های pending از طریق ChannelDispatcher (telegram → push → email → sms)."""
+    from notifications.dispatcher import process_pending_notifications as dispatch_pending
+
     logger.info("شروع پردازش نوتیفیکیشن‌های در انتظار ارسال")
-    pending = Notification.objects.filter(
-        sent_at__isnull=True
-    ).select_related('user_profile', 'vehicle')[:100]
-
-    telegram_success = 0
-    telegram_failed = 0
-    processed = 0
-
-    for n in pending.iterator():
-        processed += 1
-        try:
-            success = send_telegram(str(n.id))
-            if success:
-                telegram_success += 1
-            else:
-                telegram_failed += 1
-        except Exception:
-            logger.exception(f"خطا در پردازش نوتیفیکیشن {n.id}")
-            telegram_failed += 1
-
+    result = dispatch_pending(limit=100)
     logger.info(
-        f"پردازش نوتیفیکیشن‌ها پایان یافت → "
-        f"کل: {processed} | تلگرام موفق: {telegram_success} | ناموفق: {telegram_failed}"
+        "پردازش نوتیفیکیشن‌ها پایان یافت → کل: %(processed)s | موفق: %(success)s | ناموفق: %(failed)s",
+        result,
     )
 
 

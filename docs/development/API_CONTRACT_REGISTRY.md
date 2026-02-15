@@ -4,7 +4,7 @@
 
 پایه URL API (Django): `/api/` (مثلاً `http://localhost:8000/api`).
 
-**آخرین همگام‌سازی:** 2026-02-14 (بر اساس PRهای `#21` تا `#30`)
+**آخرین همگام‌سازی:** 2026-02-15 (Phase 1+2 reminder/notification)
 
 ---
 
@@ -127,7 +127,14 @@
 | انتظار FE | مسیر Django | وضعیت |
 |-----------|-------------|--------|
 | GET list | GET `/api/notifications/` | دارد |
+| GET list (filter) | GET `/api/notifications/?read=true|false` | دارد |
+| GET unread_count | GET `/api/notifications/unread_count/` → `{ "count": number }` | دارد |
+| GET one | GET `/api/notifications/<id>/` | دارد |
 | POST mark_as_read | POST `/api/notifications/<id>/mark_as_read/` | دارد |
+| POST mark_all_read | POST `/api/notifications/mark_all_read/` → `{ "status": "read", "count": number }` | دارد |
+| DELETE | DELETE `/api/notifications/<id>/` | دارد |
+
+**Response shape:** id, user_profile, vehicle, title, body, type, read, metadata, notification_channels, sent_at, created_at, updated_at. Envelope: `{ "success": true, "data": ... }`.
 
 ---
 
@@ -138,6 +145,8 @@
 | CRUD telegram_settings | GET/POST `/api/telegram-settings/` | دارد |
 | generate_code | POST `/api/telegram-settings/generate_code/` | دارد |
 | Webhook | POST `/telegram/webhook/` | دارد |
+
+**Webhook:** `message` (دستورات /start، /status، /help) و `callback_query` (دکمه‌های done_، details_). ر.ک. Blueprint §۴.
 
 ---
 

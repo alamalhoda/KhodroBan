@@ -8,6 +8,7 @@
 
 ### ✅ انجام‌شده‌های مهم (Recent Done)
 
+- ✅ **یادآوری/نوتیفیکیشن Django (فازهای ۱–۴):** Notification API کامل (list, unread_count, mark_read, mark_all_read, delete)، notificationServiceDjango، Outbox و تفکیک reminders/notifications، ChannelDispatcher با fallback (telegram→push→email→sms)، NotificationDelivery/Preference، آرشیو reminder-service؛ مرجع: `docs/technical/reminder-system-status.md` و `reminder-notification-api-blueprint.md`.
 - ✅ `PR #30`: تکمیل فاز ۲ یادآورها (Date Picker شمسی، Retry/Error/Loading، تست‌های فرم/ویو/utility)
 - ✅ `PR #29`: باگ‌فیکس فاز ۱ یادآورها + تست‌های API و store
 - ✅ `PR #28`: بهبود مدیریت خودرو، پشتیبانی تاریخ شمسی، `VehicleFilterSelect` و `PersianDatePicker`
@@ -32,14 +33,14 @@
   - صفحات افزودن/ویرایش/لیست هزینه با UX کامل
   - تست واحد/Integration برای flow هزینه
 
-### 2) تکمیل کانال‌های یادآوری چندگانه
+### 2) تکمیل کانال‌های یادآوری چندگانه (سمت فرانت/عملیاتی)
 
-- **وضعیت:** 📝 در انتظار
-- **توضیح:** In-App آماده است، اما Telegram/SMS/Push هنوز کامل نشده‌اند.
+- **وضعیت:** 📝 در انتظار (Backend فازهای ۱–۴ انجام شده)
+- **توضیح:** Backend Django: Notification API، Outbox، ChannelDispatcher (تلگرام فعال؛ Email/SMS/Push به‌صورت stub). In-App نوتیفیکیشن آماده است.
 - **خروجی مورد انتظار:**
-  - UI تنظیم کانال‌ها در Settings
-  - تکمیل جریان Telegram end-to-end
-  - تعریف scope مشخص برای Push/SMS
+  - UI تنظیم کانال‌ها در Settings (اتصال به NotificationPreference یا معادل)
+  - تکمیل جریان Telegram end-to-end از دید کاربر (اتصال/تست)
+  - تعریف scope مشخص برای Push/SMS در صورت نیاز
 
 ### 3) بسته تست یکپارچگی End-to-End (Backend + Frontend)
 
@@ -133,4 +134,4 @@
 
 ---
 
-**آخرین به‌روزرسانی:** 2026-02-14 (بر پایه بررسی PR #21 تا #30)
+**آخرین به‌روزرسانی:** 2026-02-15 (فازهای ۱–۴ یادآوری/نوتیفیکیشن؛ بر پایه بررسی PR #21 تا #30)
