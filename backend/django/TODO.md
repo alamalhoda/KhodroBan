@@ -1,11 +1,12 @@
 # TODO - Backend Django (KhodroBan)
 
-به‌روزرسانی‌شده بر اساس وضعیت فعلی کد و PRهای اخیر (`#21` تا `#30`).
+به‌روزرسانی‌شده بر اساس وضعیت فعلی کد و PRهای اخیر (`#21` تا `#30`) و برنچ `feature/ai_assistant`.
 
 ---
 
 ## ✅ انجام‌شده‌های اخیر
 
+- **مشاور هوشمند (AI Assistant):** اپ `ai_assistant` با مدل‌های ChatSession/ChatMessage؛ API سشن‌ها و پیام‌ها؛ ارسال پیام با `vehicle_id` اختیاری؛ Context Builder (خودروی انتخاب‌شده، آخرین سرویس‌ها با نوع سرویس، آخرین هزینه‌ها)؛ Memory Service؛ Provider Factory (openai/openrouter/zai)؛ Throttle ۳۰/دقیقه؛ هدایت سوالات نامرتبط در پرامپت. ر.ک. `docs/technical/ai-assistant-architecture.md`.
 - **یادآوری/نوتیفیکیشن (فازهای ۱–۴):** Notification API کامل (list, unread_count, mark_as_read, mark_all_read, delete)؛ Outbox و appهای `reminders`/`notifications`؛ ChannelDispatcher با fallback (telegram→push→email→sms)؛ مدل‌های NotificationDelivery و NotificationPreference؛ process_pending_notifications با dispatcher؛ آرشیو reminder-service در مستندات. ر.ک. `docs/technical/reminder-system-status.md`.
 - تست‌های API مربوط به `reports` تکمیل و پایدار شد.
 - API و تست‌های `reminders` گسترش یافت (CRUD، dismiss، by_vehicle، user list).
@@ -40,4 +41,4 @@
 
 ---
 
-**آخرین به‌روزرسانی:** 2026-02-15
+**آخرین به‌روزرسانی:** 2026-02-16 (AI Assistant)

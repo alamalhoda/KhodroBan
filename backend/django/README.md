@@ -6,8 +6,8 @@ Backend اصلی پروژه با Django + DRF که API مورد استفاده `
 
 ## وضعیت فعلی
 
-- APIهای `Auth`, `Vehicles`, `Services`, `Expenses`, `Reminders`, `Notifications`, `Reports` فعال هستند.
-- **Apps:** `reminders` (Outbox emit)، `notifications` (OutboxConsumer)، `khodroban` (مدل‌ها و API).
+- APIهای `Auth`, `Vehicles`, `Services`, `Expenses`, `Reminders`, `Notifications`, `Reports` و **AI Assistant** (`/api/ai/`) فعال هستند.
+- **Apps:** `reminders` (Outbox emit)، `notifications` (OutboxConsumer)، `khodroban` (مدل‌ها و API)، `ai_assistant` (سشن/پیام چت، context، providerهای OpenAI/OpenRouter/Z.ai).
 - **Huey:** Tasks برای یادآوری خودکار (check_reminders → Outbox → process_outbox → Notification → send_telegram).
 - تست‌های backend برای reminders، notifications، reports، services افزایش یافته‌اند.
 

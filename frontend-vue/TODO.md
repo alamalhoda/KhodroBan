@@ -23,6 +23,7 @@
 - Service Presets: دریافت از API و اتصال در Add Service
 - Reports: داده واقعی + فیلتر بازه/خودرو + خروجی CSV
 - بهبود تاریخ شمسی و برخی UXهای مدیریت خودرو
+- **مشاور هوشمند (Smart Assistant):** اتصال کامل به Django AI API؛ تاریخچه گفتگوها (لیست سشن‌ها + انتخاب سشن)، گفتگوی جدید، ارسال `vehicle_id` خودروی انتخاب‌شده در هر پیام؛ i18n برای newChat/chatHistory. ر.ک. `docs/technical/ai-assistant-architecture.md`.
 
 ---
 
@@ -71,7 +72,6 @@
 
 - [ ] Reports PDF export (Pro)
 - [ ] بهبود Settings کامل (پروفایل/امنیت)
-- [ ] تکمیل Smart Assistant integration
 - [ ] بهبودهای پیشرفته UX (global search, bulk actions)
 
 ---
@@ -92,5 +92,5 @@
 
 ---
 
-**آخرین به‌روزرسانی:** 2026-02-15 (هم‌راستا با فازهای ۱–۴ یادآوری/نوتیفیکیشن backend)
+**آخرین به‌روزرسانی:** 2026-02-16 (Smart Assistant: تاریخچه، گفتگوی جدید، vehicle_id)
 

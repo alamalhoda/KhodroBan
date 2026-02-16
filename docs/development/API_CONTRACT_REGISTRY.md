@@ -4,7 +4,7 @@
 
 پایه URL API (Django): `/api/` (مثلاً `http://localhost:8000/api`).
 
-**آخرین همگام‌سازی:** 2026-02-15 (Phase 1+2 reminder/notification)
+**آخرین همگام‌سازی:** 2026-02-16 (AI Assistant: vehicle_id، context، تاریخچه UI)
 
 ---
 
@@ -158,10 +158,11 @@
 | create session | POST `/api/ai/sessions/` | دارد |
 | retrieve session | GET `/api/ai/sessions/<id>/` | دارد |
 | list messages | GET `/api/ai/sessions/<id>/messages/` | دارد |
-| send message | POST `/api/ai/sessions/<id>/messages/send/` با `{ "content": "..." }` | دارد |
+| send message | POST `/api/ai/sessions/<id>/messages/send/` با `{ "content": "...", "vehicle_id"?: number \| null }` | دارد |
 | providers (diagnostic) | GET `/api/ai/providers/` | دارد |
 
-**پاسخ send message:** `{ "success": true, "data": { "content", "provider", "model", "usage", "latency_ms" } }`. Envelope کلی: `{ "success", "data" }` / خطا: `{ "success": false, "errors": ["..."] }`.
+**بدن send message:** `content` اجباری (غیر خالی، حداکثر ۱۶٬۰۰۰ کاراکتر)؛ `vehicle_id` اختیاری (خودروی انتخاب‌شده برای قرار گرفتن در context).  
+**پاسخ send message:** `{ "success": true, "data": { "content", "provider", "model", "usage", "latency_ms" } }`. Envelope کلی: `{ "success", "data" }` / خطا: `{ "success": false, "errors": ["..."] }`. Throttle: ۳۰ درخواست/دقیقه به ازای هر کاربر.
 
 ---
 

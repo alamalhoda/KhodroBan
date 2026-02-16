@@ -6,9 +6,9 @@
 
 ## آخرین همگام‌سازی
 
-- **تاریخ:** 2026-02-14
-- **مبنای بازبینی:** PRهای `#21` تا `#30`
-- **تمرکز:** Services, Reminders, Reports, API contract consistency
+- **تاریخ:** 2026-02-16
+- **مبنای بازبینی:** برنچ `feature/ai_assistant` و تغییرات مشاور هوشمند
+- **تمرکز:** AI Assistant (backend-first)، تاریخچه گفتگوها، context خودرو/سرویس/هزینه، قرارداد API
 
 ---
 
@@ -222,17 +222,17 @@
 
 ## Smart Assistant
 
-- **۱. ساختار:** مطابق (SmartAssistantView + ai store)
-- **۲. تست frontend:** ناقص
-- **۳. ارتباط با backend:** ترکیب — AI از OpenRouter؛ داده خودرو از Django
-- **۴. زیرساخت Django:** بدون endpoint اختصاصی (AI سمت فرانت)
-- **۵. تست backend:** —
-- **۶. مدیریت خطا:** یکپارچه
-- **۷. i18n:** ناقص
+- **۱. ساختار:** مطابق (SmartAssistantView + ai store + aiAssistantService)
+- **۲. تست frontend:** ناقص — store/service از Django؛ تست view در backlog
+- **۳. ارتباط با backend:** فقط Django — GET/POST `/api/ai/sessions/`، GET `/api/ai/sessions/<id>/messages/`، POST `/api/ai/sessions/<id>/messages/send/` (با `content` و اختیاری `vehicle_id`)، GET `/api/ai/providers/`
+- **۴. زیرساخت Django:** اپ `ai_assistant` (ChatSessionViewSet، send_message با orchestrator، context builder، memory، provider factory)
+- **۵. تست backend:** دارد — ai_assistant.tests (orchestrator، context_builder، views، provider_factory)
+- **۶. مدیریت خطا:** یکپارچه (throttle، timeout، ۵۰۲/۵۰۳ به پیام فارسی)
+- **۷. i18n:** دارد — smartAssistant (newChat، chatHistory، chatHistoryEmpty و بقیه)
 - **۸. a11y:** نیاز به بهبود
-- **۹. قرارداد API:** —
-- **وضعیت flow:** بدون باگ بحرانی
-- **اقدامات بعدی:** —
+- **۹. قرارداد API:** ثبت شده — API_CONTRACT_REGISTRY (بخش AI Assistant)
+- **وضعیت flow:** بدون باگ بحرانی؛ تاریخچه گفتگوها و گفتگوی جدید فعال
+- **اقدامات بعدی:** افزایش پوشش تست view در صورت نیاز
 
 ---
 
