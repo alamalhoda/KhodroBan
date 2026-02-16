@@ -150,6 +150,21 @@
 
 ---
 
+## AI Assistant (backend-first)
+
+| انتظار FE (aiAssistantService) | مسیر Django | وضعیت |
+|---------------------------------|-------------|--------|
+| list sessions | GET `/api/ai/sessions/` | دارد |
+| create session | POST `/api/ai/sessions/` | دارد |
+| retrieve session | GET `/api/ai/sessions/<id>/` | دارد |
+| list messages | GET `/api/ai/sessions/<id>/messages/` | دارد |
+| send message | POST `/api/ai/sessions/<id>/messages/send/` با `{ "content": "..." }` | دارد |
+| providers (diagnostic) | GET `/api/ai/providers/` | دارد |
+
+**پاسخ send message:** `{ "success": true, "data": { "content", "provider", "model", "usage", "latency_ms" } }`. Envelope کلی: `{ "success", "data" }` / خطا: `{ "success": false, "errors": ["..."] }`.
+
+---
+
 ## Service Types / Service Presets / Expense Categories
 
 | انتظار FE | مسیر Django | وضعیت |

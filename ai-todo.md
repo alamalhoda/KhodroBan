@@ -2,7 +2,14 @@
 
 این فایل لیست کارهای باز و وضعیت فعلی سرویس AI را شرح می‌دهد.
 
-### 1. وضعیت فعلی (Mock + اتصال واقعی به Proxy)
+### 0. مسیر Backend-first (Django، فعال با VITE_BACKEND_TYPE=django)
+
+- **وضعیت:** پیاده‌سازی شده.
+- **Backend:** اپ `ai_assistant` با endpointهای `/api/ai/sessions/`، `/api/ai/sessions/<id>/messages/`، `/api/ai/sessions/<id>/messages/send/`، `/api/ai/providers/`.
+- **فرانت:** با `VITE_BACKEND_TYPE=django` و `VITE_API_URL` pointing به Django، Smart Assistant از `aiAssistantService` و همین APIها استفاده می‌کند (session + send message). تاریخچه و context سمت سرور مدیریت می‌شود.
+- **تنظیمات سرور:** `AI_DEFAULT_PROVIDER`، `AI_OPENAI_BASE_URL`، `AI_OPENAI_API_KEY` (یا معادل openrouter/zai). ر.ک. `docs/technical/ai-proxy-setup.md` و `docs/development/API_CONTRACT_REGISTRY.md`.
+
+### 1. وضعیت فعلی (Mock + اتصال واقعی به Proxy) — مسیر legacy
 
 - **دو حالت پشتیبانی‌شده**
   1. **Mock**: با `VITE_AI_USE_MOCK=true` فقط پاسخ تستی برمی‌گردد (بدون فراخوانی بیرونی). برای dev/demo.
