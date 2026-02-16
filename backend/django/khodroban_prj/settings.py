@@ -18,6 +18,7 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(","
 INSTALLED_APPS = [
     'reminders.apps.RemindersConfig',
     'notifications.apps.NotificationsConfig',
+    'ai_assistant.apps.AiAssistantConfig',
     'khodroban.apps.KhodrobanConfig',  # قبل از auth تا override قالب read_only_password_hash لود شود
     'corsheaders',
     'django.contrib.admin',
@@ -169,6 +170,7 @@ LOGGING = {
     'loggers': {
         '': {'handlers': ['console'], 'level': 'INFO'},
         'khodroban': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False},
+        'ai_assistant': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
         'huey': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
     },
 }
@@ -198,6 +200,19 @@ CORS_ALLOW_HEADERS = [
     "dnt", "origin", "user-agent", "x-csrftoken", "x-requested-with",
 ]
 CORS_ALLOW_METHODS = ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"]
+
+# ─── AI Assistant ───────────────────────────────────────────────────────────
+AI_DEFAULT_PROVIDER = os.environ.get('AI_DEFAULT_PROVIDER', 'openai')
+AI_ALLOWED_PROVIDERS = ['openai', 'openrouter', 'zai']
+AI_BASE_URL = os.environ.get('AI_BASE_URL')
+AI_API_KEY = os.environ.get('AI_API_KEY')
+AI_MODEL = os.environ.get('AI_MODEL', 'gpt-3.5-turbo')
+AI_OPENAI_BASE_URL = os.environ.get('AI_OPENAI_BASE_URL', AI_BASE_URL)
+AI_OPENAI_API_KEY = os.environ.get('AI_OPENAI_API_KEY', AI_API_KEY)
+AI_OPENROUTER_BASE_URL = os.environ.get('AI_OPENROUTER_BASE_URL')
+AI_OPENROUTER_API_KEY = os.environ.get('AI_OPENROUTER_API_KEY')
+AI_ZAI_BASE_URL = os.environ.get('AI_ZAI_BASE_URL')
+AI_ZAI_API_KEY = os.environ.get('AI_ZAI_API_KEY')
 
 # ─── امنیت (تولید) ─────────────────────────────────────────────────────────
 if not DEBUG:
