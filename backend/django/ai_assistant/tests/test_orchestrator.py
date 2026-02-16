@@ -2,6 +2,7 @@
 from unittest.mock import patch, MagicMock
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils.crypto import get_random_string
 from datetime import date
 
 from ai_assistant.models import ChatSession, ChatMessage
@@ -30,12 +31,14 @@ class ContextBuilderTest(TestCase):
         self.assertIn("assistant", roles)
 
     def test_build_user_context_empty_without_profile(self):
-        user = User.objects.create_user(username="noprofile", password="test")
+        pwd = get_random_string(12)
+        user = User.objects.create_user(username="noprofile", password=pwd)
         self.assertEqual(context_builder.build_user_context(user), "")
 
     def test_build_user_context_includes_services_no_expenses(self):
         from khodroban.models import Vehicle, Service
-        user = User.objects.create_user(username="ctxuser", password="test", email="ctx@test.local")
+        pwd = get_random_string(12)
+        user = User.objects.create_user(username="ctxuser", password=pwd, email="ctx@test.local")
         profile = user.userprofile
         vehicle = Vehicle.objects.create(
             user_profile=profile, model="پژو ۲۰۶", year=1400, plate_number="12ج34567", current_km=80000
@@ -56,7 +59,8 @@ class ContextBuilderTest(TestCase):
 
     def test_build_user_context_includes_expenses_when_present(self):
         from khodroban.models import Vehicle, DailyExpense, ExpenseCategory
-        user = User.objects.create_user(username="ctxexp", password="test", email="ctxexp@test.local")
+        pwd = get_random_string(12)
+        user = User.objects.create_user(username="ctxexp", password=pwd, email="ctxexp@test.local")
         profile = user.userprofile
         vehicle = Vehicle.objects.create(
             user_profile=profile, model="تیبا", year=1401, plate_number="33ج12345", current_km=50000
@@ -80,7 +84,8 @@ class ContextBuilderTest(TestCase):
 
     def test_build_user_context_includes_selected_vehicle(self):
         from khodroban.models import Vehicle
-        user = User.objects.create_user(username="ctxuser2", password="test", email="ctx2@test.local")
+        pwd = get_random_string(12)
+        user = User.objects.create_user(username="ctxuser2", password=pwd, email="ctx2@test.local")
         profile = user.userprofile
         vehicle = Vehicle.objects.create(
             user_profile=profile, model="سمند", year=1399, plate_number="22ب11111", current_km=120000
@@ -94,7 +99,8 @@ class ContextBuilderTest(TestCase):
 
 class MemoryServiceTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="memuser", password="test")
+        self._password = get_random_string(12)
+        self.user = User.objects.create_user(username="memuser", password=self._password)
         self.session = ChatSession.objects.create(user=self.user, title="Test")
 
     def test_save_and_get_recent(self):
@@ -115,7 +121,8 @@ class MemoryServiceTest(TestCase):
 
 class OrchestratorTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="orchuser", password="test")
+        self._password = get_random_string(12)
+        self.user = User.objects.create_user(username="orchuser", password=self._password)
         self.session = ChatSession.objects.create(user=self.user, title="Test")
 
     @patch("ai_assistant.services.orchestrator.get_provider")
