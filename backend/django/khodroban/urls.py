@@ -25,6 +25,7 @@ router.register(r'notifications', NotificationViewSet)
 router.register(r'telegram-settings', TelegramSettingViewSet)
 
 urlpatterns = [
+    path('api/ai/', include('ai_assistant.urls')),
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
 

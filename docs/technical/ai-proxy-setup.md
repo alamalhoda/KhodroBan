@@ -1,8 +1,18 @@
-# راهنمای تنظیم AI Proxy با Supabase Edge Functions
+# راهنمای تنظیم AI (Proxy و Backend-first)
 
-این راهنما نحوه استفاده از Supabase Edge Functions به عنوان proxy برای API های AI را توضیح می‌دهد تا مشکل CORS حل شود.
+این راهنما دو مسیر را پوشش می‌دهد:
+1. **Backend-first (Django، توصیه‌شده):** دستیار هوشمند از طریق app `ai_assistant` و endpointهای `/api/ai/` کار می‌کند. تنظیمات از env سرور (AI_DEFAULT_PROVIDER، AI_*_BASE_URL، AI_*_API_KEY) خوانده می‌شود.
+2. **Supabase Edge Function (legacy):** استفاده از Supabase به عنوان proxy برای API های AI (CORS و امنیت).
 
-## چرا از Proxy استفاده کنیم؟
+### تنظیم Backend-first (Django)
+
+- فرانت با `VITE_BACKEND_TYPE=django` و `VITE_API_URL=http://<django-host>/api` به Django متصل می‌شود.
+- دستیار هوشمند از طریق `POST /api/ai/sessions/` و `POST /api/ai/sessions/<id>/messages/send/` استفاده می‌شود.
+- در سرور Django متغیرهای env را تنظیم کنید: `AI_DEFAULT_PROVIDER=openai`، `AI_OPENAI_BASE_URL`، `AI_OPENAI_API_KEY` (یا معادل برای openrouter/zai).
+
+---
+
+## چرا از Proxy استفاده کنیم؟ (Supabase)
 
 1. **حل مشکل CORS**: API های خارجی ممکن است CORS را برای درخواست‌های مستقیم از مرورگر پشتیبانی نکنند
 2. **امنیت بهتر**: API Key در backend نگهداری می‌شود (نه در frontend)

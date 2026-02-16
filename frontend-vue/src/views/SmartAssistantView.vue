@@ -1,6 +1,6 @@
 <!-- SmartAssistantView.vue -->
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MainLayout from '../components/MainLayout.vue'
 import VehicleFilterSelect from '../components/VehicleFilterSelect.vue'
@@ -15,6 +15,43 @@ const vehicleStore = useVehicleStore()
 
 const userInput = ref('')
 const chatContainerRef = ref(null)
+const showHistoryDropdown = ref(false)
+const historyDropdownRef = ref(null)
+
+const sessions = computed(() => aiStore.sessions)
+const currentSession = computed(() => aiStore.currentSession)
+const currentSessionId = computed(() => aiStore.currentSessionId)
+
+function formatSessionDate(isoDate) {
+  if (!isoDate) return ''
+  return new Date(isoDate).toLocaleDateString('fa-IR', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+function sessionTitle(session) {
+  return (session?.title || '').trim() || t('smartAssistant.newChat')
+}
+
+async function selectSession(sessionId) {
+  showHistoryDropdown.value = false
+  await aiStore.setCurrentSession(sessionId)
+  await nextTick()
+  scrollChatToBottom()
+}
+
+async function startNewChat() {
+  await aiStore.startNewSession()
+  showHistoryDropdown.value = false
+}
+
+function closeHistoryOnClickOutside(event) {
+  if (historyDropdownRef.value && !historyDropdownRef.value.contains(event.target)) {
+    showHistoryDropdown.value = false
+  }
+}
 
 const userName = computed(() => {
   const user = authStore.user
@@ -55,8 +92,9 @@ async function sendMessage(text) {
   const toSend = (text || userInput.value || '').trim()
   if (!toSend) return
   userInput.value = ''
+  const vehicleId = selectedVehicle.value?.id ?? null
   try {
-    await aiStore.sendMessage(toSend)
+    await aiStore.sendMessage(toSend, vehicleId)
     await nextTick()
     scrollChatToBottom()
   } catch {
@@ -75,10 +113,15 @@ function scrollChatToBottom() {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
+  document.addEventListener('click', closeHistoryOnClickOutside)
   if (vehicles.value.length && !selectedVehicle.value) {
     vehicleStore.selectVehicle(vehicles.value[0].id)
   }
+  await aiStore.initialize()
+})
+onUnmounted(() => {
+  document.removeEventListener('click', closeHistoryOnClickOutside)
 })
 </script>
 
@@ -100,6 +143,55 @@ onMounted(() => {
             <p class="text-text-muted dark:text-gray-400 text-sm">
               {{ t('smartAssistant.subtitle') }}
             </p>
+          </div>
+          <div class="flex items-center gap-2" ref="historyDropdownRef">
+            <button
+              type="button"
+              class="flex h-10 items-center gap-2 rounded-xl bg-primary/10 dark:bg-primary/20 text-primary border border-primary/30 px-3 py-2 text-sm font-medium hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors"
+              @click="startNewChat"
+            >
+              <span class="material-symbols-outlined text-[18px]">add_comment</span>
+              {{ t('smartAssistant.newChat') }}
+            </button>
+            <div class="relative">
+              <button
+                type="button"
+                class="flex h-10 items-center gap-2 rounded-xl bg-white dark:bg-white/10 border border-border px-3 py-2 text-sm text-text-main dark:text-gray-200 hover:border-primary/50 transition-colors"
+                :aria-expanded="showHistoryDropdown"
+                aria-haspopup="listbox"
+                aria-label="تاریخچه گفتگوها"
+                @click.stop="showHistoryDropdown = !showHistoryDropdown"
+              >
+                <span class="material-symbols-outlined text-[18px]">history</span>
+                {{ t('smartAssistant.chatHistory') }}
+                <span class="material-symbols-outlined text-[16px] transition-transform" :class="{ 'rotate-180': showHistoryDropdown }">expand_more</span>
+              </button>
+              <div
+                v-show="showHistoryDropdown"
+                class="absolute left-0 right-0 top-full z-50 mt-1 min-w-[220px] max-h-[280px] overflow-y-auto rounded-xl border border-border bg-white dark:bg-white/95 dark:border-white/20 shadow-lg py-1"
+                role="listbox"
+              >
+                <template v-if="sessions.length === 0">
+                  <p class="px-4 py-3 text-sm text-text-muted dark:text-gray-400">
+                    {{ t('smartAssistant.chatHistoryEmpty') }}
+                  </p>
+                </template>
+                <button
+                  v-for="s in sessions"
+                  v-else
+                  :key="s.id"
+                  type="button"
+                  role="option"
+                  :aria-selected="String(s.id) === String(currentSessionId)"
+                  class="w-full text-right px-4 py-2.5 text-sm transition-colors hover:bg-gray-100 dark:hover:bg-gray-700/50"
+                  :class="String(s.id) === String(currentSessionId) ? 'bg-primary/10 dark:bg-primary/20 text-primary font-medium' : 'text-text-main dark:text-gray-200'"
+                  @click="selectSession(s.id)"
+                >
+                  <span class="block truncate">{{ sessionTitle(s) }}</span>
+                  <span class="block text-[10px] text-text-muted dark:text-gray-500 mt-0.5">{{ formatSessionDate(s.updated_at || s.created_at) }}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <!-- انتخاب خودرو -->
