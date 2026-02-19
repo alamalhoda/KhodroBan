@@ -1,107 +1,103 @@
-# Test Gap Analysis (PR-ready)
+# Test Gap Analysis — وضعیت پس از اجرا
 
-**تاریخ:** 2026-02-19  
-**هدف:** تکمیل تست‌ها برای PR-ready با تمرکز روی gapهای واقعی و flowهای حیاتی.
-
----
-
-## 1. وضعیت فعلی
-
-| سطح | وضعیت | Coverage |
-|-----|--------|----------|
-| Backend | 150 passed | 89% |
-| Frontend | 21 files, 200 tests | - |
-
-### پوشش Backend مهم
-- `khodroban/huey_tasks.py` = 100%
-- `khodroban/models.py` = 94%
-- `khodroban/serializers.py` = 92%
-- `khodroban/views.py` = **69%** ← نیاز به بهبود
+**تاریخ به‌روزرسانی:** 2026-02-19  
+**هدف:** نشان‌دادن gapهای اولیه، موارد تکمیل‌شده، و gapهای باقیمانده بعد از کارهای این PR.
 
 ---
 
-## 2. Gapهای Frontend
+## 1. Baseline و وضعیت فعلی
 
-### Stores بدون تست
-| Store | اولویت | دلیل |
-|-------|--------|------|
-| `report.js` | **بالا** | flow گزارش و خلاصه |
-| `ai.js` | **بالا** | AI assistant flow |
-| `smartAssistant.js` | متوسط | wrapper روی ai |
-| `upgrade.js` | پایین | - |
-| `notification.js` | متوسط | نوتیفیکیشن‌ها |
-| `settings.js` | پایین | - |
-| `serviceType.js` | پایین | - |
-| `expenseCategory.js` | پایین | - |
-| `telegram.js` | پایین | - |
+| شاخص | Baseline | وضعیت فعلی |
+|------|----------|------------|
+| Frontend tests | 21 فایل / 200 تست | **31 فایل / 287 تست** |
+| Frontend E2E | 0 سناریو | **2 سناریو Playwright** |
+| Backend smoke flow | ندارد | **1 smoke flow فعال** |
 
-### Services بدون تست
-| Service | اولویت |
-|---------|--------|
-| `aiAssistantService.js` | **بالا** – قرارداد با AI backend |
-| `dashboardService.js` | متوسط |
-| `serviceTypeService.js` | پایین |
-| `expenseCategoryService.js` | پایین |
-| `telegramService.js` | پایین |
-
-### Views بدون تست
-| View | اولویت |
-|------|--------|
-| LoginView | **بالا** |
-| VehicleListView | **بالا** |
-| ReportsView | **بالا** |
-| SmartAssistantView | **بالا** |
-| SignUpView, AuthCallbackView | متوسط |
-| VehicleDetailsView, VehicleManagementView | متوسط |
-| ReminderManagementView, SettingsView | پایین |
+> Baseline از ابتدای همین فاز گرفته شده و وضعیت فعلی بر اساس آخرین اجرای موفق تست‌هاست.
 
 ---
 
-## 3. Contractهای FE↔BE بدون تست صریح
+## 2. وضعیت gapهای اولویت بالا (انجام‌شده)
 
-| Contract | تست Backend | تست Frontend |
-|----------|-------------|--------------|
-| Auth: login/register/refresh | ✅ | ❌ contract test در FE |
-| Vehicle CRUD + km/km-history | ✅ | ❌ contract test در FE |
-| Service/Expense list/detail | ✅ | ❌ |
-| Reports summary | ✅ | ❌ |
-| AI send message | ✅ | ❌ |
-| Notifications unread_count | ✅ | ❌ |
+### 2.1 Frontend Views حیاتی
+| مورد | وضعیت | شواهد |
+|------|--------|-------|
+| `LoginView` | ✅ تکمیل | `frontend-vue/src/views/LoginView.test.js` |
+| `ReportsView` | ✅ تکمیل | `frontend-vue/src/views/ReportsView.test.js` |
+| `SmartAssistantView` | ✅ تکمیل | `frontend-vue/src/views/SmartAssistantView.test.js` |
+
+پوشش رفتاری: success/error/loading/empty state برای مسیرهای اصلی UI-flow.
+
+### 2.2 FE↔BE Service Contracts
+| مورد | وضعیت | شواهد |
+|------|--------|-------|
+| Auth contract | ✅ تکمیل | `authService.contract.test.js` |
+| Vehicle contract | ✅ تکمیل | `vehicleService.contract.test.js` |
+| Reports contract | ✅ تکمیل | `reportService.contract.test.js` |
+| AI contract (legacy/proxy) | ✅ تکمیل | `aiService.contract.test.js` |
+| AI assistant session/message contract | ✅ تکمیل | `aiAssistantService.test.js` |
+
+پوشش edge codeها: `400/401/403/404/429/500` + `timeout`.
+
+### 2.3 Cross-stack integration/E2E
+| مورد | وضعیت | شواهد |
+|------|--------|-------|
+| Backend smoke flow | ✅ تکمیل | `backend/django/khodroban/tests/test_smoke_flow.py` |
+| Playwright setup | ✅ تکمیل | `frontend-vue/playwright.config.js` + scripts |
+| E2E smoke (login→vehicle→expense→reports→AI) | ✅ تکمیل | `frontend-vue/e2e/smoke.cross-stack.spec.js` |
+| E2E مسیر مدیریت/ویرایش خودرو | ✅ تکمیل | همان فایل E2E |
 
 ---
 
-## 4. Edge Cases مورد نیاز
+## 3. وضعیت gapهای متوسط/پایین (باقی‌مانده)
 
-| کد | توضیح | Backend | Frontend |
-|----|-------|---------|----------|
-| 400 | Bad Request / Validation | بخشی | contract test |
-| 401 | Unauthorized | ✅ | contract test |
-| 403 | Forbidden | بخشی | - |
-| 404 | Not Found | بخشی | - |
-| 429 | Rate limit (AI) | - | - |
-| 500 | Server error | - | error envelope |
-| Timeout | Network timeout | - | error handling |
+### Stores
+| Store | اولویت فعلی | وضعیت |
+|-------|-------------|-------|
+| `notification.js` | متوسط | ⏳ نیازمند تست مستقیم بیشتر |
+| `smartAssistant.js` | متوسط | ⏳ wrapper-level تست تکمیلی |
+| `settings.js` | پایین | ⏳ باقی‌مانده |
+| `telegram.js` | پایین | ⏳ باقی‌مانده |
+| `serviceType.js`, `expenseCategory.js`, `upgrade.js` | پایین | ⏳ باقی‌مانده |
+
+### Views
+| View | اولویت فعلی | وضعیت |
+|------|-------------|-------|
+| `VehicleListView`, `VehicleDetailsView`, `VehicleManagementView` | متوسط | ⏳ unit/view tests تکمیلی |
+| `SignUpView`, `AuthCallbackView` | متوسط | ⏳ باقی‌مانده |
+| `ReminderManagementView`, `SettingsView` | پایین | ⏳ باقی‌مانده |
+
+### Contracts
+| Contract | اولویت فعلی | وضعیت |
+|----------|-------------|-------|
+| Notifications (`unread_count`, list behaviors) | متوسط | ⏳ FE contract test صریح ندارد |
+| Reminder-specific FE contract scenarios | متوسط | ⏳ تکمیل نشده |
 
 ---
 
-## 5. اولویت پیاده‌سازی
+## 4. ریسک‌ها/مشاهدات جدید از اجرای واقعی
 
-### Phase 1 (این PR)
-1. **aiAssistantService.test.js** – contract tests (success/error envelope, field shape)
-2. **ai.test.js** (store) – با mocked aiAssistantService
-3. **report.test.js** (store) – با mocked reportService
-4. **Backend:** تست‌های اضافی برای views (گزارش، km-history، AI throttle)
-5. **Smoke flow:** یک integration test انتها-به-انتها در backend
+1. **AI provider config در بعضی envها وجود ندارد**  
+   endpoint پیام AI می‌تواند `502` برگرداند؛ UI رفتار خطا را مدیریت می‌کند.
+2. **third-party warnings**  
+   warningهای ساختاری HTML از `vue3-persian-datepicker` non-blocking هستند.
+3. **مورد مشاهده‌شده در لاگ E2E**  
+   درخواست `api/vehicles/undefined/images` به‌صورت موردی دیده شد (non-blocking، اما مناسب bugfix جداگانه).
 
-### Phase 2 (بعدی)
-- LoginView, ReportsView, SmartAssistantView tests
-- Contract tests برای auth/vehicle/service layers
-- E2E با Playwright (اگر setup شود)
+---
+
+## 5. نقشه ادامه کار (پیشنهاد)
+
+### Phase بعدی (پیشنهادی)
+1. افزودن test مستقیم برای `VehicleDetailsView` و `VehicleManagementView` (سطح unit/view)
+2. افزودن FE contract tests برای notifications/reminders
+3. افزودن E2E سناریوی service-tab (جدا از expense-tab) برای تکمیل ماتریس سرویس/هزینه
+4. رسیدگی به مورد `undefined/images` در یک PR کوچک bugfix
 
 ---
 
 ## 6. Security Checklist
 
-- ✅ هیچ credential-like literal در تست‌ها
-- ✅ Backend: `get_random_string(12)` برای password در runtime
-- ✅ Frontend: از مقادیر runtime (مثلاً `crypto.randomUUID()` یا mock) استفاده شود
+- ✅ credential-like literal حساس در تست‌های جدید hard-code نشده
+- ✅ Backend runtime credential generation رعایت شده (`get_random_string`)
+- ✅ Frontend runtime/value-safe patterns رعایت شده (`crypto.randomUUID()` و داده‌های غیرحساس)
