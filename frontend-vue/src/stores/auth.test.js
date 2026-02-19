@@ -36,8 +36,9 @@ describe('auth store', () => {
   it('isAuthenticated is true when user and token exist', async () => {
     const { useAuthStore } = await import('./auth')
     const store = useAuthStore()
+    const runtimeToken = `tk_${crypto.randomUUID().slice(0, 8)}`
     store.user = { id: 1, name: 'Test' }
-    store.token = 'abc'
+    store.token = runtimeToken
     expect(store.isAuthenticated).toBe(true)
   })
 
@@ -53,11 +54,12 @@ describe('auth store', () => {
     const { useAuthStore } = await import('./auth')
     const { authService } = await import('@services/authService')
     const mockUser = { id: 1, name: 'Test' }
-    const mockToken = 'token123'
+    const mockToken = `t_${crypto.randomUUID().slice(0, 8)}`
     authService.login.mockResolvedValue({ user: mockUser, token: mockToken })
 
+    const runtimePwd = crypto.randomUUID().slice(0, 12)
     const store = useAuthStore()
-    await store.login({ email: 'a@b.com', password: 'pass' })
+    await store.login({ email: 'a@b.com', password: runtimePwd })
 
     expect(store.user).toEqual(mockUser)
     expect(store.token).toBe(mockToken)
@@ -70,8 +72,9 @@ describe('auth store', () => {
     const { authService } = await import('@services/authService')
     authService.login.mockRejectedValue(new Error('Invalid credentials'))
 
+    const runtimePwd = crypto.randomUUID().slice(0, 12)
     const store = useAuthStore()
-    await expect(store.login({ email: 'a@b.com', password: 'wrong' })).rejects.toThrow()
+    await expect(store.login({ email: 'a@b.com', password: runtimePwd })).rejects.toThrow()
     expect(store.error).toBeTruthy()
     expect(store.isLoading).toBe(false)
   })
@@ -81,10 +84,11 @@ describe('auth store', () => {
     const { authService } = await import('@services/authService')
     authService.logout.mockResolvedValue(undefined)
 
+    const runtimeToken = `t_${crypto.randomUUID().slice(0, 8)}`
     const store = useAuthStore()
     store.user = { id: 1 }
-    store.token = 'token'
-    localStorage.setItem('token', 'token')
+    store.token = runtimeToken
+    localStorage.setItem('token', runtimeToken)
 
     await store.logout()
 
@@ -96,9 +100,10 @@ describe('auth store', () => {
   it('saveToken updates token and localStorage', async () => {
     const { useAuthStore } = await import('./auth')
     const store = useAuthStore()
-    store.saveToken('newtoken')
-    expect(store.token).toBe('newtoken')
-    expect(localStorage.getItem('token')).toBe('newtoken')
+    const runtimeToken = `t_${crypto.randomUUID().slice(0, 8)}`
+    store.saveToken(runtimeToken)
+    expect(store.token).toBe(runtimeToken)
+    expect(localStorage.getItem('token')).toBe(runtimeToken)
     store.saveToken(null)
     expect(store.token).toBe(null)
     expect(localStorage.getItem('token')).toBe(null)

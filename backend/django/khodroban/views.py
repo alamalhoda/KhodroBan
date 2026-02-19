@@ -783,9 +783,9 @@ def send_telegram_message(chat_id, text):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def huey_health(request):
-    from huey.contrib.djhuey import Huey
+    from huey.contrib import djhuey
 
-    huey = Huey.get('khodroban-tasks')
+    huey = djhuey.HUEY
     try:
         connected = huey.storage.connection_available()
         result = {'status': 'healthy', 'huey_connected': connected}

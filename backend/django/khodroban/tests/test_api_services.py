@@ -226,6 +226,35 @@ class ServiceAPITests(APITestCase):
         # DRF returns 403 Forbidden for unauthenticated access to authenticated-only views
         self.assertIn(response.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
+    def test_latest_service_vehicle_not_found_returns_404(self):
+        response = self.client.get(f"/api/services/latest/99999/")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertFalse(response.json().get("success"))
+
+    def test_latest_service_no_service_returns_null(self):
+        response = self.client.get(f"/api/services/latest/{self.vehicle.id}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.json().get("success"))
+        self.assertIsNone(response.json().get("data"))
+
+    def test_latest_service_returns_last_service(self):
+        data = {
+            "vehicleId": str(self.vehicle.id),
+            "date": "2024-09-01",
+            "km": 80000,
+            "cost": 500000,
+            "types": ["oil_change"],
+            "note": "",
+        }
+        self.client.post(self.list_url, data, format="json")
+        data["date"] = "2024-10-01"
+        data["km"] = 85000
+        self.client.post(self.list_url, data, format="json")
+        response = self.client.get(f"/api/services/latest/{self.vehicle.id}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        payload = response.json().get("data", {})
+        self.assertEqual(payload.get("date"), "2024-10-01")
+
 
 class ParseServiceDateTests(APITestCase):
     """Unit tests for parse_service_date (ISO and Jalali date parsing)."""

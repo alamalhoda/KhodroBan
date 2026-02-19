@@ -31,6 +31,31 @@ class ReportSummaryTests(APITestCase):
         response = self.client.get(self.summary_url)
         self.assertIn(response.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
+    def test_report_summary_no_vehicles_returns_zeros(self):
+        """کاربر بدون خودرو باید خلاصه صفر و costByCategory/costByMonth خالی بگیرد."""
+        other_pass = get_random_string(12)
+        user_no_vehicles = User.objects.create_user(
+            username="novehicles",
+            email="noveh@test.com",
+            password=other_pass,
+        )
+        UserProfile.objects.get_or_create(
+            user=user_no_vehicles,
+            defaults={"email": user_no_vehicles.email},
+        )
+        self.client.force_authenticate(user=user_no_vehicles)
+        response = self.client.get(self.summary_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        payload = response.data.get("data", response.data)
+        self.assertEqual(payload["totalServiceCost"], 0)
+        self.assertEqual(payload["totalExpenses"], 0)
+        self.assertEqual(payload["totalCost"], 0)
+        self.assertEqual(payload["serviceCount"], 0)
+        self.assertEqual(payload["expenseCount"], 0)
+        self.assertEqual(payload["totalKm"], 0)
+        self.assertEqual(payload["costByCategory"], {})
+        self.assertEqual(payload["costByMonth"], [])
+
     def test_report_summary_empty_returns_zeros(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.summary_url)

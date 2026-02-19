@@ -60,6 +60,10 @@ class ChatSessionAPITestCase(APITestCase):
         self.assertEqual(data.get("content"), "پاسخ تست از مدل")
         self.assertEqual(data.get("provider"), "openai")
 
+        # Contract: response باید content, provider, model, usage, latency_ms داشته باشد (API_CONTRACT_REGISTRY)
+        for key in ("content", "provider", "model", "usage", "latency_ms"):
+            self.assertIn(key, data, f"send message response باید فیلد {key} داشته باشد")
+
         msgs = list(ChatMessage.objects.filter(session=session).order_by("created_at"))
         self.assertEqual(len(msgs), 2)
         self.assertEqual(msgs[0].role, ChatMessage.Role.USER)
@@ -111,3 +115,32 @@ class ChatSessionAPITestCase(APITestCase):
         self.assertIn("allowed", data)
         self.assertIn("active", data)
         self.assertIsInstance(data["allowed"], list)
+        self.assertIsInstance(data["active"], (str, type(None)))
+
+    @patch("ai_assistant.services.orchestrator.get_provider")
+    def test_send_message_vehicle_id_null_accepted(self, mock_get_provider):
+        """vehicle_id اختیاری است؛ null باید پذیرفته شود."""
+        mock_provider = MagicMock()
+        mock_provider.generate.return_value = ("خوب", {"provider": "openai", "model": "gpt-3.5", "latency_ms": 10})
+        mock_get_provider.return_value = mock_provider
+
+        session = ChatSession.objects.create(user=self.user, title="سشن")
+        response = self.client.post(
+            f"/api/ai/sessions/{session.id}/messages/send/",
+            {"content": "سلام", "vehicle_id": None},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get("success"))
+
+    def test_send_message_content_max_length(self):
+        """متن پیام حداکثر ۱۶٬۰۰۰ کاراکتر (API_CONTRACT_REGISTRY)."""
+        session = ChatSession.objects.create(user=self.user, title="سشن")
+        # 16001 کاراکتر باید رد شود
+        long_content = "x" * 16_001
+        response = self.client.post(
+            f"/api/ai/sessions/{session.id}/messages/send/",
+            {"content": long_content},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

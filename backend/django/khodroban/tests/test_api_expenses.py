@@ -128,3 +128,12 @@ class ExpenseAPITests(APITestCase):
         }
         response = self.client.post(self.list_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_expense_rejects_missing_vehicle_id(self):
+        payload = {
+            "date": "2024-11-21",
+            "amount": 50000,
+            "category": "fuel",
+        }
+        response = self.client.post(self.list_url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
