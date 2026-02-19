@@ -6,6 +6,9 @@ from django.utils.crypto import get_random_string
 from datetime import timedelta
 from django.contrib.auth.models import User
 
+# Runtime value for mocking TELEGRAM_BOT_TOKEN to avoid credential-like literals (GitGuardian).
+_MOCK_TELEGRAM_TOKEN = get_random_string(12)
+
 from reminders.huey_tasks import check_reminders
 from reminders.models import ReminderDueEventOutbox
 from notifications.huey_tasks import process_outbox
@@ -140,7 +143,7 @@ class KhodrobanHueyTaskTests(TestCase):
         )
 
     @patch("khodroban.huey_tasks.requests.post")
-    @patch("khodroban.huey_tasks.settings.TELEGRAM_BOT_TOKEN", "fake-token")
+    @patch("khodroban.huey_tasks.settings.TELEGRAM_BOT_TOKEN", _MOCK_TELEGRAM_TOKEN)
     def test_send_telegram_success_updates_notification(self, mock_post):
         """ارسال موفق تلگرام باید notification_channels و sent_at را به‌روز کند."""
         notification = Notification.objects.create(
@@ -181,7 +184,7 @@ class KhodrobanHueyTaskTests(TestCase):
         mock_post.assert_called_once()
 
     @patch("khodroban.huey_tasks.requests.post")
-    @patch("khodroban.huey_tasks.settings.TELEGRAM_BOT_TOKEN", "fake-token")
+    @patch("khodroban.huey_tasks.settings.TELEGRAM_BOT_TOKEN", _MOCK_TELEGRAM_TOKEN)
     def test_send_telegram_no_telegram_setting_returns_false(self, mock_post):
         """وقتی TelegramSetting یا chat_id نیست، باید False برگرداند."""
         notification = Notification.objects.create(
@@ -199,7 +202,7 @@ class KhodrobanHueyTaskTests(TestCase):
         mock_post.assert_not_called()
 
     @patch("khodroban.huey_tasks.requests.post")
-    @patch("khodroban.huey_tasks.settings.TELEGRAM_BOT_TOKEN", "fake-token")
+    @patch("khodroban.huey_tasks.settings.TELEGRAM_BOT_TOKEN", _MOCK_TELEGRAM_TOKEN)
     def test_send_telegram_no_chat_id_returns_false(self, mock_post):
         """TelegramSetting بدون chat_id نباید ارسال کند."""
         notification = Notification.objects.create(
@@ -226,7 +229,7 @@ class KhodrobanHueyTaskTests(TestCase):
         self.assertFalse(result)
 
     @patch("khodroban.huey_tasks.requests.post")
-    @patch("khodroban.huey_tasks.settings.TELEGRAM_BOT_TOKEN", "fake-token")
+    @patch("khodroban.huey_tasks.settings.TELEGRAM_BOT_TOKEN", _MOCK_TELEGRAM_TOKEN)
     def test_send_telegram_request_exception_reraises(self, mock_post):
         """وقتی requests.post استثنا پرتاب کند، باید همان استثنا دوباره پرتاب شود."""
         notification = Notification.objects.create(
@@ -247,7 +250,7 @@ class KhodrobanHueyTaskTests(TestCase):
             send_telegram.call_local(str(notification.id))
 
     @patch("khodroban.huey_tasks.requests.post")
-    @patch("khodroban.huey_tasks.settings.TELEGRAM_BOT_TOKEN", "fake-token")
+    @patch("khodroban.huey_tasks.settings.TELEGRAM_BOT_TOKEN", _MOCK_TELEGRAM_TOKEN)
     def test_send_telegram_api_failure_returns_false(self, mock_post):
         """وقتی API تلگرام خطا برمی‌گرداند، باید False برگردد."""
         notification = Notification.objects.create(

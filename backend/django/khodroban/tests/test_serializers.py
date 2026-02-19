@@ -174,19 +174,20 @@ class RegisterSerializerTests(TestCase):
         data = {
             "username": "reguser",
             "email": "reg@test.com",
-            "password": "Pass123!",
-            "password2": "Different1!",
+            "password": get_random_string(12),
+            "password2": get_random_string(12),
         }
         s = RegisterSerializer(data=data)
         self.assertFalse(s.is_valid())
         self.assertIn("password", s.errors)
 
     def test_create_creates_user(self):
+        pwd = get_random_string(12)
         data = {
             "username": "newuser",
             "email": "new@test.com",
-            "password": "NewPass123!",
-            "password2": "NewPass123!",
+            "password": pwd,
+            "password2": pwd,
             "first_name": "New",
             "last_name": "User",
         }
@@ -195,7 +196,7 @@ class RegisterSerializerTests(TestCase):
         user = s.save()
         self.assertEqual(user.username, "newuser")
         self.assertEqual(user.email, "new@test.com")
-        self.assertTrue(user.check_password("NewPass123!"))
+        self.assertTrue(user.check_password(pwd))
 
 
 class VehicleKmHistorySerializerValidationTests(TestCase):
