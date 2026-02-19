@@ -1,6 +1,6 @@
 /**
  * Contract tests for aiAssistantService (API_CONTRACT_REGISTRY).
- * Tests success/error envelope, field shapes, edge cases (401/404/400/500).
+ * Tests success/error envelope, field shapes, and edge cases.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
@@ -144,7 +144,7 @@ describe('aiAssistantService', () => {
     })
   })
 
-  describe('error envelope (401/404/400/500)', () => {
+  describe('error envelope (400/401/403/404/429/500 + timeout)', () => {
     it('propagates 401 error', async () => {
       const err = { response: { status: 401, data: { errors: ['Unauthorized'] } } }
       mockApiPost.mockRejectedValue(err)
@@ -171,6 +171,31 @@ describe('aiAssistantService', () => {
 
     it('propagates 500 server error', async () => {
       const err = { response: { status: 500 } }
+      mockApiPost.mockRejectedValue(err)
+
+      const { sendMessage } = await import('./aiAssistantService')
+      await expect(sendMessage('s1', 'hi')).rejects.toEqual(err)
+    })
+
+    it('propagates 403 forbidden error', async () => {
+      const err = { response: { status: 403, data: { errors: ['Forbidden'] } } }
+      mockApiPost.mockRejectedValue(err)
+
+      const { sendMessage } = await import('./aiAssistantService')
+      await expect(sendMessage('s1', 'hi')).rejects.toEqual(err)
+    })
+
+    it('propagates 429 rate-limit error', async () => {
+      const err = { response: { status: 429, data: { errors: ['Too many requests'] } } }
+      mockApiPost.mockRejectedValue(err)
+
+      const { sendMessage } = await import('./aiAssistantService')
+      await expect(sendMessage('s1', 'hi')).rejects.toEqual(err)
+    })
+
+    it('propagates timeout/network abort error', async () => {
+      const err = new Error('timeout')
+      err.code = 'ECONNABORTED'
       mockApiPost.mockRejectedValue(err)
 
       const { sendMessage } = await import('./aiAssistantService')
