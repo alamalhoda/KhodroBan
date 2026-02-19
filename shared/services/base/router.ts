@@ -4,7 +4,7 @@
  * این فایل service های مناسب را بر اساس نوع backend انتخاب می‌کند
  */
 
-import { BACKEND_TYPE } from '../config';
+import { getBackendType } from '../config';
 import type { BackendType } from '../config';
 
 /**
@@ -16,7 +16,9 @@ import type { BackendType } from '../config';
  * @returns Service انتخاب شده
  */
 export function selectService<T>(mockService: T, supabaseService: T, djangoService?: T): T {
-  switch (BACKEND_TYPE) {
+  const backendType = getBackendType();
+
+  switch (backendType) {
     case 'mock':
       return mockService;
 
@@ -32,7 +34,7 @@ export function selectService<T>(mockService: T, supabaseService: T, djangoServi
       return supabaseService;
 
     default:
-      console.warn(`Unknown backend type: ${BACKEND_TYPE}, using Supabase`);
+      console.warn(`Unknown backend type: ${backendType}, using Supabase`);
       return supabaseService;
   }
 }
