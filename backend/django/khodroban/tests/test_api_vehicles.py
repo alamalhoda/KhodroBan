@@ -4,6 +4,8 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 
+from django.core.files.uploadedfile import SimpleUploadedFile
+
 from khodroban.models import Vehicle, UserProfile, VehicleKmHistory, VehicleImage
 
 
@@ -157,3 +159,103 @@ class VehicleAPITests(APITestCase):
         payload = response.json()
         self.assertTrue(payload.get('success'))
         self.assertEqual(payload.get('data', []), [])
+
+    def test_vehicle_update_km_missing_returns_400(self):
+        vehicle = Vehicle.objects.create(
+            user_profile=self.profile,
+            model="KmErr",
+            year=1400,
+            plate_number="55پ555",
+            current_km=10000,
+        )
+        url = f'/api/vehicles/{vehicle.id}/km/'
+        response = self.client.patch(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.json().get('success'))
+        self.assertIn('km', str(response.json().get('errors', [])))
+
+    def test_vehicle_update_km_invalid_type_returns_400(self):
+        vehicle = Vehicle.objects.create(
+            user_profile=self.profile,
+            model="KmErr2",
+            year=1400,
+            plate_number="66چ666",
+            current_km=10000,
+        )
+        url = f'/api/vehicles/{vehicle.id}/km/'
+        response = self.client.patch(url, {'km': 'not-a-number'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.json().get('success'))
+
+    def test_vehicle_update_km_negative_returns_400(self):
+        vehicle = Vehicle.objects.create(
+            user_profile=self.profile,
+            model="KmErr3",
+            year=1400,
+            plate_number="77ح777",
+            current_km=10000,
+        )
+        url = f'/api/vehicles/{vehicle.id}/km/'
+        response = self.client.patch(url, {'km': -100}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.json().get('success'))
+
+    def test_vehicle_km_history_post_missing_km_returns_400(self):
+        vehicle = Vehicle.objects.create(
+            user_profile=self.profile,
+            model="KmHistErr",
+            year=1399,
+            plate_number="88خ888",
+            current_km=5000,
+        )
+        url = f'/api/vehicles/{vehicle.id}/km-history/'
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_vehicle_km_history_post_invalid_km_returns_400(self):
+        vehicle = Vehicle.objects.create(
+            user_profile=self.profile,
+            model="KmHistErr2",
+            year=1399,
+            plate_number="99د999",
+            current_km=5000,
+        )
+        url = f'/api/vehicles/{vehicle.id}/km-history/'
+        response = self.client.post(url, {'km': 'invalid'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_vehicle_km_history_post_negative_km_returns_400(self):
+        vehicle = Vehicle.objects.create(
+            user_profile=self.profile,
+            model="KmHistErr3",
+            year=1399,
+            plate_number="00ذ000",
+            current_km=5000,
+        )
+        url = f'/api/vehicles/{vehicle.id}/km-history/'
+        response = self.client.post(url, {'km': -500}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_vehicle_images_post_max_exceeded_returns_400(self):
+        """وقتی تعداد تصاویر به حداکثر رسیده، آپلود جدید باید 400 برگرداند."""
+        vehicle = Vehicle.objects.create(
+            user_profile=self.profile,
+            model="MaxImg",
+            year=1400,
+            plate_number="11ر111",
+            current_km=0,
+        )
+        fake_img = SimpleUploadedFile(
+            "test.jpg", b"x" * 100, content_type="image/jpeg"
+        )
+        for i in range(VehicleImage.MAX_IMAGES_PER_VEHICLE):
+            VehicleImage.objects.create(
+                vehicle=vehicle,
+                image=SimpleUploadedFile(f"img{i}.jpg", b"x" * 100, content_type="image/jpeg"),
+                display_order=i,
+            )
+        url = f'/api/vehicles/{vehicle.id}/images/'
+        data = {'image': fake_img}
+        response = self.client.post(url, data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.json().get('success'))
