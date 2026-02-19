@@ -1,15 +1,7 @@
 """
 تست‌های مکمل views.py برای VehicleImageViewSet، NotificationViewSet، TelegramSettingViewSet و huey_health.
 """
-import pytest
-
 from django.core.files.uploadedfile import SimpleUploadedFile
-
-try:
-    from huey.contrib.djhuey import Huey  # noqa: F401
-    HUEY_IMPORTABLE = True
-except ImportError:
-    HUEY_IMPORTABLE = False
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.urls import reverse
@@ -187,7 +179,6 @@ class TelegramSettingViewSetTests(APITestCase):
         self.assertIn("message", payload)
 
 
-@pytest.mark.skipif(not HUEY_IMPORTABLE, reason="huey.contrib.djhuey.Huey not importable")
 class HueyHealthTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -198,13 +189,10 @@ class HueyHealthTests(APITestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_huey_health_returns_json_with_status(self):
-        """huey_health باید JSON برگرداند؛ ۲۰۰ با status/huey_connected یا ۵۰۰ با status/detail."""
+        """huey_health باید JSON با status و huey_connected برگرداند (۲۰۰ یا ۵۰۰ بسته به Redis)."""
         r = self.client.get(reverse("huey_health"))
         self.assertIn(r.status_code, (status.HTTP_200_OK, status.HTTP_500_INTERNAL_SERVER_ERROR))
-        try:
-            data = r.json()
-        except Exception:
-            self.fail("huey_health باید پاسخ JSON برگرداند")
+        data = r.json()
         self.assertIn("status", data)
         if r.status_code == 200:
             self.assertIn("huey_connected", data)
