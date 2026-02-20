@@ -74,6 +74,7 @@ REDIS_HOST=redis
 - [ ] `.env` تنظیم شده (برای Docker)
 - [ ] `ALLOWED_HOSTS` شامل دامنه production است
 
-## 📚 راهنمای کامل
+## 📚 راهنماها
 
-جزئیات بیشتر در `docs/deployment/CHABOKAN_NET.md`.
+- **Docker (دو نوع استقرار):** `docs/deployment/DOCKER_DEPLOYMENT.md` – استقرار استاندارد و تک‌تصویری
+- **chabokan.net:** `docs/deployment/CHABOKAN_NET.md`

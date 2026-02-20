@@ -182,6 +182,8 @@ docker compose -f docker-compose.lite.yml up -d
 
 نمونه متغیرهای محیطی در `.env.example` قرار دارد.
 
+برای مقایسه دو نوع استقرار Docker (استاندارد و تک‌تصویری) ر.ک. `docs/deployment/DOCKER_DEPLOYMENT.md`.
+
 ---
 
 ## اتصال فرانت Vue به Django

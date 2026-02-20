@@ -2,14 +2,13 @@
 """
 Handler تلگرام – ارسال واقعی به API تلگرام.
 
-استفاده از khodroban.huey_tasks.send_telegram که با Huey اجرا می‌شود.
+استفاده از notifications.senders.do_send_telegram (تابع خالص).
 برای تنظیمات ر.ک. TELEGRAM_BOT_TOKEN در env و docs/technical/notification-channel-providers.md
 """
 import logging
 
-from khodroban.huey_tasks import send_telegram
-
 from notifications.constants import CHANNEL_TELEGRAM
+from notifications.senders import do_send_telegram
 from .base import BaseChannelHandler
 
 logger = logging.getLogger(__name__)
@@ -30,9 +29,7 @@ class TelegramHandler(BaseChannelHandler):
 
     def send(self, notification) -> tuple[bool, str | None]:
         try:
-            # فراخوانی مستقیم (immediate) برای استفاده در dispatcher
-            # در Huey immediate=True است در DEBUG پس task بلافاصله اجرا می‌شود
-            result = send_telegram(str(notification.id))
+            result = do_send_telegram(str(notification.id))
             if result:
                 return (True, None)
             return (False, "تلگرام: chat_id یافت نشد یا غیرفعال")

@@ -129,7 +129,7 @@ class ChannelDispatcherTests(TestCase):
         dispatch_notification(self.notification)
         self.assertGreater(NotificationDelivery.objects.count(), initial_count)
 
-    @patch("notifications.handlers.telegram.send_telegram", return_value=True)
+    @patch("notifications.handlers.telegram.do_send_telegram", return_value=True)
     def test_dispatch_with_telegram_connected_succeeds(self, mock_send):
         """وقتی کاربر تلگرام متصل دارد، dispatch باید موفق شود (با mock)."""
         TelegramSetting.objects.create(
@@ -143,7 +143,7 @@ class ChannelDispatcherTests(TestCase):
         self.assertIsNotNone(self.notification.sent_at)
         self.assertIn("telegram", self.notification.notification_channels or {})
 
-    @patch("notifications.handlers.telegram.send_telegram", return_value=False)
+    @patch("notifications.handlers.telegram.do_send_telegram", return_value=False)
     def test_dispatch_telegram_failure_records_failed_delivery(self, mock_send):
         """وقتی handler تلگرام شکست بخورد، رکورد Delivery با status failed و failure_reason ذخیره شود."""
         TelegramSetting.objects.create(
@@ -176,7 +176,7 @@ class ChannelDispatcherTests(TestCase):
             chat_id="123456",
             is_enabled=True,
         )
-        with patch("notifications.handlers.telegram.send_telegram", return_value=False):
+        with patch("notifications.handlers.telegram.do_send_telegram", return_value=False):
             dispatch_notification(self.notification)
         # حداقل یک delivery برای telegram با وضعیت failed
         telegram_delivery = NotificationDelivery.objects.filter(
@@ -240,7 +240,7 @@ class ProcessPendingNotificationsTests(TestCase):
         self.assertIsNotNone(already_sent.sent_at)
         self.assertEqual(already_sent.sent_at, already_sent_at)
 
-    @patch("notifications.handlers.telegram.send_telegram", return_value=True)
+    @patch("notifications.handlers.telegram.do_send_telegram", return_value=True)
     def test_process_pending_increments_success_when_dispatch_succeeds(self, mock_send):
         """وقتی dispatch موفق شود، success افزایش یابد."""
         TelegramSetting.objects.create(

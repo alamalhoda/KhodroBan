@@ -36,6 +36,10 @@ KhodroBan/
 │   │   ├── pull-request-guide.md        # راهنمای کامل Pull Request
 │   │   └── pr-quick-start.md            # راهنمای سریع Pull Request
 │   │
+│   ├── 📂 deployment/                   # مستندات استقرار
+│   │   ├── DOCKER_DEPLOYMENT.md       # دو نوع استقرار Docker (استاندارد + تک‌تصویری)
+│   │   └── CHABOKAN_NET.md            # راهنمای deploy به chabokan.net
+│   │
 │   └── 📂 technical/                     # مستندات فنی
 │       ├── backend-setup.md            # راهنمای Backend
 │       ├── frontend-setup.md           # راهنمای Frontend
@@ -105,6 +109,15 @@ KhodroBan/
 - تحلیل رقبا
 - تحقیقات کاربری (آینده)
 - مطالعات بازار (آینده)
+
+#### 📂 deployment/
+
+مستندات استقرار:
+
+- **DOCKER_DEPLOYMENT.md**: راهنمای دو نوع استقرار Docker
+  - نوع ۱: استاندارد (Multi-Container با compose)
+  - نوع ۲: تک‌تصویری (All-in-One، یک image)
+- **CHABOKAN_NET.md**: راهنمای deploy به پلتفرم chabokan.net
 
 #### 📂 technical/
 
