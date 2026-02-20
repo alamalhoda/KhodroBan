@@ -68,6 +68,7 @@ Frontend به صورت پیش‌فرض روی `http://localhost:5174` اجرا �
 - `docs/development/PAGE_REVIEW_LOG.md` - وضعیت بررسی صفحات
 - `docs/technical/reminder-system-status.md` - وضعیت Reminder/Notification
 - `docs/technical/offline-setup.md` - راهنمای اجرای آفلاین
+- `docs/technical/django-management-commands.md` - مستند دستورات مدیریتی Django
 
 ---
 
