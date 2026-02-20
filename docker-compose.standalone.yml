@@ -1,0 +1,21 @@
+# All-in-One: یک container، SQLite، بدون Redis/PostgreSQL
+# ر.ک. docs/deployment/DOCKER_DEPLOYMENT.md
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.all-in-one
+    ports:
+      - "80:80"
+    environment:
+      - DB_ENGINE=sqlite
+      - DISABLE_HUEY=true
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-change-this-in-production}
+      - ALLOWED_HOSTS=*
+    volumes:
+      - standalone-data:/app/backend/database
+      - standalone-media:/app/backend/media
+
+volumes:
+  standalone-data:
+  standalone-media:
