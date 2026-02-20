@@ -127,31 +127,43 @@ SIMPLE_JWT = {
 }
 
 # ─── Huey ───────────────────────────────────────────────────────────────────
-HUEY = {
-    'huey_class': 'huey.RedisHuey',
-    'name': 'khodroban-tasks',
-    'results': True,
-    'store_none': False,
-    'immediate': DEBUG,
-    'utc': True,
-    'connection': {
-        'host': os.environ.get('REDIS_HOST', 'localhost'),
-        'port': int(os.environ.get('REDIS_PORT', 6379)),
-        'db': int(os.environ.get('REDIS_DB', 0)),
-        'connection_pool': None,
-    },
-    'consumer': {
-        'workers': 4,
-        'worker_type': 'thread',
-        'initial_delay': 0.1,
-        'backoff': 0.2,
-        'max_delay': 10.0,
-        'scheduler_interval': 1,
-        'periodic': True,
-        'check_worker_health': True,
-        'health_check_interval': 1,
-    },
-}
+# وقتی DISABLE_HUEY=true (مثلاً All-in-One با crontab)، از MemoryHuey استفاده می‌شود.
+# در این حالت Redis لازم نیست؛ زمان‌بندی از طریق crontab انجام می‌شود.
+DISABLE_HUEY = os.environ.get("DISABLE_HUEY", "false").lower() in ("true", "1", "yes")
+if DISABLE_HUEY:
+    HUEY = {
+        'huey_class': 'huey.MemoryHuey',
+        'name': 'khodroban-tasks',
+        'results': False,
+        'store_none': False,
+        'immediate': True,
+    }
+else:
+    HUEY = {
+        'huey_class': 'huey.RedisHuey',
+        'name': 'khodroban-tasks',
+        'results': True,
+        'store_none': False,
+        'immediate': DEBUG,
+        'utc': True,
+        'connection': {
+            'host': os.environ.get('REDIS_HOST', 'localhost'),
+            'port': int(os.environ.get('REDIS_PORT', 6379)),
+            'db': int(os.environ.get('REDIS_DB', 0)),
+            'connection_pool': None,
+        },
+        'consumer': {
+            'workers': 4,
+            'worker_type': 'thread',
+            'initial_delay': 0.1,
+            'backoff': 0.2,
+            'max_delay': 10.0,
+            'scheduler_interval': 1,
+            'periodic': True,
+            'check_worker_health': True,
+            'health_check_interval': 1,
+        },
+    }
 
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 
