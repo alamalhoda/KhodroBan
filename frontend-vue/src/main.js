@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import './style.css'
-import '@fortawesome/fontawesome-free/css/all.min.css'
+/* Font Awesome loaded from public/fontawesome-pro-7.1.0-web/ via index.html (offline policy) */
 import App from './App.vue'
 import router from './router'
 import i18n from './i18n'
