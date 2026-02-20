@@ -6,9 +6,8 @@
 
 ## آخرین همگام‌سازی
 
-- **تاریخ:** 2026-02-16
-- **مبنای بازبینی:** برنچ `feature/ai_assistant` و تغییرات مشاور هوشمند
-- **تمرکز:** AI Assistant (backend-first)، تاریخچه گفتگوها، context خودرو/سرویس/هزینه، قرارداد API
+- **تاریخ:** 2026-02-20
+- **مبنای بازبینی:** برنچ `develop`، وضعیت واقعی تست‌ها (131 backend + 287 frontend)
 
 ---
 
@@ -66,7 +65,7 @@
 - **۲. تست frontend:** دارد — DashboardView.test.js
 - **۳. ارتباط با backend:** فقط Django (vehicle, service, reminder, expense از shared با Django impl)
 - **۴. زیرساخت Django:** VehicleViewSet, ServiceViewSet, ReminderViewSet, DailyExpenseViewSet — کافی
-- **۵. تست backend:** ناقص — فقط vehicles و auth؛ services/expenses/reminders بدون تست API
+- **۵. تست backend:** دارد — test_api_vehicles، test_api_services، test_api_expenses، test_api_reminders
 - **۶. مدیریت خطا:** یکپارچه
 - **۷. i18n:** ناقص
 - **۸. a11y:** نیاز به بهبود
@@ -191,7 +190,7 @@
 ## Reports
 
 - **۱. ساختار:** مطابق (ReportsView + report store + reportService)
-- **۲. تست frontend:** ناقص
+- **۲. تست frontend:** دارد — ReportsView.test.js
 - **۳. ارتباط با backend:** فقط Django — GET /api/reports/summary/ (فیلتر vehicle_id, date_from, date_to)، GET /api/services/ و GET /api/expenses/ برای جدول هزینه‌های اخیر و خروجی CSV سمت کلاینت
 - **۴. زیرساخت Django:** ReportSummaryView (فیلتر تاریخ، totalKm، costByMonth فیلترشده) — کافی برای MVP
 - **۵. تست backend:** دارد — test_reports.py (احراز هویت، پاسخ خالی، فیلتر vehicle_id، فیلتر date_from/date_to)
@@ -223,7 +222,7 @@
 ## Smart Assistant
 
 - **۱. ساختار:** مطابق (SmartAssistantView + ai store + aiAssistantService)
-- **۲. تست frontend:** ناقص — store/service از Django؛ تست view در backlog
+- **۲. تست frontend:** دارد — SmartAssistantView.test.js؛ store و service از Django تست شده
 - **۳. ارتباط با backend:** فقط Django — GET/POST `/api/ai/sessions/`، GET `/api/ai/sessions/<id>/messages/`، POST `/api/ai/sessions/<id>/messages/send/` (با `content` و اختیاری `vehicle_id`)، GET `/api/ai/providers/`
 - **۴. زیرساخت Django:** اپ `ai_assistant` (ChatSessionViewSet، send_message با orchestrator، context builder، memory، provider factory)
 - **۵. تست backend:** دارد — ai_assistant.tests (orchestrator، context_builder، views، provider_factory)

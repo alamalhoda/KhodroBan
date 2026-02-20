@@ -4,7 +4,7 @@
 
 پایه URL API (Django): `/api/` (مثلاً `http://localhost:8000/api`).
 
-**آخرین همگام‌سازی:** 2026-02-16 (AI Assistant: vehicle_id، context، تاریخچه UI)
+**آخرین همگام‌سازی:** 2026-02-20
 
 ---
 

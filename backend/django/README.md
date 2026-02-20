@@ -60,19 +60,21 @@ mv db.sqlite3 database/
 
 ## اجرای تست‌ها
 
+پروژه از **pytest** با django-pytest و coverage استفاده می‌کند:
+
 ```bash
 source backend/django/venv/bin/activate
 cd backend/django
-python manage.py test
+pytest
 ```
 
 اجرای یک ماژول خاص:
 
 ```bash
-source backend/django/venv/bin/activate
-cd backend/django
-python manage.py test khodroban.tests.test_api_reminders
+pytest khodroban/tests/test_api_reminders.py
 ```
+
+گزارش coverage در `htmlcov/` تولید می‌شود (پیکربندی در `pytest.ini`).
 
 ---
 
