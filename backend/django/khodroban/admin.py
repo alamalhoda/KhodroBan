@@ -133,6 +133,7 @@ class VehicleAdmin(admin.ModelAdmin):
         "icon_name",
         "icon_style",
         "icon_color",
+        "icon_color_secondary",
         "user_profile",
         "updated_at",
     )

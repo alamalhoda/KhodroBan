@@ -6,23 +6,19 @@ Django settings for KhodroBan project.
 from pathlib import Path
 import os
 import sys
-import hashlib
 from datetime import timedelta
 
 # Build paths: parent of this file is khodroban_prj, parent.parent = backend/django
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-def _build_local_secret_key() -> str:
-    """Build a deterministic local-only fallback key when env is missing."""
-    seed = f"{BASE_DIR}:{os.environ.get('USER', 'local-user')}"
-    return hashlib.sha256(seed.encode("utf-8")).hexdigest()
-
-
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or _build_local_secret_key()
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-تغییر-این-مقدار-در-محیط-واقعی-ضروری-است")
 DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [
+    'reminders.apps.RemindersConfig',
+    'notifications.apps.NotificationsConfig',
+    'ai_assistant.apps.AiAssistantConfig',
     'khodroban.apps.KhodrobanConfig',  # قبل از auth تا override قالب read_only_password_hash لود شود
     'corsheaders',
     'django.contrib.admin',
@@ -66,23 +62,27 @@ TEMPLATES = [
         },
     },
 ]
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite").lower()
+if DB_ENGINE == "postgresql":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('POSTGRES_DB', 'khodroban_db'),
+            'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        }
     }
-}
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('POSTGRES_DB', 'khodroban_db'),
-#         'USER': os.environ.get('POSTGRES_USER', 'postgres'),
-#         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
-#         'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-#         'PORT': os.environ.get('POSTGRES_PORT', '5432'),
-#     }
-# }
+else:
+    DB_DIR = BASE_DIR / 'database'
+    DB_DIR.mkdir(parents=True, exist_ok=True)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': DB_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -127,31 +127,43 @@ SIMPLE_JWT = {
 }
 
 # ─── Huey ───────────────────────────────────────────────────────────────────
-HUEY = {
-    'huey_class': 'huey.RedisHuey',
-    'name': 'khodroban-tasks',
-    'results': True,
-    'store_none': False,
-    'immediate': DEBUG,
-    'utc': True,
-    'connection': {
-        'host': os.environ.get('REDIS_HOST', 'localhost'),
-        'port': int(os.environ.get('REDIS_PORT', 6379)),
-        'db': int(os.environ.get('REDIS_DB', 0)),
-        'connection_pool': None,
-    },
-    'consumer': {
-        'workers': 4,
-        'worker_type': 'thread',
-        'initial_delay': 0.1,
-        'backoff': 0.2,
-        'max_delay': 10.0,
-        'scheduler_interval': 1,
-        'periodic': True,
-        'check_worker_health': True,
-        'health_check_interval': 1,
-    },
-}
+# وقتی DISABLE_HUEY=true (مثلاً All-in-One با crontab)، از MemoryHuey استفاده می‌شود.
+# در این حالت Redis لازم نیست؛ زمان‌بندی از طریق crontab انجام می‌شود.
+DISABLE_HUEY = os.environ.get("DISABLE_HUEY", "false").lower() in ("true", "1", "yes")
+if DISABLE_HUEY:
+    HUEY = {
+        'huey_class': 'huey.MemoryHuey',
+        'name': 'khodroban-tasks',
+        'results': False,
+        'store_none': False,
+        'immediate': True,
+    }
+else:
+    HUEY = {
+        'huey_class': 'huey.RedisHuey',
+        'name': 'khodroban-tasks',
+        'results': True,
+        'store_none': False,
+        'immediate': DEBUG,
+        'utc': True,
+        'connection': {
+            'host': os.environ.get('REDIS_HOST', 'localhost'),
+            'port': int(os.environ.get('REDIS_PORT', 6379)),
+            'db': int(os.environ.get('REDIS_DB', 0)),
+            'connection_pool': None,
+        },
+        'consumer': {
+            'workers': 4,
+            'worker_type': 'thread',
+            'initial_delay': 0.1,
+            'backoff': 0.2,
+            'max_delay': 10.0,
+            'scheduler_interval': 1,
+            'periodic': True,
+            'check_worker_health': True,
+            'health_check_interval': 1,
+        },
+    }
 
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 
@@ -174,6 +186,7 @@ LOGGING = {
     'loggers': {
         '': {'handlers': ['console'], 'level': 'INFO'},
         'khodroban': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False},
+        'ai_assistant': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
         'huey': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
     },
 }
@@ -203,6 +216,19 @@ CORS_ALLOW_HEADERS = [
     "dnt", "origin", "user-agent", "x-csrftoken", "x-requested-with",
 ]
 CORS_ALLOW_METHODS = ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"]
+
+# ─── AI Assistant ───────────────────────────────────────────────────────────
+AI_DEFAULT_PROVIDER = os.environ.get('AI_DEFAULT_PROVIDER', 'openai')
+AI_ALLOWED_PROVIDERS = ['openai', 'openrouter', 'zai']
+AI_BASE_URL = os.environ.get('AI_BASE_URL')
+AI_API_KEY = os.environ.get('AI_API_KEY')
+AI_MODEL = os.environ.get('AI_MODEL', 'gpt-3.5-turbo')
+AI_OPENAI_BASE_URL = os.environ.get('AI_OPENAI_BASE_URL', AI_BASE_URL)
+AI_OPENAI_API_KEY = os.environ.get('AI_OPENAI_API_KEY', AI_API_KEY)
+AI_OPENROUTER_BASE_URL = os.environ.get('AI_OPENROUTER_BASE_URL')
+AI_OPENROUTER_API_KEY = os.environ.get('AI_OPENROUTER_API_KEY')
+AI_ZAI_BASE_URL = os.environ.get('AI_ZAI_BASE_URL')
+AI_ZAI_API_KEY = os.environ.get('AI_ZAI_API_KEY')
 
 # ─── امنیت (تولید) ─────────────────────────────────────────────────────────
 if not DEBUG:

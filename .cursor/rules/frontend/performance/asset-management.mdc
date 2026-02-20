@@ -55,7 +55,7 @@ alwaysApply: false
 ### Optimization
 - از image optimization استفاده کن
 - از compression استفاده کن
-- از CDN استفاده کن
+- برای این پروژه از CDN اینترنتی استفاده نکن؛ از نسخه محلی/آفلاین استفاده کن (ر.ک. `share/offline-no-cdn-policy.mdc`)
 
 ### Caching
 - از proper cache headers استفاده کن

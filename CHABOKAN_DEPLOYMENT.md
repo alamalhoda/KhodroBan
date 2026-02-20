@@ -1,88 +1,80 @@
 # 🚀 آماده‌سازی برای Deploy به chabokan.net
 
-این branch شامل تمام فایل‌ها و تنظیمات لازم برای deploy به chabokan.net است.
+این branch شامل فایل‌ها و تنظیمات لازم برای deploy به chabokan.net است.
 
-## 📁 فایل‌های اضافه شده
+## 📁 فایل‌های مرتبط
 
 ### برای Static Site (توصیه می‌شود)
-- `frontend/public/.htaccess` - تنظیمات Apache برای SPA routing
-- `docs/deployment/CHABOKAN_NET.md` - راهنمای کامل
-
-### برای Node.js
-- `package.chabokan.json` - Package.json برای Node.js deployment
+- `frontend-vue/public/` – فایل‌های static
+- `docs/deployment/CHABOKAN_NET.md` – راهنمای کامل
 
 ### برای Docker
-- `Dockerfile` - برای build و serve با nginx
-- `nginx.conf` - تنظیمات nginx
-- `.dockerignore` - فایل‌های غیرضروری
+- `docker-compose.yml` – Backend (Django + PostgreSQL) + Frontend (Vue) + Redis + Huey
+- `docker-compose.lite.yml` – نسخه سبک با SQLite (بدون PostgreSQL)
+- `frontend-vue/Dockerfile` – build و serve frontend با nginx
+- `backend/django/Dockerfile` – Backend Django
+- `frontend-vue/nginx.conf` – تنظیمات nginx (SPA + proxy به API)
+- `.env.example` – نمونه متغیرهای محیطی
+- `.dockerignore` – فایل‌های غیرضروری
 
 ## 🎯 مراحل Deploy
 
-### گزینه 1: Static Site (ساده‌ترین)
+### گزینه 1: Static Site (ساده‌ترین – فقط frontend)
 
 ```bash
-# 1. Build
-cd frontend
+cd frontend-vue
+npm install
 npm run build
-
-# 2. فایل‌های build/ را به chabokan.net آپلود کنید
-# 3. فایل .htaccess را هم در root قرار دهید
 ```
 
-### گزینه 2: Node.js
+خروجی در `frontend-vue/dist/` است. محتوای آن را آپلود کنید. برای SPA routing فایل `.htaccess` لازم است (مطابق `docs/deployment/CHABOKAN_NET.md`).
+
+**توجه:** در این حالت Backend جداگانه باید در جای دیگری (مثلاً Django hosting) اجرا شود.
+
+### گزینه 2: Docker (کامل – Backend + Frontend)
 
 ```bash
-# 1. از package.chabokan.json استفاده کنید
-cp package.chabokan.json package.json
+cp .env.example .env
+# ویرایش .env و تنظیم DJANGO_SECRET_KEY و سایر متغیرها
 
-# 2. Build
+# نسخه کامل با PostgreSQL:
+docker compose up -d
+
+# یا نسخه سبک با SQLite:
+docker compose -f docker-compose.lite.yml up -d
+```
+
+در chabokan.net (اگر Docker Compose پشتیبانی شود):
+- Docker Compose path: `docker-compose.yml` یا `docker-compose.lite.yml`
+- Port: `80` (frontend) یا `5174` (بسته به پیکربندی)
+
+### گزینه 3: Node.js (فقط frontend با API جداگانه)
+
+```bash
+cd frontend-vue
+npm install
 npm run build
-
-# 3. در chabokan.net:
-#    - Start command: npm start
-#    - Port: 3000 (یا از environment variable)
+npm run preview  # یا serve با port مناسب
 ```
 
-### گزینه 3: Docker
+## ⚙️ Environment Variables
 
-```bash
-# 1. در chabokan.net:
-#    - Dockerfile path: Dockerfile
-#    - Port: 80
-#    - Build خودکار انجام می‌شود
-```
-
-## ⚙️ تنظیمات
-
-### svelte.config.js
-
-برای chabokan.net، base path به صورت خودکار خالی است (چون `STATIC_PAGES` تنظیم نمی‌شود):
-
-```javascript
-paths: {
-  base: process.env.STATIC_PAGES === 'true' ? `/${process.env.REPO_NAME || 'KhodroBan'}` : ''
-}
-```
-
-### Environment Variables
-
-در chabokan.net این متغیرها را اضافه کنید:
+برای Docker، متغیرهای `.env.example` را کپی و تنظیم کنید:
 
 ```env
-VITE_BACKEND_TYPE=supabase
-VITE_SUPABASE_URL=https://zwrzokyzjwircrhrtyyi.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
+DB_ENGINE=sqlite
+DJANGO_SECRET_KEY=...
+REDIS_HOST=redis
 ```
 
 ## ✅ چک‌لیست قبل از Deploy
 
-- [ ] Build موفق انجام شده (`npm run build`)
-- [ ] فایل `index.html` در root قرار دارد
-- [ ] پوشه `_app/` در دسترس است
-- [ ] فایل `.htaccess` برای Static Site اضافه شده
-- [ ] Environment variables تنظیم شده‌اند
+- [ ] Build موفق (`npm run build` در frontend-vue)
+- [ ] فایل `index.html` در `dist/` است
+- [ ] `.env` تنظیم شده (برای Docker)
+- [ ] `ALLOWED_HOSTS` شامل دامنه production است
 
-## 📚 راهنمای کامل
+## 📚 راهنماها
 
-برای جزئیات بیشتر، به `docs/deployment/CHABOKAN_NET.md` مراجعه کنید.
-
+- **Docker (دو نوع استقرار):** `docs/deployment/DOCKER_DEPLOYMENT.md` – استقرار استاندارد و تک‌تصویری
+- **chabokan.net:** `docs/deployment/CHABOKAN_NET.md`

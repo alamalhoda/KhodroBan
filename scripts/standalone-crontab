@@ -1,0 +1,7 @@
+# All-in-One: زمان‌بندی یادآوری‌ها (بدون Huey/Redis)
+# check_reminders: هر روز ۹ صبح
+0 9 * * * cd /app/backend && python manage.py run_check_reminders >> /var/log/cron.log 2>&1
+# process_outbox: هر ۵ دقیقه
+*/5 * * * * cd /app/backend && python manage.py run_process_outbox >> /var/log/cron.log 2>&1
+# process_pending_notifications: هر ۵۰ دقیقه
+*/50 * * * * cd /app/backend && python manage.py run_process_pending_notifications >> /var/log/cron.log 2>&1

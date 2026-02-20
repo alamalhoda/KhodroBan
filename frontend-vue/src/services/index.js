@@ -17,4 +17,5 @@ export { expenseCategoryService } from './expenseCategoryService';
 export { telegramService } from './telegramService';
 export { analyzeCarIssue, isAIServiceConfigured } from '@services/ai';
 export { aiService } from '@services/aiService';
+export { aiAssistantService } from './aiAssistantService';
 

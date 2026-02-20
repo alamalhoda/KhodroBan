@@ -1,71 +1,67 @@
-## TODOهای مربوط به سرویس هوش مصنوعی (AI)
+## TODOهای سرویس هوش مصنوعی (AI)
 
-این فایل لیست کارهای باز و وضعیت فعلی سرویس AI را شرح می‌دهد.
+این فایل وضعیت واقعی و backlog فعلی AI Assistant را تا بعد از `PR #37` نگه می‌دارد.
 
-### 1. وضعیت فعلی (Mock + اتصال واقعی به Proxy)
+---
 
-- **دو حالت پشتیبانی‌شده**
-  1. **Mock**: با `VITE_AI_USE_MOCK=true` فقط پاسخ تستی برمی‌گردد (بدون فراخوانی بیرونی). برای dev/demo.
-  2. **واقعی از طریق Proxy**: با تنظیم `VITE_AI_PROXY_URL` یا `VITE_OPENROUTER_API_URL` / `VITE_OPENAI_API_URL` به آدرس proxy (مثلاً Supabase Edge Function `ai-proxy`)، درخواست واقعی به `/chat/completions` ارسال می‌شود. API Key در سرور (Supabase Secrets) نگهداری می‌شود.
-- **تعویض سرویس‌دهنده**
-  - فرانت به یک **URL پایه** وابسته است، نه به نام سرویس. برای استفاده از سرویس دیگری (غیر از Supabase) کافی است همان URL را در env عوض کنید (مثلاً به یک BFF یا سرویس دیگر).
-- **حذف Gemini از مسیر فرانت‌اند**
-  - در `shared/services/ai/index.ts` فقط `OpenAIProvider` (openai/openrouter) استفاده می‌شود. پشتیبانی Gemini در صورت نیاز در backend/proxy انجام می‌شود.
-- **وضعیت فرانت‌اند Smart Assistant**
-  - ویو و استور از `aiService.analyzeCarIssue` استفاده می‌کنند. با Mock پاسخ تستی، با Proxy پاسخ واقعی از AI دریافت می‌شود.
+## 1) وضعیت واقعی فعلی (Backend-first)
 
-### 2. کارهایی که بعداً باید انجام شود
+### ✅ انجام‌شده
 
-#### 2.1. بازگرداندن و تکمیل پشتیبانی Gemini
+- مسیر اصلی AI روی Django فعال است:
+  - `GET/POST /api/ai/sessions/`
+  - `GET /api/ai/sessions/<id>/messages/`
+  - `POST /api/ai/sessions/<id>/messages/send/`
+  - `GET /api/ai/providers/`
+- در `send_message` امکان ارسال `vehicle_id` وجود دارد و context شامل:
+  - خودروی انتخاب‌شده
+  - آخرین سرویس‌ها
+  - آخرین هزینه‌ها
+- تاریخچه گفتگو در دیتابیس ذخیره می‌شود (Session/Message).
+- فرانت در `SmartAssistantView`:
+  - لیست تاریخچه گفتگو
+  - انتخاب سشن
+  - شروع گفتگوی جدید
+  - ارسال پیام با `vehicle_id`
+- providerهای backend: `openai`, `openrouter`, `zai`.
+- مستندات فنی همگام موجود است:
+  - `docs/technical/ai-assistant-architecture.md`
+  - `docs/development/API_CONTRACT_REGISTRY.md`
 
-- **فعال‌سازی دوباره `GeminiProvider`**
-  - بازگرداندن ایمپورت `GeminiProvider` در `shared/services/ai/index.ts`.
-  - اصلاح `createAIProvider` تا دوباره case مربوط به `gemini` را مدیریت کند.
-- **بررسی و تثبیت پکیج `@google/genai`**
-  - تصمیم‌گیری نهایی درباره‌ی این‌که:
-    - آیا `@google/genai` فقط در backend استفاده شود (ترجیح امنیتی)، و
-    - یا یک لایه‌ی proxy/bff بین فرانت و Gemini قرار بگیرد تا API key در مرورگر لو نرود.
-  - اگر `@google/genai` فقط سروری باشد:
-    - اطمینان از این‌که هیچ import مستقیمی از این پکیج در باندل فرانت (`frontend-vue`) انجام نشود.
-    - جا‌به‌جا کردن `GeminiProvider` به لایه‌ی backend مناسب، یا ایجاد نسخه‌ی مجزا برای backend.
+---
 
-#### 2.2. پیاده‌سازی واقعی OpenAI / OpenRouter (انجام‌شده)
+## 2) اولویت‌های باز (High Priority)
 
-- **Mock حفظ شده؛ مسیر واقعی اضافه شده**
-  - `shared/services/ai/providers/openai.ts`: با `useMock=true` پاسخ Mock؛ با `baseURL` (مثلاً Supabase ai-proxy) فراخوانی واقعی به `/chat/completions` با `fetch`. API Key در حالت proxy از فرانت ارسال نمی‌شود.
-- **همگام‌سازی با `.env`**
-  - **Mock**: `VITE_AI_USE_MOCK=true` (نیازی به API Key یا URL نیست).
-  - **واقعی با Proxy (مثلاً Supabase)**:
-    - `VITE_AI_PROVIDER=openai` یا `openrouter`
-    - `VITE_AI_PROXY_URL` یا `VITE_OPENROUTER_API_URL` یا `VITE_OPENAI_API_URL` = آدرس proxy (مثلاً `https://YOUR_PROJECT_REF.supabase.co/functions/v1/ai-proxy`)
-    - `VITE_AI_API_KEY` در حالت proxy لازم نیست (می‌توان خالی یا dummy باشد).
-    - `VITE_AI_MODEL_EXPERT`, `VITE_AI_MODEL_FAST`, `VITE_AI_MODEL_MAPS` برای مدل‌های پیش‌فرض.
+- [ ] افزایش پوشش تست فرانت برای `SmartAssistantView` (UI flow کامل، session switch، error state).
+- [ ] بهبود UX خطاها (rate limit/timeout/provider error) با پیام‌های دقیق‌تر و recoverable action.
+- [ ] ثبت telemetry پایه برای خطاهای AI (backend log context + frontend trace id ساده).
 
-#### 2.3. تمیزکاری Vite و وابستگی‌ها
+---
 
-- **بهینه‌سازی `frontend-vue/vite.config.js`**
-  - بررسی این‌که آیا هنوز لازم است `openai` و `persian-date` در `optimizeDeps.include` باقی بمانند یا خیر.
-    - اگر `openai` فقط در backend استفاده شود یا با `fetch` دستی جایگزین شود، می‌توان آن را از این لیست و حتی از `dependencies` حذف کرد.
-- **مرور `package.json`**
-  - اگر در نسخه‌ی نهایی از `@google/genai` در فرانت استفاده نشود، آن را از `dependencies` فرانت حذف کنیم.
-  - بررسی نیاز واقعی به `persian-date` در UI (اگر استفاده نمی‌شود، حذف برای کاهش حجم وابستگی‌ها).
+## 3) اولویت متوسط
 
-#### 2.4. تست و پوشش‌دهی
+- [ ] تعریف policy واضح برای سوالات off-topic:
+  - ادامه صرفا با prompt steering (وضعیت فعلی)، یا
+  - افزودن validator ساده قبل از orchestrator.
+- [ ] اضافه کردن تست‌های performance سبک برای سنجش latency API AI در سناریوهای معمول.
+- [ ] مستندسازی سناریوهای fallback provider در محیط staging/production.
 
-- **به‌روزرسانی تست‌ها**
-  - فایل `shared/services/ai/__tests__/providers.test.ts` اکنون تست‌هایی برای نسخه‌ی واقعی OpenAI/Gemini دارد.
-  - وقتی پیاده‌سازی واقعی برگردد:
-    - تست‌ها را با وضعیت جدید هماهنگ کنیم (یا تست‌های جدید برای لایه‌ی backend بنویسیم).
-  - اگر قرار است نسخه‌ی Mock برای فرانت حفظ شود:
-    - تست جداگانه‌ای برای رفتار Mock (مثلاً برگرداندن `metadata.mock === true`) اضافه شود.
+---
 
-#### 2.5. تکمیل تجربه‌ی Smart Assistant
+## 4) آینده / اختیاری
 
-- **اتصال مکالمه‌ی واقعی به AI**
-  - با تنظیم proxy (مثلاً Supabase ai-proxy)، `aiService.analyzeCarIssue` به همان proxy درخواست می‌فرستد و پاسخ واقعی دریافت می‌کند. ساختار پاسخ (`text`, `groundingChunks`, `metadata`) با فرانت سازگار است.
-- **مدیریت خطا و وضعیت‌ها**
-  - طراحی استراتژی نهایی برای:
-    - نمایش خطاهای شبکه / rate limit به کاربر.
-    - هندل‌کردن timeouts و retryها.
-    - لاگ‌کردن خطاها در backend برای تشخیص مشکلات.
+- [ ] بررسی افزودن provider جدید (در صورت نیاز واقعی کسب‌وکار).
+- [ ] ابزار تبدیل پاسخ AI به action واقعی (ایجاد سرویس/یادآور با تایید کاربر).
+- [ ] بهبود prompt tuning برای کاهش پاسخ‌های طولانی/کم‌دقت.
+
+---
+
+## 5) نکات اجرایی
+
+- مسیر legacy مبتنی بر proxy فرانت، مبنای فعلی محصول نیست؛ مرجع اصلی، معماری backend-first است.
+- هر تغییر در AI باید همزمان در این فایل، `frontend-vue/TODO.md` و `docs/development/API_CONTRACT_REGISTRY.md` منعکس شود.
+
+---
+
+**آخرین به‌روزرسانی:** 2026-02-20
 

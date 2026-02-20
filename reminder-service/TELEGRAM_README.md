@@ -1,8 +1,15 @@
 # سیستم یادآوری تلگرام
 
-## 📋 خلاصه
+> **⚠️ منسوخ (Deprecated)**  
+> Webhook و ارسال تلگرام اکنون در **Django** انجام می‌شود (`backend/django/khodroban/`, webhook و Huey tasks).  
+> **مرجع:** [reminder-notification-api-blueprint.md](../docs/technical/reminder-notification-api-blueprint.md) §۴ (Telegram Parity) و [reminder-system-status.md](../docs/technical/reminder-system-status.md).  
+> این فایل فقط برای آرشیو نگه‌داری شده است.
 
-این سرویس یادآوری سرویس دوره‌ای خودروها را از طریق **تلگرام** ارسال می‌کند.
+---
+
+## 📋 خلاصه (آرشیو)
+
+این سرویس یادآوری سرویس دوره‌ای خودروها را از طریق **تلگرام** ارسال می‌کرد.
 
 **ویژگی‌ها:**
 - ✅ کاملاً رایگان

@@ -1,42 +1,57 @@
 # TODO - Backend Django (KhodroBan)
 
-به‌روزرسانی‌شده بر اساس وضعیت فعلی کد و PRهای اخیر (`#21` تا `#30`).
+این فایل بر اساس وضعیت واقعی کد و PRهای merge شده تا `#37` به‌روز شده است.
 
 ---
 
 ## ✅ انجام‌شده‌های اخیر
 
-- تست‌های API مربوط به `reports` تکمیل و پایدار شد.
-- API و تست‌های `reminders` گسترش یافت (CRUD، dismiss، by_vehicle، user list).
-- `ServicePreset` و endpoint مربوط اضافه شد.
-- ساختار مدل‌ها برای PK/related_name نرمال شد (`id`, `ServiceItem`).
-- مسیر ثبت سرویس با `types/items` و ثبت `VehicleKmHistory` تکمیل شد.
+- **AI Assistant (PR #37):** اپ `ai_assistant` با مدل‌های `ChatSession`/`ChatMessage`، API سشن و پیام، `vehicle_id` اختیاری، Context Builder، Memory Service، Provider Factory (`openai/openrouter/zai`) و throttle.
+- **Reminder/Notification (PR #36):** معماری Outbox، Notification API کامل، ChannelDispatcher با fallback، مدل‌های delivery/preference و مسیر آرشیو `reminder-service`.
+- **Offline track و contractهای مرتبط (PR #35):** هم‌راستاسازی چند بخش backend/frontend contract (icon color secondary و asset policy).
+- **Expense flow integration (PR #31):** بهبود serializerها و تست‌های API هزینه.
+- **Reports/Services/Reminders:** APIها و تست‌های عملیاتی در وضعیت پایدار MVP هستند.
 
 ---
 
 ## 🔴 اولویت بالا
 
-- [ ] تکمیل تست‌های API برای `telegram-settings` و webhook با سناریوهای خطا
-- [ ] تکمیل تست‌های امنیتی/سخت‌گیری برای CORS و auth error flows
-- [ ] اضافه‌کردن health check endpoint ساده برای مانیتورینگ
-- [ ] تعریف regression suite سریع برای endpointهای بحرانی (`auth`, `vehicles`, `services`, `reminders`, `reports`)
+- [ ] تکمیل تست‌های API برای `telegram-settings` و `POST /telegram/webhook/` با سناریوهای خطا/edge.
+- [ ] تعریف regression suite سریع برای endpointهای بحرانی:
+  - [ ] `auth`
+  - [ ] `vehicles`
+  - [ ] `services`
+  - [ ] `expenses`
+  - [ ] `reminders`
+  - [ ] `reports`
+- [ ] تکمیل تست‌های امنیتی (auth error flows, permission boundaries, abuse cases).
 
 ---
 
 ## 🟡 اولویت متوسط
 
-- [ ] مستندسازی OpenAPI/Swagger (drf-spectacular یا معادل)
-- [ ] rate limiting برای endpointهای حساس
-- [ ] بهبود logging ساختاریافته (request id / error context)
-- [ ] آماده‌سازی سناریوهای تست export/report در صورت اضافه شدن PDF
+- [ ] مستندسازی OpenAPI/Swagger (ترجیحا `drf-spectacular`).
+- [ ] سخت‌گیری بیشتر rate limit برای endpointهای حساس (AI/auth/report-heavy).
+- [ ] بهبود logging ساختاریافته (request-id, correlation-id, error context).
+- [ ] آماده‌سازی contract سمت backend برای export PDF (فعلا backlog).
 
 ---
 
 ## 🟢 آینده
 
-- [ ] کانال‌های اعلان تکمیلی (SMS/Push) در backend
-- [ ] endpointهای پرداخت/اشتراک برای Upgrade (در صورت نهایی شدن scope)
+- [ ] اتصال providerهای واقعی Email/SMS/Push (اسکلت آماده است).
+- [ ] endpointهای Upgrade/Subscription بعد از نهایی‌شدن scope محصول.
 
 ---
 
-**آخرین به‌روزرسانی:** 2026-02-14
+## 🔗 اسناد مرتبط
+
+- `backend/django/README.md`
+- `docs/development/API_CONTRACT_REGISTRY.md`
+- `docs/technical/reminder-system-status.md`
+- `docs/technical/notification-channel-providers.md`
+- `docs/technical/ai-assistant-architecture.md`
+
+---
+
+**آخرین به‌روزرسانی:** 2026-02-20

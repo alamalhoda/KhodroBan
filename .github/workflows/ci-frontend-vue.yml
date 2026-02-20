@@ -33,6 +33,12 @@ jobs:
         working-directory: ./frontend-vue
         run: npm ci
 
+      # Force-install native binaries for Linux (npm optional deps bug: https://github.com/npm/cli/issues/4828)
+      - name: Install native binaries (Rollup, LightningCSS, Tailwind Oxide)
+        working-directory: ./frontend-vue
+        run: |
+          npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu @tailwindcss/oxide-linux-x64-gnu --no-save
+
       - name: Run tests
         working-directory: ./frontend-vue
         env:
@@ -59,6 +65,11 @@ jobs:
       - name: Install dependencies
         working-directory: ./frontend-vue
         run: npm ci
+
+      - name: Install native binaries (Rollup, LightningCSS, Tailwind Oxide)
+        working-directory: ./frontend-vue
+        run: |
+          npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu @tailwindcss/oxide-linux-x64-gnu --no-save
 
       - name: Build project
         working-directory: ./frontend-vue

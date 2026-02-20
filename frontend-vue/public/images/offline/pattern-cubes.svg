@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" role="img" aria-label="Offline cube pattern">
+  <rect width="80" height="80" fill="transparent" />
+  <g fill="#ffffff" opacity="0.2">
+    <path d="M20 10l10 6v12l-10 6-10-6V16z" />
+    <path d="M60 10l10 6v12l-10 6-10-6V16z" />
+    <path d="M40 34l10 6v12l-10 6-10-6V40z" />
+  </g>
+</svg>

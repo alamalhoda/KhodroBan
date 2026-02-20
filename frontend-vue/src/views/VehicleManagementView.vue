@@ -5,7 +5,9 @@ import { useI18n } from 'vue-i18n'
 import MainLayout from '../components/MainLayout.vue'
 import { useVehicleStore } from '../stores/vehicle'
 import { useUIStore } from '../stores/ui'
-import { VEHICLE_ICONS, VEHICLE_ICON_STYLES, DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR } from '../config/vehicleIcons'
+import { VEHICLE_ICON_STYLES, VEHICLE_PREFERRED_ICON_NAMES, DEFAULT_VEHICLE_ICON, DEFAULT_VEHICLE_ICON_STYLE, DEFAULT_VEHICLE_ICON_COLOR, DEFAULT_VEHICLE_ICON_COLOR_SECONDARY } from '../config/vehicleIcons'
+import { ALL_FONT_AWESOME_ICON_NAMES } from '../config/fontAwesomeIconNames'
+import IconPickerDropdown from '../components/IconPickerDropdown.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -25,7 +27,8 @@ const formData = ref({
   note: '',
   iconName: DEFAULT_VEHICLE_ICON,
   iconStyle: DEFAULT_VEHICLE_ICON_STYLE,
-  iconColor: DEFAULT_VEHICLE_ICON_COLOR
+  iconColor: DEFAULT_VEHICLE_ICON_COLOR,
+  iconColorSecondary: DEFAULT_VEHICLE_ICON_COLOR_SECONDARY
 })
 
 const formErrors = ref({})
@@ -87,7 +90,8 @@ const handleSubmit = async () => {
       note: formData.value.note.trim() || undefined,
       iconName: formData.value.iconName || undefined,
       iconStyle: formData.value.iconStyle || undefined,
-      iconColor: formData.value.iconColor || undefined
+      iconColor: formData.value.iconColor || undefined,
+      iconColorSecondary: formData.value.iconColorSecondary || undefined
     }
     
     if (isEditMode.value && vehicleId.value) {
@@ -147,7 +151,8 @@ onMounted(async () => {
           note: vehicle.note || '',
           iconName: vehicle.iconName || DEFAULT_VEHICLE_ICON,
           iconStyle: vehicle.iconStyle || DEFAULT_VEHICLE_ICON_STYLE,
-          iconColor: vehicle.iconColor || DEFAULT_VEHICLE_ICON_COLOR
+          iconColor: vehicle.iconColor || DEFAULT_VEHICLE_ICON_COLOR,
+          iconColorSecondary: vehicle.iconColorSecondary ?? DEFAULT_VEHICLE_ICON_COLOR_SECONDARY
         }
       }
     } catch (error) {
@@ -253,39 +258,21 @@ onMounted(async () => {
             </label>
           </div>
 
-          <!-- Note -->
-          <label class="flex flex-col gap-2">
-            <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ t('vehicles.form.note') }}</span>
-            <textarea 
-              v-model="formData.note"
-              class="form-textarea w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white min-h-[100px] p-4 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow resize-y" 
-              :placeholder="t('vehicles.form.notePlaceholder')"
-            ></textarea>
-          </label>
-
           <!-- Icon & Color -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="flex flex-col gap-2">
               <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ t('vehicles.vehicleIcon') }}</span>
-              <div class="flex flex-wrap gap-2">
-                <button
-                  v-for="opt in VEHICLE_ICONS"
-                  :key="opt.name"
-                  type="button"
-                  :class="[
-                    'w-11 h-11 rounded-xl border-2 flex items-center justify-center transition-colors',
-                    formData.iconName === opt.name
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-[#dcdfe4] dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500'
-                  ]"
-                  :style="{ color: formData.iconName === opt.name ? formData.iconColor : undefined }"
-                  :title="t(opt.labelKey)"
-                  :aria-label="t(opt.labelKey)"
-                  @click="formData.iconName = opt.name"
-                >
-                  <i :class="['fa', 'fa-' + formData.iconStyle, 'fa-' + opt.name]" class="fa-fw text-lg"></i>
-                </button>
-              </div>
+              <IconPickerDropdown
+                v-model="formData.iconName"
+                :icon-names="ALL_FONT_AWESOME_ICON_NAMES"
+                :preferred-icon-names="VEHICLE_PREFERRED_ICON_NAMES"
+                :icon-style="formData.iconStyle"
+                :icon-color="formData.iconColor"
+                :icon-color-secondary="formData.iconColorSecondary"
+                :placeholder-label="t('vehicles.vehicleIcon')"
+                :search-placeholder="t('vehicles.iconSearchPlaceholder')"
+                :no-results-label="t('vehicles.iconSearchNoResults')"
+              />
               <div class="flex gap-2 mt-1">
                 <button
                   v-for="styleOpt in VEHICLE_ICON_STYLES"
@@ -321,7 +308,35 @@ onMounted(async () => {
                 />
               </div>
             </label>
+            <label class="flex flex-col gap-2">
+              <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ t('vehicles.vehicleColorSecondary') }}</span>
+              <div class="flex items-center gap-3">
+                <input
+                  v-model="formData.iconColorSecondary"
+                  type="color"
+                  class="w-12 h-12 rounded-xl border border-[#dcdfe4] dark:border-gray-600 cursor-pointer bg-white dark:bg-gray-800"
+                  :aria-label="t('vehicles.vehicleColorSecondary')"
+                />
+                <input
+                  v-model="formData.iconColorSecondary"
+                  type="text"
+                  class="flex-1 rounded-xl border border-[#dcdfe4] dark:border-gray-600 bg-white dark:bg-gray-800 text-[#121317] dark:text-white h-12 px-4 font-mono text-sm"
+                  placeholder="#9ca3af"
+                  maxlength="7"
+                />
+              </div>
+            </label>
           </div>
+
+          <!-- Note -->
+          <label class="flex flex-col gap-2">
+            <span class="text-[#121317] dark:text-gray-200 text-sm font-medium leading-normal">{{ t('vehicles.form.note') }}</span>
+            <textarea 
+              v-model="formData.note"
+              class="form-textarea w-full rounded-xl border border-[#dcdfe4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#121317] dark:text-white min-h-[100px] p-4 focus:border-primary focus:ring-1 focus:ring-primary transition-shadow resize-y" 
+              :placeholder="t('vehicles.form.notePlaceholder')"
+            ></textarea>
+          </label>
           
           <!-- Error display -->
           <div v-if="vehicleStore.error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">

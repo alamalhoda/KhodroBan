@@ -208,6 +208,7 @@
     },
     "iconStyleSolid": "پر",
     "iconStyleRegular": "خطی",
+    "iconStyleDuotone": "دوتون",
     "iconCar": "خودرو",
     "iconTruck": "کامیون",
     "iconVan": "ون",
@@ -218,7 +219,10 @@
     "iconCarRear": "خودرو (عقب)",
     "iconTruckFast": "کامیون سریع",
     "vehicleIcon": "آیکون خودرو",
+    "iconSearchPlaceholder": "جستجوی آیکون...",
+    "iconSearchNoResults": "آیکونی یافت نشد.",
     "vehicleColor": "رنگ آیکون",
+    "vehicleColorSecondary": "رنگ دوم آیکون",
     "galleryTitle": "گالری تصاویر",
     "galleryDefault": "پیش‌فرض",
     "gallerySetDefault": "تنظیم به‌عنوان پیش‌فرض",
@@ -691,7 +695,10 @@
       "priceInquiry": "استعلام قیمت لنت"
     },
     "error": "خطا در ارسال پیام. لطفاً دوباره تلاش کنید.",
-    "loading": "در حال پاسخ‌دهی..."
+    "loading": "در حال پاسخ‌دهی...",
+    "newChat": "گفتگوی جدید",
+    "chatHistory": "تاریخچه گفتگوها",
+    "chatHistoryEmpty": "هنوز گفتگویی ثبت نشده"
   }
 }
 

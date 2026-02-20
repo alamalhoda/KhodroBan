@@ -1,77 +1,70 @@
 # TODO - Frontend Vue (KhodroBan)
 
-این فایل برای کارهای اجرایی کوتاه‌مدت فرانت (`frontend-vue`) است.
-نقشه راه بلندمدت همچنان در `frontend-vue/IMPLEMENTATION_PLAN.md` نگه‌داری می‌شود.
+این فایل برای کارهای اجرایی کوتاه‌مدت فرانت است و با PRهای merge شده تا `#37` به‌روز شده است.
 
 ---
 
 ## نسبت با سایر مستندات
 
-- `frontend-vue/IMPLEMENTATION_PLAN.md` = Roadmap و برنامه فازبندی
-- `frontend-vue/TODO.md` (این فایل) = کارهای قابل اجرا در اسپرینت جاری/بعدی
-- `../TODO.md` = نمای کلی پروژه و اولویت‌های بین‌بخشی
+- `frontend-vue/IMPLEMENTATION_PLAN.md` = برنامه اجرایی میان‌مدت فرانت
+- `frontend-vue/TODO.md` (این فایل) = کارهای اسپرینت جاری/بعدی
+- `../TODO.md` = اولویت‌های سطح کل پروژه
 
 ---
 
-## ✅ انجام‌شده‌های اخیر (خلاصه)
+## ✅ انجام‌شده‌های اخیر (واقعی)
 
-- **یادآور – کامپوننت‌های قابل استفاده مجدد:** استخراج `ReminderTimeIntervalFields` و `ReminderKmIntervalFields` از فرم یادآور؛ استفاده در `ReminderForm` و در `AddServiceView` (تب سرویس و تب هزینه) زیر چک‌باکس «ایجاد یادآور» با همان منطق موعد و هشدار.
-- **Expense Tab (add-service):** اتصال `expenseStore` به `expenseService` (create/update/delete)، فیلد تاریخ تب هزینه، اعتبارسنجی، متن جداگانه یادآور، Quick chips (سوخت/پارکینگ/عوارض/کارواش)، آپلود رسید (preview + validation)، پریست‌های تکرارشونده (بیمه/معاینه/سرویس قراردادی)، تست‌های view و store
-- Backend: parse تاریخ هزینه (ISO + شمسی) در serializer، تست‌های API (create با ISO/شمسی، رد amount≤0 و vehicleId نامعتبر)
-- Reminders Phase 1/2: باگ‌فیکس + Date Picker شمسی + Retry/Error/Loading
-- Service List: فیلتر خودرو + صفحه‌بندی + ویرایش/حذف
-- Service Presets: دریافت از API و اتصال در Add Service
-- Reports: داده واقعی + فیلتر بازه/خودرو + خروجی CSV
-- بهبود تاریخ شمسی و برخی UXهای مدیریت خودرو
+- `PR #37`: Smart Assistant backend-first + تاریخچه گفتگو + گفتگوی جدید + `vehicle_id`.
+- `PR #35`: Offline track + حذف وابستگی CDN runtime + بهبود icon picker و vehicle icon.
+- `PR #32`: بهبود Header/Sidebar (جستجو و active link) + i18n مرتبط.
+- `PR #31`: عملیاتی‌سازی Expense tab در `AddServiceView` + reusable reminder interval components + تست‌های expense.
+- `PR #30` و `#29`: Reminders Phase 1/2 (Date Picker شمسی، retry/error/loading، تست‌ها).
+- `PR #26` و `#25`: Service presets + تکمیل add-service flow + فیلتر خودرو و pagination در service list.
 
 ---
 
-## 🔴 اولویت بالا (Sprint فعلی)
+## 🔴 اولویت بالا (Sprint جاری)
 
 ### 1) تکمیل Expense Management UI
-- [x] تکمیل اتصال `expenseStore` به `expenseService` در همه سناریوها
-- [x] تکمیل فرم افزودن هزینه در تب هزینه با UX هم‌سطح سرویس (تاریخ، دسته، مبلغ، Quick chips، رسید، یادآور)
-- [ ] تکمیل لیست هزینه با فیلتر پایه و مدیریت خطا/empty/loading
-- [x] افزودن تست واحد/Integration برای flow هزینه (AddServiceView + expense store + test_api_expenses)
+- [x] اتصال کامل `expenseStore` به `expenseService` در سناریوهای اصلی
+- [x] ثبت هزینه در تب هزینه با UX کامل (تاریخ، دسته، مبلغ، quick chips، رسید، یادآور)
+- [ ] افزودن نمای dedicated برای لیست/مدیریت هزینه‌ها
+- [ ] بهبود فیلتر/مرتب‌سازی و stateهای empty/loading/error برای expense-centric flow
 
-### 2) تکمیل تنظیمات کانال‌های یادآوری (UI)
-- [ ] تکمیل UX تنظیمات کانال‌ها در `SettingsView`
-- [ ] تکمیل جریان Telegram در فرانت (اتصال، خطا، وضعیت)
-- [ ] تعریف placeholder اجرایی برای SMS/Push تا زمان تکمیل backend
+### 2) تکمیل Settings اعلان و کانال‌ها
+- [ ] تبدیل `SettingsView` از صفحه عمدتا نمایشی به فرم عملیاتی
+- [ ] یکپارچه‌سازی تنظیمات کانال‌ها با backend preference model
+- [ ] تکمیل UX اتصال Telegram در Settings (حالت‌ها، خطاها، وضعیت اتصال)
+- [ ] تعیین تکلیف UI برای SMS/Push (placeholder یا اتصال واقعی)
 
-### 3) Regression تست جریان اصلی کاربر
-- [ ] تعریف smoke flow: login -> vehicles -> services/expenses -> reminders -> reports
-- [ ] اجرای تست‌های حداقلی قابل تکرار برای هر PR فرانت
+### 3) Regression تست جریان اصلی
+- [ ] تعریف smoke flow: `login -> vehicles -> services/expenses -> reminders -> reports`
+- [ ] اجرای حداقلی این flow در CI برای PRهای فرانت
 
 ---
 
 ## 🟡 اولویت متوسط
 
-### 1) تکمیل i18n باقی‌مانده
-- [ ] مرور و تکمیل ترجمه‌های Service/Expense/Settings
-- [ ] یکسان‌سازی پیام‌های خطا و success در localeها
-
-### 2) PWA Release Readiness
+### 1) PWA Release Readiness
 - [ ] جایگزینی iconهای placeholder
-- [ ] اجرای Lighthouse برای PWA و ثبت نتیجه
-- [ ] تست Add to Home Screen روی Android/iOS/Desktop
+- [ ] اجرای Lighthouse PWA و ثبت خروجی
+- [ ] تست A2HS روی Android/iOS/Desktop
 
-### 3) بهبود UX یادآور بعد از ثبت سرویس/هزینه
-- [x] استفاده از همان کامپوننت‌های بازه زمانی/کیلومتری زیر چک‌باکس در AddServiceView (تب سرویس و هزینه)؛ منطق یکسان با صفحه تعریف یادآور
-- [ ] در صورت نیاز: مودال بعد از ثبت یا بهبودهای بعدی
+### 2) i18n یکپارچه
+- [ ] مرور ترجمه‌های Service/Expense/Settings/SmartAssistant
+- [ ] یکسان‌سازی پیام‌های error/success در localeهای `fa/en/ar`
 
-### 4) مهاجرت `group_name` به کد انگلیسی
-- [ ] اجرای برنامه `docs/TODO_GROUP_NAME_MIGRATION.md`
-- [ ] همگام‌سازی i18n و UI tags پس از مهاجرت
+### 3) migration `group_name` به کد انگلیسی
+- [ ] اجرای برنامه `frontend-vue/docs/TODO_GROUP_NAME_MIGRATION.md`
+- [ ] همگام‌سازی UI tags و localeها بعد از migration
 
 ---
 
 ## 🟢 Backlog (آینده)
 
 - [ ] Reports PDF export (Pro)
-- [ ] بهبود Settings کامل (پروفایل/امنیت)
-- [ ] تکمیل Smart Assistant integration
-- [ ] بهبودهای پیشرفته UX (global search, bulk actions)
+- [ ] پروفایل/امنیت کامل در Settings
+- [ ] UX پیشرفته (global search, bulk actions)
 
 ---
 
@@ -79,17 +72,17 @@
 
 - [ ] افزایش پوشش تست viewها: `ReportsView`, `SettingsView`, `SmartAssistantView`
 - [ ] تکمیل تست composableهای کلیدی
-- [ ] تعریف یک استاندارد حداقلی coverage برای PRهای فرانت
+- [ ] تعریف baseline حداقلی coverage برای PRهای فرانت
 
 ---
 
 ## روش به‌روزرسانی
 
-1. هر PR فرانت که merge شد، آیتم‌های مرتبط را در همین فایل به‌روز کن.
-2. آیتم‌های تمام‌شده را یا تیک بزن یا به بخش «انجام‌شده‌های اخیر» منتقل کن.
-3. اگر آیتمی ماهیت roadmap داشت، به `IMPLEMENTATION_PLAN.md` منتقل شود.
+1. بعد از merge هر PR فرانت، این فایل sync شود.
+2. آیتم‌های done به چک‌شده یا بخش "انجام‌شده‌های اخیر" منتقل شوند.
+3. آیتم‌های roadmapی به `frontend-vue/IMPLEMENTATION_PLAN.md` منتقل شوند.
 
 ---
 
-**آخرین به‌روزرسانی:** 2026-02-14 (کامپوننت‌های یادآور + مستندات قبل از PR)
+**آخرین به‌روزرسانی:** 2026-02-20
 

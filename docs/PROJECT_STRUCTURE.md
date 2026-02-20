@@ -2,58 +2,51 @@
 
 این سند ساختار کامل پروژه و نحوه سازمان‌دهی فایل‌ها را توضیح می‌دهد.
 
+**آخرین به‌روزرسانی:** 2026-02-20
+
 ---
 
-## 🌳 ساختار کلی
+## 🌳 ساختار کلی (Monorepo)
 
 ```
-KhodroBan/
+OilChenger/
 │
 ├── 📄 README.md                          # معرفی کلی پروژه
+├── 📄 TODO.md                            # TODO مرکزی پروژه
 │
-├── 📂 docs/                              # تمام مستندات پروژه
-│   ├── 📂 product/                       # مستندات محصول
-│   │   └── overview.md                  # معرفی محصول و ویژگی‌ها
-│   │
-│   ├── 📂 strategy/                      # استراتژی و برنامه‌ریزی
-│   │   └── project-plan.md              # اهداف، فازبندی، KPIs
-│   │
-│   ├── 📂 presentations/                 # ارائه‌های محصول
-│   │   ├── README.md                    # راهنمای ارائه‌ها
-│   │   ├── pitch-deck-investors.md      # ارائه برای سرمایه‌گذاران (۱۰ دقیقه)
-│   │   └── detailed-deck-technical.md   # ارائه تفصیلی فنی (۲۰-۳۰ دقیقه)
-│   │
-│   ├── 📂 research/                      # تحقیقات بازار و کاربری
-│   │   └── 📂 competitors/              # تحلیل رقبا
-│   │       ├── list.md                  # لیست کامل رقبا
-│   │       ├── 📂 prompts/              # پرامپت‌های تحلیل
-│   │       │   ├── identify-competitors.md
-│   │       │   └── analyze-competitors.md
-│   │       └── 📂 analysis/             # تحلیل‌های عمیق (آینده)
-│   │
-│   ├── 📂 tutorials/                     # مستندات آموزشی
-│   │   ├── README.md                    # فهرست آموزش‌ها
-│   │   ├── pull-request-guide.md        # راهنمای کامل Pull Request
-│   │   └── pr-quick-start.md            # راهنمای سریع Pull Request
-│   │
-│   └── 📂 technical/                     # مستندات فنی
-│       ├── backend-setup.md            # راهنمای Backend
-│       ├── frontend-setup.md           # راهنمای Frontend
-│       ├── version-control-strategy.md # استراتژی مدیریت کنترل ورژن
-│       ├── deployment-monorepo.md      # راهنمای Deploy بخش‌های Monorepo
-│       ├── 📂 api/                      # مستندات API
-│       └── 📂 database/                 # طراحی دیتابیس
+├── 📂 backend/django/                    # Backend اصلی (Django + DRF + Huey)
+│   ├── khodroban/                        # مدل‌ها، APIها، views، مدیریت
+│   ├── reminders/                        # Outbox emit یادآوری‌ها
+│   ├── notifications/                    # OutboxConsumer، ارسال نوتیفیکیشن
+│   ├── ai_assistant/                     # سشن/پیام چت AI، context، providerها
+│   ├── khodroban_prj/                    # تنظیمات Django
+│   ├── manage.py
+│   ├── pytest.ini
+│   └── README.md                         # راهنمای Backend
 │
-├── 📂 backend/                           # Backend API
-│   ├── 📂 src/                          # کدهای اصلی
-│   ├── 📂 tests/                        # تست‌ها
-│   └── README.md                        # راهنمای Backend
+├── 📂 frontend-vue/                      # Frontend اصلی (Vue 3 + Vite + Pinia)
+│   ├── src/                              # components، views، stores، services
+│   ├── public/                           # فایل‌های استاتیک
+│   ├── docs/                             # مستندات فنی فرانت
+│   ├── IMPLEMENTATION_PLAN.md
+│   ├── TODO.md
+│   └── README.md                         # راهنمای Frontend
 │
-├── 📂 frontend/                          # Frontend Web App (Vite + Svelte)
-│   ├── 📂 src/                          # کدهای اصلی
-│   ├── 📂 public/                       # فایل‌های استاتیک
-│   └── README.md                        # راهنمای Frontend
-└── 📂 scripts/                           # اسکریپت‌های کمکی
+├── 📂 shared/                            # سرویس‌های مشترک (auth، report، ai، …)
+├── 📂 supabase/                          # Edge functions و artifacts قبلی
+├── 📂 reminder-service/                  # آرشیو — منسوخ (Django جایگزین)
+│
+├── 📂 docs/                              # مستندات پروژه
+│   ├── product/                          # مستندات محصول
+│   ├── strategy/                         # project-plan.md، اهداف و فازها
+│   ├── deployment/                       # DOCKER_DEPLOYMENT، CHABOKAN_NET
+│   ├── development/                      # API_CONTRACT_REGISTRY، PAGE_REVIEW_LOG
+│   ├── technical/                        # reminder-system، django-management-commands، …
+│   ├── presentations/
+│   ├── research/
+│   └── tutorials/                        # pull-request-guide و …
+│
+└── 📂 scripts/                           # manage-branches، create-pr، standalone-*
 ```
 
 ---
@@ -106,6 +99,15 @@ KhodroBan/
 - تحقیقات کاربری (آینده)
 - مطالعات بازار (آینده)
 
+#### 📂 deployment/
+
+مستندات استقرار:
+
+- **DOCKER_DEPLOYMENT.md**: راهنمای دو نوع استقرار Docker
+  - نوع ۱: استاندارد (Multi-Container با compose)
+  - نوع ۲: تک‌تصویری (All-in-One، یک image)
+- **CHABOKAN_NET.md**: راهنمای deploy به پلتفرم chabokan.net
+
 #### 📂 technical/
 
 مستندات فنی:
@@ -121,44 +123,42 @@ KhodroBan/
 
 ---
 
-### 📂 backend/
+### 📂 backend/django/
 
-کدهای Backend شامل:
+Backend اصلی پروژه (Django + DRF):
 
-- API endpoints
-- منطق کسب‌وکار
-- مدیریت دیتابیس
-- سرویس‌ها
+- **khodroban**: مدل‌ها، APIها (Auth، Vehicles، Services، Expenses، Reminders، Reports، Notifications)، views
+- **reminders**: Outbox emit یادآوری‌ها (run_check_reminders)
+- **notifications**: OutboxConsumer، process_outbox، ChannelDispatcher
+- **ai_assistant**: سشن/پیام چت AI، context builder، providerهای OpenAI/OpenRouter/Z.ai
+- تست‌ها در `khodroban/tests/` و `ai_assistant/tests/` با pytest
 
----
-
-### 📂 frontend/
-
-Frontend وب (Vite + Svelte) - **وب‌اپلیکیشن واکنش‌گرا** شامل:
-
-- کامپوننت‌های UI (Svelte)
-- صفحات و routing
-- State management (Svelte Stores)
-- سرویس‌های API
-- استایل‌های واکنش‌گرا (Mobile-First)
-- Service Worker و PWA (فاز ۲)
-
-**ویژگی کلیدی**: طراحی کاملاً واکنش‌گرا که روی همه دستگاه‌ها (موبایل اندروید، iOS، تبلت و دسکتاپ) به صورت کامل و دقیق کار می‌کند.
-
-برای جزئیات به [frontend-setup.md](./technical/frontend-setup.md) مراجعه کنید.
+برای جزئیات به `backend/django/README.md` مراجعه کنید.
 
 ---
 
-### 📂 mobile/
+### 📂 frontend-vue/
 
-کدهای اپلیکیشن موبایل بومی (Flutter) شامل:
+Frontend وب (Vue 3 + Vite + Pinia) شامل:
 
-- صفحات (Screens)
-- ویجت‌ها (Widgets)
-- مدل‌ها (Models)
-- سرویس‌ها (Services)
+- کامپوننت‌های UI (components/ui، features، layout)
+- صفحات (views) و Vue Router
+- State management (Pinia stores)
+- سرویس‌های API (متصل به Django با VITE_BACKEND_TYPE=django)
+- i18n (fa/en/ar)
+- PWA foundation (فاز بعدی: icons، Lighthouse، A2HS)
+- تست‌ها با Vitest در `src/**/*.test.js`
 
-**نکته**: این بخش برای آینده در نظر گرفته شده است. در MVP و فاز ۱، از وب‌اپلیکیشن واکنش‌گرا استفاده می‌شود که روی موبایل نیز به صورت کامل کار می‌کند.
+**ویژگی کلیدی**: طراحی واکنش‌گرا، مسیر اصلی محصول روی Django فعال است.
+
+برای جزئیات به `frontend-vue/README.md` مراجعه کنید.
+
+---
+
+### 📂 shared/ و reminder-service/
+
+- **shared/**: سرویس‌های مشترک (auth، report، vehicle، notification و …) برای frontend و backend modes
+- **reminder-service/**: آرشیو و منسوخ — مسیر فعلی Django + Outbox است. ر.ک. `docs/technical/reminder-system-status.md`
 
 ---
 
@@ -193,9 +193,8 @@ Frontend وب (Vite + Svelte) - **وب‌اپلیکیشن واکنش‌گرا** 
 
 ### افزودن کد جدید
 
-1. **Backend**: در `backend/src/` با ساختار مناسب
-2. **Frontend**: در `frontend/src/` با ساختار Vite + Svelte - **وب‌اپلیکیشن واکنش‌گرا** (به [frontend-setup.md](./technical/frontend-setup.md) مراجعه کنید)
-3. **Mobile**: در `mobile/lib/` با ساختار Flutter استاندارد (برای آینده)
+1. **Backend**: در `backend/django/` — در اپ مربوطه (khodroban، reminders، notifications، ai_assistant)
+2. **Frontend**: در `frontend-vue/src/` با ساختار Vue 3 (components، views، stores، services)
 
 ---
 
@@ -216,10 +215,10 @@ Frontend وب (Vite + Svelte) - **وب‌اپلیکیشن واکنش‌گرا** 
 ## 🔍 جستجو در پروژه
 
 - **مستندات**: در پوشه `docs/`
-- **کد Backend**: در پوشه `backend/src/`
-- **کد Frontend**: در پوشه `frontend/src/` (آینده)
-- **کد Mobile**: در پوشه `mobile/lib/`
-- **تست‌ها**: در پوشه‌های `tests/` یا `test/`
+- **کد Backend**: در پوشه `backend/django/` (khodroban، reminders، notifications، ai_assistant)
+- **کد Frontend**: در پوشه `frontend-vue/src/`
+- **تست Backend**: `backend/django/khodroban/tests/`، `ai_assistant/tests/` (pytest)
+- **تست Frontend**: `frontend-vue/src/**/*.test.js` (Vitest)
 
 ---
 

@@ -126,6 +126,7 @@ class Vehicle(models.Model):
     icon_name = models.CharField(max_length=50, blank=True, null=True, help_text=_("FontAwesome icon name, e.g. car"))
     icon_style = models.CharField(max_length=20, blank=True, null=True, default='solid', help_text=_("FontAwesome style: solid, regular, brands"))
     icon_color = models.CharField(max_length=20, blank=True, null=True, help_text=_("Hex color, e.g. #FF5733"))
+    icon_color_secondary = models.CharField(max_length=20, blank=True, null=True, help_text=_("Duotone secondary layer hex color"))
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
 
@@ -526,6 +527,9 @@ class Notification(models.Model):
     read = models.BooleanField(default=False)
     metadata = models.JSONField(default=dict, blank=True, null=True)
     notification_channels = models.JSONField(default=dict, blank=True, null=True)
+    idempotency_key = models.CharField(
+        max_length=255, null=True, blank=True, unique=True, db_index=True
+    )
     sent_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)

@@ -4,7 +4,7 @@
 
 پایه URL API (Django): `/api/` (مثلاً `http://localhost:8000/api`).
 
-**آخرین همگام‌سازی:** 2026-02-14 (بر اساس PRهای `#21` تا `#30`)
+**آخرین همگام‌سازی:** 2026-02-20
 
 ---
 
@@ -127,7 +127,14 @@
 | انتظار FE | مسیر Django | وضعیت |
 |-----------|-------------|--------|
 | GET list | GET `/api/notifications/` | دارد |
+| GET list (filter) | GET `/api/notifications/?read=true|false` | دارد |
+| GET unread_count | GET `/api/notifications/unread_count/` → `{ "count": number }` | دارد |
+| GET one | GET `/api/notifications/<id>/` | دارد |
 | POST mark_as_read | POST `/api/notifications/<id>/mark_as_read/` | دارد |
+| POST mark_all_read | POST `/api/notifications/mark_all_read/` → `{ "status": "read", "count": number }` | دارد |
+| DELETE | DELETE `/api/notifications/<id>/` | دارد |
+
+**Response shape:** id, user_profile, vehicle, title, body, type, read, metadata, notification_channels, sent_at, created_at, updated_at. Envelope: `{ "success": true, "data": ... }`.
 
 ---
 
@@ -138,6 +145,24 @@
 | CRUD telegram_settings | GET/POST `/api/telegram-settings/` | دارد |
 | generate_code | POST `/api/telegram-settings/generate_code/` | دارد |
 | Webhook | POST `/telegram/webhook/` | دارد |
+
+**Webhook:** `message` (دستورات /start، /status، /help) و `callback_query` (دکمه‌های done_، details_). ر.ک. Blueprint §۴.
+
+---
+
+## AI Assistant (backend-first)
+
+| انتظار FE (aiAssistantService) | مسیر Django | وضعیت |
+|---------------------------------|-------------|--------|
+| list sessions | GET `/api/ai/sessions/` | دارد |
+| create session | POST `/api/ai/sessions/` | دارد |
+| retrieve session | GET `/api/ai/sessions/<id>/` | دارد |
+| list messages | GET `/api/ai/sessions/<id>/messages/` | دارد |
+| send message | POST `/api/ai/sessions/<id>/messages/send/` با `{ "content": "...", "vehicle_id"?: number \| null }` | دارد |
+| providers (diagnostic) | GET `/api/ai/providers/` | دارد |
+
+**بدن send message:** `content` اجباری (غیر خالی، حداکثر ۱۶٬۰۰۰ کاراکتر)؛ `vehicle_id` اختیاری (خودروی انتخاب‌شده برای قرار گرفتن در context).  
+**پاسخ send message:** `{ "success": true, "data": { "content", "provider", "model", "usage", "latency_ms" } }`. Envelope کلی: `{ "success", "data" }` / خطا: `{ "success": false, "errors": ["..."] }`. Throttle: ۳۰ درخواست/دقیقه به ازای هر کاربر.
 
 ---
 

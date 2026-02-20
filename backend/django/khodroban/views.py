@@ -1,5 +1,6 @@
 # khodroban/views.py
 from rest_framework import viewsets, status, permissions
+from rest_framework import mixins
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -518,20 +519,54 @@ class ReminderViewSet(ApiResponseMixin, viewsets.ModelViewSet):
         return api_response(serializer.data)
 
 
-class NotificationViewSet(ApiResponseMixin, viewsets.ReadOnlyModelViewSet):
+class NotificationViewSet(
+    ApiResponseMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Notification.objects.filter(user_profile=self.request.user.userprofile).order_by('-created_at')
+        qs = Notification.objects.filter(
+            user_profile=self.request.user.userprofile
+        ).order_by('-created_at')
+        read_param = self.request.query_params.get('read')
+        if read_param is not None:
+            is_read = read_param.lower() in ('true', '1', 'yes')
+            qs = qs.filter(read=is_read)
+        return qs
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['get'], url_path='unread_count')
+    def unread_count(self, request):
+        count = Notification.objects.filter(
+            user_profile=request.user.userprofile,
+            read=False
+        ).count()
+        return api_response({'count': count})
+
+    @action(detail=False, methods=['post'], url_path='mark_all_read')
+    def mark_all_read(self, request):
+        updated = Notification.objects.filter(
+            user_profile=request.user.userprofile,
+            read=False
+        ).update(read=True)
+        return api_response({'status': 'read', 'count': updated})
 
     @action(detail=True, methods=['post'])
     def mark_as_read(self, request, pk=None):
         notification = self.get_object()
         notification.read = True
         notification.save(update_fields=['read'])
-        return Response({'status': 'read'})
+        return api_response({'status': 'read'})
 
 
 class TelegramSettingViewSet(ApiResponseMixin, viewsets.ModelViewSet):
@@ -569,6 +604,11 @@ class TelegramSettingViewSet(ApiResponseMixin, viewsets.ModelViewSet):
 def telegram_webhook(request):
     try:
         update = json.loads(request.body)
+        callback_query = update.get('callback_query', {})
+        if callback_query:
+            _handle_callback_query(callback_query)
+            return JsonResponse({'ok': True})
+
         message = update.get('message', {})
         if not message:
             return JsonResponse({'ok': True})
@@ -615,11 +655,113 @@ def telegram_webhook(request):
                 send_telegram_message(chat_id, "وضعیت: غیرفعال ✗")
             return JsonResponse({'ok': True})
 
+        elif text == '/help':
+            send_telegram_message(
+                chat_id,
+                "راهنما:\n"
+                "/start [کد اتصال] - اتصال حساب\n"
+                "/status - وضعیت یادآوری‌ها\n"
+                "/help - این راهنما"
+            )
+            return JsonResponse({'ok': True})
+
         return JsonResponse({'ok': True})
 
     except Exception as e:
         logger.exception("خطا در webhook تلگرام")
         return JsonResponse({'ok': False, 'error': str(e)}, status=500)
+
+
+def _handle_callback_query(callback_query):
+    """Handle inline button callbacks: done_<vehicle_id>_<days>, details_<vehicle_id>"""
+    from django.conf import settings as app_settings
+    callback_id = callback_query.get('id')
+    chat_id = callback_query.get('message', {}).get('chat', {}).get('id')
+    data = (callback_query.get('data') or '').strip()
+
+    def answer_and_send(text):
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{app_settings.TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
+                json={'callback_query_id': callback_id},
+                timeout=5,
+            )
+            send_telegram_message(chat_id, text)
+        except Exception as e:
+            logger.error(f"خطا در پاسخ callback: {e}")
+
+    if not chat_id or not data:
+        if callback_id:
+            try:
+                requests.post(
+                    f"https://api.telegram.org/bot{app_settings.TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
+                    json={'callback_query_id': callback_id},
+                    timeout=5,
+                )
+            except Exception:
+                pass
+        return
+
+    setting = TelegramSetting.objects.filter(
+        chat_id=str(chat_id), is_enabled=True
+    ).select_related('user_profile').first()
+    if not setting:
+        answer_and_send("ابتدا با /start حساب خود را متصل کنید.")
+        return
+
+    if data.startswith('done_'):
+        parts = data[5:].split('_')
+        vehicle_id = parts[0] if parts else None
+        if not vehicle_id:
+            answer_and_send("دسترسی مجاز نیست.")
+            return
+        try:
+            vehicle = Vehicle.objects.get(
+                pk=vehicle_id,
+                user_profile=setting.user_profile,
+            )
+            Reminder.objects.filter(
+                user_profile=setting.user_profile,
+                vehicle=vehicle,
+            ).update(dismissed=True)
+            answer_and_send(f"✅ سرویس خودرو {vehicle.plate_number or vehicle.model} ثبت شد!")
+        except Vehicle.DoesNotExist:
+            answer_and_send("دسترسی مجاز نیست.")
+        except Exception as e:
+            logger.exception("خطا در done_ callback")
+            answer_and_send("خطا در ثبت سرویس.")
+
+    elif data.startswith('details_'):
+        vehicle_id = data[8:].split('_')[0]
+        if not vehicle_id:
+            answer_and_send("دسترسی مجاز نیست.")
+            return
+        try:
+            vehicle = Vehicle.objects.get(
+                pk=vehicle_id,
+                user_profile=setting.user_profile,
+            )
+            parts = [
+                f"ℹ️ جزئیات خودرو: {vehicle.model or 'نامشخص'}",
+                f"پلاک: {vehicle.plate_number or '-'}",
+                f"کیلومتر فعلی: {vehicle.current_km or '-'}",
+            ]
+            answer_and_send("\n".join(parts))
+        except Vehicle.DoesNotExist:
+            answer_and_send("دسترسی مجاز نیست.")
+        except Exception as e:
+            logger.exception("خطا در details_ callback")
+            answer_and_send("خطا در دریافت جزئیات.")
+
+    else:
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{app_settings.TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
+                json={'callback_query_id': callback_id},
+                timeout=5,
+            )
+        except Exception:
+            pass
 
 
 def send_telegram_message(chat_id, text):
@@ -641,9 +783,9 @@ def send_telegram_message(chat_id, text):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def huey_health(request):
-    from huey.contrib.djhuey import Huey
+    from huey.contrib import djhuey
 
-    huey = Huey.get('khodroban-tasks')
+    huey = djhuey.HUEY
     try:
         connected = huey.storage.connection_available()
         result = {'status': 'healthy', 'huey_connected': connected}

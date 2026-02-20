@@ -42,6 +42,21 @@
 - **تصمیم:** گزارش خلاصه فقط از Django — GET `/api/reports/summary/` با `totalServiceCost`, `totalExpenses`, `costByCategory`, `costByMonth`. Export CSV/PDF و trend ماهانه در MVP پیاده نشده (backlog). Regression Gate: smoke روزانه (auth + vehicle tests)، suite هفتگی (همه تست‌های khodroban + build فرانت)، چک‌لیست قبل از PR در `REGRESSION_GATE.md`.
 - **مسیر:** `backend/django/khodroban/views.py` (ReportSummaryView), `docs/development/REGRESSION_GATE.md`, `API_CONTRACT_REGISTRY.md`, `PAGE_REVIEW_LOG.md`
 
+### 2026-02-14 — Expense tab operational + reusable reminder intervals
+- **حوزه:** API, other
+- **تصمیم:** فرم AddService برای تب هزینه به‌صورت عملیاتی به `expenseStore/expenseService` متصل شد. کامپوننت‌های بازه زمانی/کیلومتری یادآور به‌صورت reusable استخراج و در فرم یادآور و AddService یکپارچه شدند.
+- **مسیر:** `frontend-vue/src/views/AddServiceView.vue`, `frontend-vue/src/components/ReminderTimeIntervalFields.vue`, `frontend-vue/src/components/ReminderKmIntervalFields.vue`, `frontend-vue/src/stores/expense.js`, `backend/django/khodroban/serializers.py`
+
+### 2026-02-15 — Reminder/Notification architecture finalized on Django
+- **حوزه:** schema, API
+- **تصمیم:** معماری Outbox برای reminders/notifications نهایی شد. Notification API کامل (`list`, `unread_count`, `mark_as_read`, `mark_all_read`, `delete`) و dispatcher چندکاناله (telegram/push/email/sms با fallback) فعال شد. reminder-service در مسیر production منسوخ شد.
+- **مسیر:** `backend/django/reminders/*`, `backend/django/notifications/*`, `backend/django/khodroban/views.py`, `shared/services/notificationService.ts`, `docs/technical/reminder-system-status.md`
+
+### 2026-02-16 — AI Assistant backend-first contract
+- **حوزه:** API
+- **تصمیم:** API اختصاصی AI در Django (`/api/ai/*`) به‌عنوان مرجع اصلی فعال شد. فرانت از service/store جدید استفاده می‌کند؛ تاریخچه گفتگو، گفتگوی جدید و ارسال `vehicle_id` در قرارداد لحاظ شد.
+- **مسیر:** `backend/django/ai_assistant/*`, `frontend-vue/src/services/aiAssistantService.js`, `frontend-vue/src/stores/ai.js`, `frontend-vue/src/views/SmartAssistantView.vue`, `docs/technical/ai-assistant-architecture.md`, `docs/development/API_CONTRACT_REGISTRY.md`
+
 ---
 
 *ورودی‌های بعدی با تکمیل هر صفحه یا تصمیم جدید اضافه شوند.*
