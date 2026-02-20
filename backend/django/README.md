@@ -17,7 +17,7 @@ Backend اصلی پروژه با Django + DRF که API مورد استفاده `
 
 - Python 3.11+ (یا نسخه سازگار پروژه)
 - Virtual environment پروژه (الزامی)
-- SQLite برای توسعه محلی (یا PostgreSQL برای محیط واقعی)
+- **دیتابیس:** SQLite یا PostgreSQL (انتخاب با متغیر `DB_ENGINE`)
 
 ---
 
@@ -34,6 +34,27 @@ python manage.py runserver
 ```
 
 Backend روی `http://127.0.0.1:8000` اجرا می‌شود.
+
+### انتخاب دیتابیس
+
+متغیر محیطی `DB_ENGINE` نوع دیتابیس را مشخص می‌کند:
+- `sqlite` (پیش‌فرض) – فایل دیتابیس در `database/db.sqlite3`
+- `postgresql` – نیاز به PostgreSQL و متغیرهای `POSTGRES_*`
+
+```bash
+# SQLite (پیش‌فرض)
+DB_ENGINE=sqlite python manage.py runserver
+
+# PostgreSQL
+export DB_ENGINE=postgresql POSTGRES_HOST=localhost POSTGRES_PASSWORD=...
+python manage.py runserver
+```
+
+**مهاجرت از مسیر قدیمی:** اگر قبلاً `db.sqlite3` در ریشه پروژه داشتید:
+```bash
+mkdir -p database
+mv db.sqlite3 database/
+```
 
 ---
 
@@ -135,11 +156,31 @@ python manage.py run_huey
 **متغیرهای محیطی:**
 
 ```env
-TELEGRAM_BOT_TOKEN=...   # برای ارسال تلگرام
+DB_ENGINE=sqlite          # یا postgresql
+TELEGRAM_BOT_TOKEN=...    # برای ارسال تلگرام
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_DB=0
+# برای PostgreSQL:
+POSTGRES_HOST=localhost
+POSTGRES_DB=khodroban_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=...
 ```
+
+## Docker
+
+برای اجرا با Docker از compose در ریشه پروژه استفاده کنید:
+
+```bash
+# نسخه کامل (PostgreSQL)
+docker compose up -d
+
+# نسخه سبک (SQLite)
+docker compose -f docker-compose.lite.yml up -d
+```
+
+نمونه متغیرهای محیطی در `.env.example` قرار دارد.
 
 ---
 
