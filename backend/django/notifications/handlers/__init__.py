@@ -2,7 +2,7 @@
 """
 Channel handlers برای ارسال نوتیفیکیشن.
 
-- TelegramHandler: ارسال واقعی (khodroban.send_telegram)
+- TelegramHandler: ارسال واقعی (notifications.senders.do_send_telegram)
 - EmailHandler, SmsHandler, PushHandler: STUB (فعلاً log، بعداً سرویس‌دهنده واقعی)
 
 ر.ک. docs/technical/notification-channel-providers.md برای اتصال به سرویس‌دهندگان واقعی.
