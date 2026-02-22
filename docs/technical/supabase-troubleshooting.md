@@ -4,6 +4,27 @@
 
 ---
 
+## 🧪 تست اتصال
+
+### تنظیمات اولیه
+
+قبل از تست، در `.env` مطمئن شوید:
+
+```env
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_ANON_KEY
+```
+
+### مراحل تست
+
+1. `cd frontend-vue && npm run dev`
+2. به `http://localhost:5173` بروید
+3. ثبت‌نام و ورود را تست کنید
+4. در Supabase Dashboard → Authentication → Users کاربر جدید را بررسی کنید
+5. Console مرورگر: باید `Active Backend Type: supabase` نمایش دهد
+
+---
+
 ## ❌ مشکل: کاربر جدید در Authentication → Users اضافه نمی‌شود
 
 ### علل احتمالی:

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-اسکریپت دانلود تصاویر اپلیکیشن‌ها از مارکت پلیس‌های ایرانی
+اسکریپت دانلود تصاویر اپلیکیشن‌ها از مارکت پلیس‌های ایرانی.
+خروجی در docs/research/competitors/analyses/<competitor_id>/ ذخیره می‌شود.
 """
 
 import requests
 from bs4 import BeautifulSoup
 import os
 import time
-from urllib.parse import urljoin, urlparse
-import json
+from urllib.parse import urljoin
 
 # User-Agent برای جلوگیری از بلاک شدن
 HEADERS = {
@@ -62,9 +62,6 @@ def extract_screenshots_cafebazaar(url, save_dir):
         response = requests.get(url, headers=HEADERS, timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # جستجوی تصاویر اسکرین‌شات (ممکن است کلاس‌ها متفاوت باشند)
-            # چند الگوی احتمالی
             patterns = [
                 {'tag': 'img', 'class': 'screenshot'},
                 {'tag': 'img', 'class': 'app-screenshot'},
@@ -72,7 +69,6 @@ def extract_screenshots_cafebazaar(url, save_dir):
                 {'tag': 'img', 'attrs': {'data-src': True}},
                 {'tag': 'img', 'attrs': {'src': True}}
             ]
-            
             for pattern in patterns:
                 if 'class' in pattern:
                     imgs = soup.find_all(pattern['tag'], class_=pattern['class'])
@@ -80,25 +76,20 @@ def extract_screenshots_cafebazaar(url, save_dir):
                     imgs = soup.find_all(pattern['tag'], attrs=pattern['attrs'])
                 else:
                     imgs = soup.find_all(pattern['tag'])
-                
                 for img in imgs:
                     src = img.get('data-src') or img.get('src')
                     if src and ('screenshot' in src.lower() or 'screen' in src.lower()):
                         full_url = urljoin(url, src)
                         if full_url not in screenshots:
                             screenshots.append(full_url)
-        
-        # دانلود تصاویر
-        for i, screenshot_url in enumerate(screenshots[:10]):  # حداکثر ۱۰ تصویر
+        for i, screenshot_url in enumerate(screenshots[:10]):
             filename = f'screenshot_{i+1}.jpg'
             filepath = os.path.join(save_dir, filename)
             if download_image(screenshot_url, filepath):
                 print(f"✓ دانلود شد: {filename}")
-            time.sleep(1)  # تأخیر برای جلوگیری از بلاک شدن
-            
+            time.sleep(1)
     except Exception as e:
         print(f"خطا در استخراج از کافه‌بازار: {e}")
-    
     return screenshots
 
 def extract_screenshots_myket(url, save_dir):
@@ -108,15 +99,12 @@ def extract_screenshots_myket(url, save_dir):
         response = requests.get(url, headers=HEADERS, timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # جستجوی تصاویر اسکرین‌شات
             patterns = [
                 {'tag': 'img', 'class': 'screenshot'},
                 {'tag': 'img', 'class': 'app-screenshot'},
                 {'tag': 'img', 'attrs': {'data-src': True}},
                 {'tag': 'img', 'attrs': {'src': True}}
             ]
-            
             for pattern in patterns:
                 if 'class' in pattern:
                     imgs = soup.find_all(pattern['tag'], class_=pattern['class'])
@@ -124,56 +112,49 @@ def extract_screenshots_myket(url, save_dir):
                     imgs = soup.find_all(pattern['tag'], attrs=pattern['attrs'])
                 else:
                     imgs = soup.find_all(pattern['tag'])
-                
                 for img in imgs:
                     src = img.get('data-src') or img.get('src')
                     if src and ('screenshot' in src.lower() or 'screen' in src.lower()):
                         full_url = urljoin(url, src)
                         if full_url not in screenshots:
                             screenshots.append(full_url)
-        
-        # دانلود تصاویر
-        for i, screenshot_url in enumerate(screenshots[:10]):  # حداکثر ۱۰ تصویر
+        for i, screenshot_url in enumerate(screenshots[:10]):
             filename = f'screenshot_{i+1}.jpg'
             filepath = os.path.join(save_dir, filename)
             if download_image(screenshot_url, filepath):
                 print(f"✓ دانلود شد: {filename}")
-            time.sleep(1)  # تأخیر برای جلوگیری از بلاک شدن
-            
+            time.sleep(1)
     except Exception as e:
         print(f"خطا در استخراج از مایکت: {e}")
-    
     return screenshots
 
 def main():
     """تابع اصلی"""
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir)
+    base_dir = os.path.join(project_root, 'docs', 'research', 'competitors', 'analyses')
+
     for competitor_id, competitor_info in COMPETITORS.items():
         print(f"\n{'='*50}")
         print(f"در حال پردازش: {competitor_info['name']}")
         print(f"{'='*50}")
-        
+
         competitor_dir = os.path.join(base_dir, competitor_id)
         os.makedirs(competitor_dir, exist_ok=True)
-        
-        # پردازش کافه‌بازار
+
         if 'cafebazaar' in competitor_info:
             print(f"\n📱 کافه‌بازار: {competitor_info['cafebazaar']}")
             extract_screenshots_cafebazaar(competitor_info['cafebazaar'], competitor_dir)
-        
-        # پردازش مایکت
+
         if 'myket' in competitor_info:
             print(f"\n📱 مایکت: {competitor_info['myket']}")
             extract_screenshots_myket(competitor_info['myket'], competitor_dir)
-        
-        # پردازش وب‌سایت (اگر وجود دارد)
+
         if 'website' in competitor_info:
             print(f"\n🌐 وب‌سایت: {competitor_info['website']}")
-            # می‌توانیم در آینده اضافه کنیم
-        
-        time.sleep(2)  # تأخیر بین رقبا
-    
+
+        time.sleep(2)
+
     print(f"\n{'='*50}")
     print("✅ پردازش کامل شد!")
     print(f"{'='*50}")

@@ -179,7 +179,7 @@ Frontend وب (Vue 3 + Vite + Pinia) شامل:
 
 **نکته مهم**: هر پروژه (`backend/` و `frontend/`) می‌تواند `.gitignore` خودش را داشته باشد تا فایل‌های خاص آن پروژه (مثل `node_modules/` در frontend یا `venv/` در backend) ignore شوند.
 
-برای اطلاعات بیشتر به [استراتژی مدیریت کنترل ورژن](./technical/version-control-strategy.md) مراجعه کنید.
+برای اطلاعات بیشتر به [استراتژی مدیریت کنترل ورژن](./technical/git-workflow.md) مراجعه کنید.
 
 ---
 
@@ -237,4 +237,4 @@ Frontend وب (Vue 3 + Vite + Pinia) شامل:
 - [استراتژی پروژه](./strategy/project-plan.md)
 - [معرفی محصول](./product/overview.md)
 - [تحلیل رقبا](./research/competitors/list.md)
-- [استراتژی مدیریت کنترل ورژن](./technical/version-control-strategy.md)
+- [استراتژی مدیریت کنترل ورژن](./technical/git-workflow.md)

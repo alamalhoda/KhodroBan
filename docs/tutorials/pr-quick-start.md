@@ -132,7 +132,7 @@ git branch -d feature/user-dashboard
 ## 📚 مراجع
 
 - [راهنمای کامل PR](./pull-request-guide.md) - راهنمای جامع با جزئیات
-- [استراتژی کنترل ورژن](../technical/version-control-strategy.md) - استراتژی کلی پروژه
+- [راهنمای Git و کنترل ورژن](../technical/git-workflow.md) - استراتژی کلی پروژه
 
 ---
 

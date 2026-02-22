@@ -27,7 +27,7 @@
 ### 4. مستندات (`docs/technical/`)
 
 - **supabase-setup.md**: راهنمای کامل راه‌اندازی
-- **supabase-quick-start.md**: راهنمای سریع ۵ دقیقه‌ای
+- **supabase-setup.md** (شامل شروع سریع ۵ دقیقه‌ای)
 - **supabase-frontend-integration.md**: راهنمای اتصال Frontend
 
 ---
@@ -71,7 +71,7 @@ cp .env.example .env
 
 برای جزئیات بیشتر:
 
-- **راهنمای سریع**: [supabase-quick-start.md](./docs/technical/supabase-quick-start.md)
+- **راهنمای سریع**: [supabase-setup.md](./docs/technical/supabase-setup.md)
 - **راهنمای کامل**: [supabase-setup.md](./docs/technical/supabase-setup.md)
 - **اتصال Frontend**: [supabase-frontend-integration.md](./docs/technical/supabase-frontend-integration.md)
 

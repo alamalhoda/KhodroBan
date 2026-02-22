@@ -4,6 +4,20 @@
 
 ---
 
+## ⚡ شروع سریع (۵ دقیقه)
+
+اگر می‌خواهید فوراً شروع کنید:
+
+1. **حساب و پروژه**: به [supabase.com](https://supabase.com) بروید، ثبت‌نام کنید، پروژه جدید بسازید (Name: `khodroban`)
+2. **API Keys**: Dashboard → Settings → API → Project URL و anon public key را کپی کنید
+3. **Schema**: SQL Editor → فایل‌های `001_initial_schema.sql` و `002_row_level_security.sql` را اجرا کنید
+4. **Frontend**: `cd frontend-vue`، `cp .env.example .env`، مقادیر را وارد کنید
+5. **تست**: `npm run dev`، به `http://localhost:5173` بروید و ثبت‌نام کنید
+
+مشکلات رایج و جزئیات بیشتر در [supabase-troubleshooting](./supabase-troubleshooting.md).
+
+---
+
 ## 📋 فهرست مطالب
 
 1. [پیش‌نیازها](#پیش‌نیازها)

@@ -31,6 +31,16 @@
 
 ---
 
+### 📊 مدیریت کار و پروژه
+
+| راهنما | ابزار | زمان | مناسب برای |
+|--------|-------|------|------------|
+| [راهنمای Linear](./LINEAR_GUIDE.md) | Linear | ~15 دقیقه | تیم‌های حرفه‌ای، یکپارچگی با Cursor |
+| [راهنمای GitHub Projects](./GITHUB_PROJECTS_GUIDE.md) | GitHub Projects | ~10 دقیقه | Kanban بصری، یکپارچگی با Issues و PR |
+| [راهنمای مدیریت TODO](./TODO_MANAGEMENT.md) | TODO.md + Issues | ~5 دقیقه | پروژه‌های ساده، TODO مرکزی |
+
+---
+
 ## 🎯 نحوه استفاده
 
 ### برای شروع سریع
@@ -57,7 +67,7 @@
 
 ## 🔗 لینک‌های مرتبط
 
-- [استراتژی کنترل ورژن](../technical/version-control-strategy.md)
+- [راهنمای Git و کنترل ورژن](../technical/git-workflow.md)
 - [ساختار پروژه](../PROJECT_STRUCTURE.md)
 
 ---

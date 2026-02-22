@@ -116,6 +116,17 @@ gh auth login
 
 ---
 
+### `download-competitor-screenshots.py`
+
+اسکریپت Python برای دانلود تصاویر اپلیکیشن‌های رقبا از کافه‌بازار و مایکت. خروجی در `docs/research/competitors/analyses/<competitor_id>/` ذخیره می‌شود.
+
+```bash
+# از root پروژه (نیاز به requests و beautifulsoup4)
+python scripts/download-competitor-screenshots.py
+```
+
+---
+
 ## 🔧 افزودن اسکریپت جدید
 
 اگر اسکریپت جدیدی اضافه می‌کنید:
@@ -130,5 +141,5 @@ gh auth login
 ## 📚 منابع بیشتر
 
 - [راهنمای کامل Pull Request](../docs/tutorials/pull-request-guide.md)
-- [استراتژی کنترل ورژن](../docs/technical/version-control-strategy.md)
+- [استراتژی کنترل ورژن](../docs/technical/git-workflow.md)
 
